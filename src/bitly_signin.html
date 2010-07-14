@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>bit.ly Shorten, Share &amp; Track </title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="" />
+        <meta name="description" content="" />
+        
+        <link rel="stylesheet" href="css/bitly_basic.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/bitly_bento.css" type="text/css" charset="utf-8" />
+        <link rel="icon" type="image/png" href="s/grahpics/favicon.png" />
+        
+    </head>
+    <body>
+        <div id="container">
+            <!-- Put Content Here -->
+            
+            <div id="top">
+
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+
+                
+                <div id="ext_bento_signin" class="popupContainer">
+
+
+                    
+                    <div id="ext_bento_inner" >
+                        
+                        <div id="logo">
+                            <img src="s/graphics/bitly_sidebar_logo.png" alt="" border="0" width="49" height="26" />
+                        </div>                     
+                        
+                        <div id="authenticateContainer">
+                            <a href="" class="signUpPromoButton largeSizeButton">Sign In to bit.ly</a>
+                        </div>
+                        
+                    </div> <!-- end #ext_bento_inner -->
+                    
+                </div>
+            
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+            
+            </div> <!-- end #bottom -->
+        </div> <!-- end #container -->
+    
+        <script type="text/javascript" src="js/bitly_settings.js" charset="utf-8"></script>    
+        <script type="text/javascript" src="js/jquery-1.4.2.js"></script>
+ 
+ 
+        <script type="text/javascript" charset="utf-8">
+            $(function(){
+                
+                //var $bento_text_area = $('#bento_share');
+                $('#authenticateContainer a').bind('click', function(e) {
+                    e.preventDefault();
+                    chrome.extension.getBackgroundPage().get_chrome_page("bitly_options.html");                   
+                })
+            })
+        </script>
+             
+     
+    </body>
+</html>

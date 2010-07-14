@@ -1,0 +1,51 @@
+#_bitly_extension_toolbar {
+    position:fixed;
+    height:30px;
+    width:100%;
+    bottom:0;
+    background:#eee;
+    color:#454545;
+    left:0;
+	z-index:2000;
+	font-size:12px;
+	margin:0;
+	text-align:left;
+	padding:0;  
+}
+#_bitly_extension_toolbar a {
+    color:#69c;
+}
+#_bitly_extension_toolbar div {
+    width:auto;
+}
+
+#_bitly_metrics_container {
+
+}
+body {
+    margin-bottom:100px;
+}
+#_bitly_extension_toolbar .innerWeeklyClickSummaryContainer {
+    width:460px;
+    height:200px;
+    display:block;
+    background:transparent;
+
+}
+#_bitly_metrics_container {
+    position:absolute;
+    top:30px;
+    left:5px;
+}
+
+#_bitly_extension_toolbar ._bitly_close_toolbar {
+    position:absolute;
+    right:10px;
+    top:10px;
+    color:#69c;
+}
+
+/*flot css  */
+.tickLabels {
+   width:auto;
+ }
