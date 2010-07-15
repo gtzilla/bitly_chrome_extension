@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        
+    </head>
+    <body>
+        <div id="container">
+
+            <div id="top">
+
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+                    <div id="escape_worker"></div>
+
+            </div> <!-- end #bottom -->
+            
+        </div> <!-- end #container -->
+    
+        
+        <script type="text/javascript" src="js/bitlyapi-v2.0.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            
+            
+        /*
+            Start up sequence
+            
+            
+                1. Look for use credentials in localstorage and local SQL DB
+                2. Load 'settings.js' file into app
+                3. Once I have both of the above, let the widget 'continue' 
+                        aka do an initalization function 
+                        ... possibly setup a queue of requests I missed.
+            
+        */
+        // these are common helper funcs
+        function localstore( itemKey, itemValue ) {
+            // do I need to remove this key first??
+            var response = window.localStorage.setItem( itemKey, window.JSON.stringify( itemValue ) );
+            return response
+        }
+        
+        function logger( message ) {
+            
+            var logs = localfetch("logs") || [];
+            logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
+            localstore("logs", logs);
+        }
+
+        function localfetch( itemKey ) {
+            var item = window.localStorage.getItem( itemKey )
+            try{
+                var json_item = JSON.parse(item);
+                return json_item
+            } catch(e) {
+                console.log('Error getting key', itemKey, e)
+            }
+            return null;                    
+        }
+             
+             
+        function sign_in(username, password, callback) {
+            console.log(username, password, "auth attempt")
+            bitly.auth(username, password, function(response) {
+                
+                var auth = response.authenticate;
+                if(auth && auth.successful) {
+                    var current_user = {
+                        "x_login": auth.username,
+                        "x_apiKey": auth.api_key
+                    }
+                    localstore("user_data", current_user);
+                    chrome.browserAction.setPopup({ "popup" : "popup.html"});                      
+                }
+                if(callback) callback(response)
+                
+            });            
+        }
+        
+        function save_api_domain( api_domain ) {
+            var api_change = bitly.set_domain( api_domain );
+            if(api_change) {
+                localstore("domain", api_domain);
+            }
+        }
+        
+        function sign_out() {
+            bitly.remove_credentials();
+            localstore("user_data", null);
+            chrome.browserAction.setPopup({ "popup" : "sign_in.html"});
+            return;
+        }
+        
+        function get_chrome_page( page_name ) {
+            var url =  chrome.extension.getURL(page_name),
+                 createTab=true, params = { 'selected' : true, 'url' : url };
+            chrome.tabs.getAllInWindow(null, function(tab_array) {
+
+               for(var i=0; i<tab_array.length; i++) {
+
+                   if( tab_array[i].url === url ) {
+                       createTab=false;
+                       chrome.tabs.update( tab_array[i].id, params);
+                       break;
+                   }
+               }
+
+                if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL(page_name) }) }
+            });
+        }        
+
+
+        function set_current_bitly_user_from_cache() {
+            var user_data = localfetch("user_data"), domain = localfetch("domain");
+            if(user_data && user_data.x_login && user_data.x_apiKey) {
+                // change the popup
+                logger("User credentials found in cache")
+                bitly.set_credentials( user_data.x_login, user_data.x_apiKey );
+                chrome.browserAction.setPopup({ "popup" : "popup.html"});                              
+                
+            } 
+            
+            if(domain) {
+                bitly.set_domain( domain );
+            }
+            
+        }
+        
+        
+        function init_api() {
+            // get from local storage?
+            // pull this value from a settings file
+            var login = 'chromext',
+                apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
+                b = BitlyAPI(login, apiKey);
+
+            return b;                                
+        }
+        
+        
+
+
+        // the bit.ly API worker
+        logger("Initialize bit.ly extension");
+        var bitly = init_api();   
+        set_current_bitly_user_from_cache();
+
+        
+        /*
+            Listen for requests from content scripts, popups and other pages
+        */
+        
+
+            
+        function actions_listeners( request, sender, sendResponse ) {
+            if(!request.action) return;
+            var act = request.action;
+            switch( act ) {
+                
+                
+                case "shorten":
+                    console.log("shorten", sender);
+                    //chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});                      
+                    bitly.shorten( request.long_url, sendResponse );
+                break;
+                
+                case "expand_and_meta":
+                    // this event triggered by a content script
+                    console.log("expand", request, bitly);
+                    var lngth = (typeof request.short_url !== "string") ? request.short_url.length : 1;
+                    logger("Attempt expand and find clicks for " + lngth )
+                    
+                    chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"});
+                    bitly.expand_and_meta( request.short_url, sendResponse );
+                    
+                break;
+                
+                case "expand":
+                    console.log("expand", request, bitly)
+                    bitly.expand( request.short_url, sendResponse );                    
+                break;
+                
+                case "page_selection":
+                    // the current selection?
+                    // Race condition
+                    // options
+                    //  1. wait till this script completes / errors out
+                    //  2. return box anyway, inject later
+                    //  3. forget about this completely...
+                    console.log(request, "page has a selection")
+                break;
+                
+                default:
+                    // fall throw or error?
+                    sendResponse({"foo" : "bar"})                
+                break;
+                
+                
+            }
+        }
+            
+            
+        /*
+        http://code.google.com/chrome/extensions/extension.html
+        chrome.extension.onConnectExternal.addListener(function(Port port) {...});
+        
+        */
+            
+        chrome.extension.onRequest.addListener(actions_listeners);
+            
+        </script>
+      
+    </body>
+</html>

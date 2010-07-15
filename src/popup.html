@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <title>bit.ly | Shorten, Share &amp; Track your links</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="css/bitly_basic.css" type="text/css" charset="utf-8" />   
+        <link rel="stylesheet" href="css/popup.css" type="text/css" charset="utf-8" />        
+    </head>
+    <body class="popup_body">
+        <div id="container">
+
+            <div id="top">
+
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+                
+                <form action="#" id="bitly_bento_submit" method="get" accept-charset="utf-8">
+                      
+                      <div class="bentoShareBoxContainer">
+                          <textarea id="bento_share" name="bento_share"></textarea>                                
+                          <!-- <div id="loading_short_url">loading...</div> -->
+                      </div>
+                      <!-- <div>
+                        <input class="activeButtons" type="submit" name="share_button" value="Share" id="share_button">
+                      </div> -->
+                </form>
+                
+                <div class="bitly_shorten_box_meta_links">
+                    <a class="options_page" id="options_page" href="options.html">options</a>
+                    <a class="bitly_popup_promo" href="http://bit.ly">bit.ly</a>
+
+                </div>
+
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+
+            </div> <!-- end #bottom -->
+            
+        </div> <!-- end #container -->
+        
+        
+        
+        <script type="text/javascript" charset="utf-8">
+            
+            // get the current document location
+            var txtarea = document.getElementById("bento_share"), 
+                current_title = "",
+                b = document.getElementById("options_page"),
+                bg = chrome.extension.getBackgroundPage();
+
+            function shorten_complete_callback( jo ) {
+                txtarea.innerHTML = current_title + " " + (jo.url || "");
+            }
+            
+            chrome.tabs.getSelected(null, function( curr_tab) {
+               
+               console.log( curr_tab );
+               
+               var message = {
+                   'action' : 'shorten',
+                   'long_url' : curr_tab.url,
+                   'tab_id' : curr_tab.id,
+                   'title' : curr_tab.title
+               }
+               current_title = curr_tab.title
+               chrome.extension.sendRequest( message, shorten_complete_callback )
+               
+                
+            });
+            
+
+            b.addEventListener('click', function(e) {
+                
+                e.preventDefault();
+                bg.get_chrome_page("options.html");                   
+                
+            });            
+            
+        </script>
+        
+
+      
+    </body>
+</html>

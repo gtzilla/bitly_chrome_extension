@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="bit.ly" />
+        <link rel="stylesheet" href="css/bitly_basic.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/bitly_ext_common.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/bitly_options.css" type="text/css" charset="utf-8" />
+        
+        
+    </head>
+    <body>
+        <div id="container">
+
+             <div id="top">
+
+                    <div id="blueBanner">
+                        <ul class="ext_nav_list">
+                            <!-- <li><a class="openOptions" href="">Options</a></li> -->
+                        </ul>
+
+                    </div>
+
+                    <div id="logo">
+                        <a href="http://bit.ly/"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
+                    </div>
+                    <!-- <div id="ext_top_nav">
+                        <div id="ext_top_nav_inner">
+
+                        </div>
+                        <div class="hr"><hr /></div>
+                    </div> -->
+
+                </div> <!-- end #top -->
+            
+            <div id="middle">
+                
+                <h1 id="bitly_options">Settings</h1>                
+                
+                <div id="signedin_info_contents" style="display:none;">
+                    
+                    <div id="signOutButtonContainer">
+                        <a class="signout" href="#">Sign Out</a>
+                    </div>                    
+                    <form action="#" method="get" accept-charset="utf-8">
+
+                        <div  class="inputContainer">
+                            <label for="username">Username</label>
+                            <span id="current_username"></span>                            
+                        </div>
+
+                        
+                        <div  class="inputContainer">
+                            <label for="api_key">API Key</label>
+                            <input type="text" name="api_key" value="" id="api_key">                            
+                        </div>
+
+                    </form>                    
+                </div>
+                <div id="signedout_info_contents" style="display:none;">
+                    <form id="signin_form" action="#" method="get" accept-charset="utf-8">
+
+
+                        <div class="inputContainer">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" value="" id="username">                            
+                        </div>
+
+
+
+                        <div class="inputContainer">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" value="" id="password">                            
+                        </div>
+
+
+                        <input type="submit" name="some_name" value="Sign In" id="some_name">
+                        
+                        
+                        <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_in">Get an account</a></p>
+                    </form>                    
+                </div>    
+                
+                
+                
+                <div style="display:none;">
+                    
+                    <!-- <div class="api_type_selector">
+                        
+                        
+                        <p>You can choose either the bit.ly API or the j.mp API. Both work just the same way, but j.mp is just a little shorter. This change only applies to new shortens.</p>
+                        
+                        <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
+                            
+                            <div class="bentoOptions">
+                                
+                                <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
+                                <label for="jmp">Use bit.ly API</label>
+                            </div>
+                            
+                            <div class="bentoOptions">
+                                <input type="radio" name="api_choice" value="j.mp" id="bitly">
+                                <label for="bitly">Use j.mp API</label>
+                            
+                            </div>
+                        
+                        
+                        </form>
+                    </div>     -->                
+                    
+                    
+                </div>            
+
+                
+               
+
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+
+            </div> <!-- end #bottom -->
+            
+        </div> <!-- end #container -->
+    
+        
+            <!-- <script type="text/javascript" src=""></script> -->
+      
+            <script type="text/javascript" charset="utf-8">
+                
+                var bg = chrome.extension.getBackgroundPage(), 
+                    user_data = bg.localfetch("user_data"),
+                    elem,
+                    bod = document.getElementsByTagName("body")[0];
+                    
+                function _id( name ) {
+                    return document.getElementById( name )
+                }
+                if(user_data && user_data.x_login) {
+                    elem = _id("signedin_info_contents");
+                    elem.style.display="block";
+                    _id("api_key").setAttribute("value", user_data.x_apiKey);
+                    _id("current_username").innerText = user_data.x_login;
+                } else {
+                    elem = _id("signedout_info_contents");
+                    elem.style.display="block";
+                    _id("signin_form").addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        console.log("submit the form....");
+                        // validate form
+                        var username = _id("username"), pass = _id("password");
+                        if(username.value === "" ||  pass.value === "") {
+                            console.log("all fields required")
+                            return;
+                        }
+                        bg.sign_in( username.value, pass.value, function(e) {
+                            console.log("logged in")
+                            document.location.reload();
+                        })
+                    })
+                    
+                }
+                
+                bod.addEventListener('click', function(e) {
+                    
+                    if(e.target.className === "signout") {
+                        e.preventDefault();
+                        bg.sign_out();
+                        document.location.reload();
+                    }
+                    
+                })
+                
+            </script>
+      
+    </body>
+</html>

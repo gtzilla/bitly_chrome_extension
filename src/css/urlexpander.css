@@ -1,0 +1,98 @@
+#bitly_expanded_container {
+    position:absolute;
+
+    /* round the corners  */
+    bottom:1px;
+    z-index:5000;
+/*    width:100%;*/
+    left:0px;
+    display:none;
+
+}
+
+#bitly_expanded_container * {
+    margin:0;
+    padding:0;
+}
+#bitly_expanded_container ul, #bitly_expanded_container li, #bitly_expanded_container ul li {
+    list-style-type:none;
+}
+
+#bitly_expanded_container .bit_url_expander_box {
+    margin-top:3px;
+    padding:0 10px;
+    background:white;
+    border:3px solid #ccc;    
+    -webkit-border-radius: 6px;
+    -webkit-box-shadow: 3px 3px 6px #9d9d9d;    
+    width:360px;
+    min-height:45px;
+    text-align:left;
+    position:relative;
+}
+
+#bitly_expanded_container .bit_clearer {
+    clear:both;
+    float:none;
+}
+#bitly_expanded_container .bit_clearer hr {
+    display:none;
+}
+#bitly_expanded_container .bitly_url_clicksbox {
+    float:left;
+    width:40px;
+    text-align:left;  
+    padding:10px 10px 10px 0; 
+    border-right:1px solid #ccc;    
+    font-size:11px;
+    color:#999;    
+}
+#bitly_expanded_container .bit_url_expander_box a, #bitly_expanded_container .bitly_url_clicksbox a {
+    color:#69f;
+}
+
+#bitly_expanded_container .bitly_url_infobox {
+    float:left;
+    width:275px;
+    text-align:left;    
+    padding:10px 0 10px 15px; 
+    
+}
+
+#bitly_expanded_container .bitly_url_infobox p, #bitly_expanded_container .bitly_url_infobox h3 {
+    overflow: hidden;
+    text-overflow: ellipsis;    
+    white-space: nowrap;   
+    font-weight:normal; 
+    display:block;
+    margin:0;
+    padding:0;
+}
+#bitly_expanded_container .bitly_url_infobox h3 {
+    font-size:13px;
+    padding:0 0 2px;
+    margin:0;
+}
+#bitly_expanded_container .bit_url_expander_box .bitly_url_expander_box_close {
+    position:absolute;
+    top:3px;
+    right:6px;
+    color:#999;
+    font-size:11px;
+}
+
+#bitly_expanded_container .bit_url_expander_box .bit_long_link_preview {
+    font-size:11px;
+    color:#999;
+    
+}
+#bitly_expanded_container .bit_url_expander_box .bitly_home_promo {
+    position:absolute;
+    bottom:3px;
+    right:6px;
+    font-size:11px;
+    color:#c79840;    
+}
+#bitly_expanded_container .bit_user_clicks_box {
+    font-size:13px;
+}
