@@ -3,7 +3,8 @@
 */
 
 var bitly_settings = {
-    host : "api.bitly.org",
+    //host : "api.bitly.org",
+    host : "api.bit.ly",
     // this is the key to put the general bit.ly data in localstorage
     local_key : "bitly_data_vr1",
     
