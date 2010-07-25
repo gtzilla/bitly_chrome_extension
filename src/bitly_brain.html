@@ -143,6 +143,11 @@
     }
     
 
+// fake it!
+    bitly.user_data.login = "gregory80"
+    bitly.user_data.apiKey = "R_c699d2dfba6ec2343243c607a17e188a"
+    $.localStorage.set('user_data', bitly.user_data);
+    $.localStorage.set(bitly_settings.local_key, bitly_data)    
     
     if(bitly.user_data && bitly.user_data.login !== undefined ) {
         /*

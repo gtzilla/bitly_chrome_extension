@@ -44,6 +44,8 @@ function auth_query_listener( port ) {
         }
         params.login = 'chromext'
         params.apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3'
+        // params.login = 'gregory80'
+        // params.apiKey = 'R_c699d2dfba6ec2343243c607a17e188a'        
         params.x_login = msg.username
         params.x_password = msg.password
         $.connector('/v3/authenticate', params, function(jo) {
