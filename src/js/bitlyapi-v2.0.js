@@ -16,9 +16,9 @@ var host = "http://api.bit.ly",
     }
 
 
-var bitlyAPI = function(  user, APIKey  ) {
+var BitlyAPI = function(  user, APIKey  ) {
     
-    return new bitlyAPI.fn.init()
+    return new BitlyAPI.fn.init( user, APIKey )
 } 
 
 var buildparams = function( obj ) {
@@ -32,9 +32,9 @@ var buildparams = function( obj ) {
 
 // TODO
 // check to make sure there is no NameSpace collision
-window.bitlyAPI = bitlyAPI; 
+window.BitlyAPI = BitlyAPI;
 
-bitlyAPI.fn = bitlyAPI.prototype = {
+BitlyAPI.fn = BitlyAPI.prototype = {
     
     user : "", key : "",
     
@@ -61,10 +61,10 @@ bitlyAPI.fn = bitlyAPI.prototype = {
             'apiKey' : this.key
         }
         ajaxRequest({
-            'url' : host + "?" + buildparams( shorten_params ),
+            'url' : host + urls.shorten + "?" + buildparams( shorten_params ),
             'success' : function(jo) {
                 console.log(jo, "bit.ly shorten response");
-                callback( jo, long_url );    // send back the long url as a second arg
+                if(callback) callback( jo, long_url );    // send back the long url as a second arg
             }
         })
     },
@@ -82,6 +82,8 @@ bitlyAPI.fn = bitlyAPI.prototype = {
     }
     
 }  
+// make the magic
+BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
 
 
