@@ -23,9 +23,20 @@ var BitlyAPI = function(  user, APIKey, settings  ) {
 
 var buildparams = function( obj ) {
     // todo, be more complex
-    var params = [];
+    var params = [], a;
     for(var k in obj ) {
-        params[params.length] = k + "=" +encodeURIComponent( obj[k] );
+        if(typeof obj[k] === "string") {
+            // check has own property
+            params[params.length] = k + "=" +encodeURIComponent( obj[k] );
+        } else {
+            // could be an object or an array
+            a = obj[k];
+            if(a.length > 0) {
+                for(var i=0; i<a.length; i++)
+                params[params.length] = k + "=" + encodeURIComponent(a[i]);
+            }
+        }
+
     }
     return params.join("&");
 }
@@ -36,7 +47,7 @@ window.BitlyAPI = BitlyAPI;
 
 BitlyAPI.fn = BitlyAPI.prototype = {
     
-    user : "", key : "",
+    user : "", key : "", x_login : null, x_apiKey : null,
     
     init : function( user, APIKey ) {
         // setup defaults an handle overrides
@@ -45,7 +56,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         return this;
     },
     
-    shorten : function( long_url, options, callback ) {
+    shorten : function( long_url, callback ) {
         // there will need to be somecallback
         
         /*
@@ -67,23 +78,50 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             'login' : this.user,
             'apiKey' : this.key
         }
+        
+        if(this.x_login && this.x_apiKey) {
+            shorten_params.x_login = this.x_login;
+            shorten_params.x_apiKey = this.x_apiKey; 
+        }
+        
         ajaxRequest({
             'url' : host + urls.shorten + "?" + buildparams( shorten_params ),
             'success' : function(jo) {
                 console.log(jo, "bit.ly shorten response");
                 if(callback) callback( jo, long_url );    // send back the long url as a second arg
             }
-        })
+        });
     },
     
-    expand : function(  short_url, callback ) {
+    expand : function(  short_urls, callback ) {
+        if(typeof short_urls === "string") {
+            // there is only one
+        } else if(short_urls.length > 0) {
+            
+        }
         var expand_params = {
             'format' : 'json',
-            'longUrl' : long_url,
+            'shortUrl' : short_urls,
             'domain' : 'bit.ly',
             'login' : this.user,
             'apiKey' : this.key            
         }
+        
+        if(this.x_login && this.x_apiKey) {
+            expand_params.x_login = this.x_login;
+            expand_params.x_apiKey = this.x_apiKey; 
+        }        
+        
+        ajaxRequest({
+            'url' : host + urls.expand + "?" + buildparams( expand_params ),
+            'success' : function(jo) {
+                console.log(jo, "bit.ly response: ", urls.expand);
+                if(jo.status_code === 200) {
+                     if(callback) callback( jo.data, long_url );
+                }
+                if(callback) callback( jo, long_url );    // send back the long url as a second arg
+            }
+        });        
     },
     
     info : function( callback ) {
@@ -92,13 +130,24 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     
     auth : function( callback ) {
         
+    },
+    
+    set_credentials : function( x_login, x_apiKey) {
+        // we use this once the person is logged in
+        this.x_login = x_login;
+        this.x_apiKey = x_apiKey;
     }
     
 }  
 // make the magic
 BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
-
+var basic_params = {
+    'format' : 'json',
+    'login' : '',
+    'apiKey' : '',
+    'domain' : 'bit.ly'
+}
 
 function ajaxRequest( obj ) {
     // outside of the ext, this lib needs JSONP

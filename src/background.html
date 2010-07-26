@@ -30,8 +30,43 @@
         <script type="text/javascript" src="js/bitlyapi-v2.0.js"></script>
         <script type="text/javascript" charset="utf-8">
             
-            var bitly = BitlyAPI("gregory80", "R_c699d2dfba6ec2343243c607a17e188a");
-            bitly.shorten("http://jehiah.cz");
+            
+            function init_api() {
+                // get from local storage?
+                // use the 
+                
+                var login = 'chromext',
+                    apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
+                    b = BitlyAPI(login, apiKey);
+                    
+                b.set_credentials("gregory80", "R_c699d2dfba6ec2343243c607a17e188a")                
+                return b;
+//                 return BitlyAPI("gregory80", "R_c699d2dfba6ec2343243c607a17e188a");                                 
+            }
+            
+            
+            
+            var bitly = init_api();
+            
+            
+            function test_shorten() {
+                bitly.shorten("http://jehiah.cz", function(response) {
+                    console.log("woo-hoo a callback", response)
+                });                
+            }
+            
+            function test_expand( the_url_or_urls ) {
+                bitly.expand("http://gt-co.de/b9jSS9");
+                bitly.expand(["http://gt-co.de/9r2DgB", "http://gt-co.de/b9jSS9"])
+            }
+            
+            function run_tests() {
+                test_shorten();
+                test_expand();
+            }
+            
+            run_tests();
+
             
         </script>
       
