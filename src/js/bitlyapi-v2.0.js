@@ -63,7 +63,8 @@ bitlyAPI.fn = bitlyAPI.prototype = {
         ajaxRequest({
             'url' : host + "?" + buildparams( shorten_params ),
             'success' : function(jo) {
-                console.log(jo, "bit.ly shorten response")
+                console.log(jo, "bit.ly shorten response");
+                callback( jo, long_url );    // send back the long url as a second arg
             }
         })
     },
