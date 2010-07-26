@@ -16,8 +16,8 @@ var host = "http://api.bit.ly",
     }
 
 
-var BitlyAPI = function(  user, APIKey  ) {
-    
+var BitlyAPI = function(  user, APIKey, settings  ) {
+    // this should be an object
     return new BitlyAPI.fn.init( user, APIKey )
 } 
 
@@ -45,7 +45,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         return this;
     },
     
-    shorten : function( long_url, callback ) {
+    shorten : function( long_url, options, callback ) {
         // there will need to be somecallback
         
         /*
@@ -53,6 +53,13 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         */
         //TODO
         // use x_login here as the chrome ext is really doing the work
+        
+        /*
+            if options:
+                see if type if object or function - if function, use as callback, 
+                typeof(options) === "Function" || 
+        */
+        
         var shorten_params = {
             'format' : 'json',
             'longUrl' : long_url,
@@ -70,7 +77,13 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     },
     
     expand : function(  short_url, callback ) {
-        
+        var expand_params = {
+            'format' : 'json',
+            'longUrl' : long_url,
+            'domain' : 'bit.ly',
+            'login' : this.user,
+            'apiKey' : this.key            
+        }
     },
     
     info : function( callback ) {
