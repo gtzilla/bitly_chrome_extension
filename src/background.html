@@ -39,7 +39,7 @@
                     apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
                     b = BitlyAPI(login, apiKey);
                     
-                b.set_credentials("gregory80", "R_c699d2dfba6ec2343243c607a17e188a")                
+                //b.set_credentials("gregory80", "R_c699d2dfba6ec2343243c607a17e188a")                
                 return b;
 //                 return BitlyAPI("gregory80", "R_c699d2dfba6ec2343243c607a17e188a");                                 
             }
@@ -61,8 +61,15 @@
             }
             
             function run_tests() {
+                bitly.auth("exttestaccount", "whatever", function(response) {
+                    console.log("callback for auth is -->", response)
+                });
+                
+                
                 test_shorten();
                 test_expand();
+                
+
             }
             
             run_tests();

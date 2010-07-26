@@ -28,13 +28,14 @@ var buildparams = function( obj ) {
         if(typeof obj[k] === "string") {
             // check has own property
             params[params.length] = k + "=" +encodeURIComponent( obj[k] );
-        } else {
+        } else if(obj[k] && obj[k].length > 0) {
             // could be an object or an array
             a = obj[k];
-            if(a.length > 0) {
-                for(var i=0; i<a.length; i++)
-                params[params.length] = k + "=" + encodeURIComponent(a[i]);
+
+            for(var i=0; i<a.length; i++) {
+                params[params.length] = k + "=" + encodeURIComponent(a[i]);                    
             }
+
         }
 
     }
@@ -55,61 +56,62 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         x_login : null, x_apiKey : null
     },
     
+    version : "1.0",
+    count : 0, // internal request counter
+    
     init : function( user, APIKey ) {
         // setup defaults an handle overrides
         this.bit_request.login = user;
         this.bit_request.apiKey = APIKey;
-        this.user = user;
-        this.key = APIKey;
         return this;
     },
     
     shorten : function( long_url, callback ) {
-        // there will need to be somecallback
-        
-        // TODO
-        // this is NOT copying a new object, it's constantly changing the original - bad!
-        
 
         var shorten_params = copy_obj( this.bit_request );
         shorten_params.longUrl = long_url;        
-        
-        ajaxRequest({
-            'url' : host + urls.shorten + "?" + buildparams( shorten_params ),
-            'success' : function(jo) {
-                console.log(jo, "bit.ly shorten response");
-                if(callback) callback( jo, long_url );    // send back the long url as a second arg
-            }
-        });
+        this.count+=1;
+        bitlyRequest( urls.shorten, shorten_params, callback);        
     },
     
     expand : function(  short_urls, callback ) {
 
         var expand_params = copy_obj( this.bit_request );
         expand_params.shortUrl = short_urls;
-
-        
-        ajaxRequest({
-            'url' : host + urls.expand + "?" + buildparams( expand_params ),
-            'success' : function(jo) {
-                console.log(jo, "bit.ly response: ", urls.expand);
-                if(callback) callback( jo, long_url );    // send back the long url as a second arg
-            }
-        });        
+        this.count+=1;
+        bitlyRequest( urls.expand,  expand_params, callback);      
     },
     
     info : function( callback ) {
         
     },
     
-    auth : function( callback ) {
+    auth : function( username, password, callback ) {
+        // call the set credentials  when this is run
+        var self = this, auth_params = copy_obj( this.bit_request );
+        auth_params.x_login = username;
+        auth_params.x_password = password;
+        // bitlyRequest( urls.auth, auth_params, function(response) {
+        //     console.log("response for auth", response)
+        //     //self.set_credentials();
+        //     
+        // } );
+        
+        ajaxRequest({
+            'url' : host + urls.auth + "?" + buildparams( auth_params ),
+            'type' : "POST",
+            'success' : function(jo) {
+                console.log(jo, "bit.ly response: ", urls.auth); 
+                if( jo.authenticate.successful ) {
+                    self.set_credentials( jo.authenticate.username, jo.authenticate.api_key )              
+                }
+                if(callback) callback( jo );    // send back the long url as a second arg
+            }
+        });        
         
     },
     
     set_credentials : function( x_login, x_apiKey) {
-        // we use this once the person is logged in
-        this.x_login = x_login;
-        this.x_apiKey = x_apiKey;
         
         // set as default
         this.bit_request.x_login = x_login;
@@ -120,6 +122,11 @@ BitlyAPI.fn = BitlyAPI.prototype = {
 // make the magic
 BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
+
+/*
+    Utilities
+        Namespace contained by outer closure function
+*/
 function copy_obj( obj ) {
     var copy = {};
     for(var k in obj) {
@@ -135,6 +142,16 @@ function chunk(array, chunkSize) {
    var base = [], i, size = chunkSize || 5;
    for(i=0; i<array.length; i+=chunkSize ) { base.push( array.slice( i, i+chunkSize ) ); }	
    return base;
+}
+
+function bitlyRequest( api_path, params, callback ) {
+    ajaxRequest({
+        'url' : host + api_path + "?" + buildparams( params ),
+        'success' : function(jo) {
+            console.log(jo, "bit.ly response: ", api_path);               
+            if(callback) callback( jo );    // send back the long url as a second arg
+        }
+    });    
 }
 
 function ajaxRequest( obj ) {
