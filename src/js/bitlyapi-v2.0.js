@@ -47,10 +47,18 @@ window.BitlyAPI = BitlyAPI;
 
 BitlyAPI.fn = BitlyAPI.prototype = {
     
-    user : "", key : "", x_login : null, x_apiKey : null,
+    bit_request : {
+        login : "",
+        apiKey : "",
+        format : 'json',
+        domain : 'bit.ly',
+        x_login : null, x_apiKey : null
+    },
     
     init : function( user, APIKey ) {
         // setup defaults an handle overrides
+        this.bit_request.login = user;
+        this.bit_request.apiKey = APIKey;
         this.user = user;
         this.key = APIKey;
         return this;
@@ -59,30 +67,12 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     shorten : function( long_url, callback ) {
         // there will need to be somecallback
         
-        /*
-            I'm catch it internally, and make sure the data is good, then send the payload out via the callback
-        */
-        //TODO
-        // use x_login here as the chrome ext is really doing the work
+        // TODO
+        // this is NOT copying a new object, it's constantly changing the original - bad!
         
-        /*
-            if options:
-                see if type if object or function - if function, use as callback, 
-                typeof(options) === "Function" || 
-        */
-        
-        var shorten_params = {
-            'format' : 'json',
-            'longUrl' : long_url,
-            'domain' : 'bit.ly',
-            'login' : this.user,
-            'apiKey' : this.key
-        }
-        
-        if(this.x_login && this.x_apiKey) {
-            shorten_params.x_login = this.x_login;
-            shorten_params.x_apiKey = this.x_apiKey; 
-        }
+
+        var shorten_params = copy_obj( this.bit_request );
+        shorten_params.longUrl = long_url;        
         
         ajaxRequest({
             'url' : host + urls.shorten + "?" + buildparams( shorten_params ),
@@ -94,31 +84,15 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     },
     
     expand : function(  short_urls, callback ) {
-        if(typeof short_urls === "string") {
-            // there is only one
-        } else if(short_urls.length > 0) {
-            
-        }
-        var expand_params = {
-            'format' : 'json',
-            'shortUrl' : short_urls,
-            'domain' : 'bit.ly',
-            'login' : this.user,
-            'apiKey' : this.key            
-        }
-        
-        if(this.x_login && this.x_apiKey) {
-            expand_params.x_login = this.x_login;
-            expand_params.x_apiKey = this.x_apiKey; 
-        }        
+
+        var expand_params = copy_obj( this.bit_request );
+        expand_params.shortUrl = short_urls;
+
         
         ajaxRequest({
             'url' : host + urls.expand + "?" + buildparams( expand_params ),
             'success' : function(jo) {
                 console.log(jo, "bit.ly response: ", urls.expand);
-                if(jo.status_code === 200) {
-                     if(callback) callback( jo.data, long_url );
-                }
                 if(callback) callback( jo, long_url );    // send back the long url as a second arg
             }
         });        
@@ -136,17 +110,31 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         // we use this once the person is logged in
         this.x_login = x_login;
         this.x_apiKey = x_apiKey;
+        
+        // set as default
+        this.bit_request.x_login = x_login;
+        this.bit_request.x_apiKey = x_apiKey;        
     }
     
 }  
 // make the magic
 BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
-var basic_params = {
-    'format' : 'json',
-    'login' : '',
-    'apiKey' : '',
-    'domain' : 'bit.ly'
+function copy_obj( obj ) {
+    var copy = {};
+    for(var k in obj) {
+        copy[k] = obj[k];
+    }
+    return copy;
+}
+
+function chunk(array, chunkSize) {
+    // when I get more than N urls, need to make multiple calls
+    // the paradox:
+    // checking that chunkSize is a num costs N amount, proper usage would requie no error handling and faster code?
+   var base = [], i, size = chunkSize || 5;
+   for(i=0; i<array.length; i+=chunkSize ) { base.push( array.slice( i, i+chunkSize ) ); }	
+   return base;
 }
 
 function ajaxRequest( obj ) {
@@ -163,7 +151,13 @@ function ajaxRequest( obj ) {
                  return;
              }
              try {
-                 message = JSON.parse(xhr.responseText)
+                 message = JSON.parse(xhr.responseText);
+                 if(message.status_code === 200) {
+                     message = message.data;
+                 } else {
+                     // throw error back
+                     
+                 }
              } catch(e) {
                  // NOT JSON
                  console.log("not json")
