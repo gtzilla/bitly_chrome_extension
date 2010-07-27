@@ -56,8 +56,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         x_login : null, x_apiKey : null
     },
     
-    version : "1.0",
-    count : 0, // internal request counter
+    version : "2.0",
+    count : 0, // internal request counter, this is the number of times certain methods are called
     
     init : function( user, APIKey ) {
         // setup defaults an handle overrides
@@ -76,27 +76,58 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     
     expand : function(  short_urls, callback ) {
 
-        var expand_params = copy_obj( this.bit_request );
-        expand_params.shortUrl = short_urls;
+        var expand_params = copy_obj( this.bit_request ), 
+            request_count = 0, collection = [];
+
         this.count+=1;
-        bitlyRequest( urls.expand,  expand_params, callback);      
+
+        function stitch( response ) {
+            request_count-=1;
+            collection = collection.concat( response.expand );
+            if(request_count <= 0) {
+                if(callback) callback({'expand' : collection})
+            }
+        }
+        
+        if( is_large_arrary( short_urls )  ) {
+            var chunks = chunk( short_urls, 15  );
+            for(var i=0; i<chunks.length; i++) {
+                request_count+=1;
+                expand_params.shortUrl = chunks[i];                  
+                bitlyRequest( urls.expand,  expand_params, stitch);                      
+            }
+        } else {
+            expand_params.shortUrl = short_urls;  
+            bitlyRequest( urls.expand,  expand_params, callback);                
+        }
+        
+        
     },
     
-    info : function( callback ) {
+    info : function( short_urls, callback ) {
+        var info_params = copy_obj( this.bit_request ), request_count = 0, collection = [];
         
+        function stitch( response ) {
+            request_count-=1;
+            collection = collection.concat( response.expand );
+            if(request_count <= 0) {
+                if(callback) callback({'expand' : collection})
+            }
+        }        
+        
+        
+        if( is_large_arrary( short_urls ) ) {
+            
+        } else {
+            
+        }
     },
     
     auth : function( username, password, callback ) {
         // call the set credentials  when this is run
         var self = this, auth_params = copy_obj( this.bit_request );
         auth_params.x_login = username;
-        auth_params.x_password = password;
-        // bitlyRequest( urls.auth, auth_params, function(response) {
-        //     console.log("response for auth", response)
-        //     //self.set_credentials();
-        //     
-        // } );
-        
+        auth_params.x_password = password;        
         ajaxRequest({
             'url' : host + urls.auth + "?" + buildparams( auth_params ),
             'type' : "POST",
@@ -133,6 +164,14 @@ function copy_obj( obj ) {
         copy[k] = obj[k];
     }
     return copy;
+}
+
+function is_large_arrary( array ) {
+    
+    if( typeof array !== "string" && array.length > 15) { return true; }
+    
+    return false;
+    
 }
 
 function chunk(array, chunkSize) {
