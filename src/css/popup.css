@@ -1,0 +1,38 @@
+/*
+    See README.txt for copyright and Licsense
+*/
+* { padding:0; margin:0; }
+img {
+    border:0;
+}
+body {
+    font-family:Arial, sans-serif;
+    font-size:12px;
+    color:#333;
+    background:transparent;
+}
+h1,h2,h3,h4,h5,h6,input,select,option,textarea {
+    font-size:12px;
+    font-family:Arial, sans-serif;    
+}
+ul {
+    list-style:none;
+}
+.hr { clear:both; float:none; }
+.hr hr { display:none; }
+a {
+    text-decoration:none;
+    color:#69f;
+    outline:none;    
+}
+a:hover {
+    color:#4D81B3;
+}
+
+#bento_share {
+    font-size:14px;
+    padding:10px;
+    min-width:400px;
+    min-height:130px;
+    border:1px solid #ccc;
+}

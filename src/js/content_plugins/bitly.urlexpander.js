@@ -54,21 +54,27 @@ function find_short_links() {
     }
     console.log(final_matches)
     if(final_matches.length > 0) {
-        port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
+        //port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
+        chrome.extension.sendRequest({'action' : 'expand', 'short_url' : final_matches }, brainResponse)        
     }
 
 }
 
+function brainResponse(jo) {
+    console.log(jo, "the expanded urls")
+}
+
 function init() {
     find_short_links();
-    
-    document.addEventListener('click', function(e) {
-        console.log('document got click... ')
-        if(timeout_link) { clearTimeout(timeout_link); timeout_link=null; }
-        timeout_link = setTimeout(function() {
-            find_short_links();
-        }, 500)
-    })
+    // this idea is to handle AJAX pages, like twitter, where a full page refresh can add urls
+    // consider an ONHOVER, check instead...
+    // document.addEventListener('click', function(e) {
+    //     console.log('document got click... ')
+    //     if(timeout_link) { clearTimeout(timeout_link); timeout_link=null; }
+    //     timeout_link = setTimeout(function() {
+    //         find_short_links();
+    //     }, 500)
+    // })
 }
 init();
 

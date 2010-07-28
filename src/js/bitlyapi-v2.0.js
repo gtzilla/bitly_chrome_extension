@@ -63,15 +63,55 @@ BitlyAPI.fn = BitlyAPI.prototype = {
 
         this.count+=1;
 
-        internal_multiget( urls.expand, 'shortUrl', short_urls, callback );        
+        internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, callback );        
     },
+    
+    expand_and_meta : function( short_urls, callback ) {
+        // 1. run an expand,
+        // 2. run an info
+        // 3. run a clicks
+        // stitch all, return data
+        var requests = 3, final_results {};
+        function sticher( response ) {
+            requests-=1;
+            console.log(response, "the expand and meta sticher")
+            
+            // clicks || info || expand
+            var items = response.clicks || response.info || response.expand;
+            
+            for(var i=0; i<items.length; i++) {
+                
+                // blend data
+            }
+            if(response.clicks) {
+                // 
+            } else if( response.info ) {
+                //
+            } else if(response.expand) {
+                //
+            }
+            
+            
+            if(requests<=0) {
+                // put it all together
+                callback( {} )
+            }
+        }
+        this.expand( short_urls, sticher );
+        this.clicks( short_urls, sticher);
+        this.info( short_urls, sticher );
+    },
+    
     
     clicks : function(short_urls, callback) {
         // yet another one that needs stitching...
+        this.count+=1;        
+        internal_multiget( urls.clicks, 'shortUrl', short_urls, this.bit_request, callback );          
     },
     
     info : function( short_urls, callback ) {
-        internal_multiget( urls.info, 'shortUrl', short_urls, callback );        
+        this.count+=1;        
+        internal_multiget( urls.info, 'shortUrl', short_urls, this.bit_request, callback );        
     },
     
     auth : function( username, password, callback ) {
@@ -122,10 +162,10 @@ function is_large_arrary( array ) {
     return false;
 }
 
-function internal_multiget( path, param_key, urls_list, callback ) {
+function internal_multiget( path, param_key, urls_list, params, callback ) {
     // props to @jehiah for the above naming convention...
     var collection = [], request_count, chunks = [],
-        bit_params = copy_obj( this.bit_request );
+        bit_params = copy_obj( params );
     function stitch( response ) {
         request_count-=1;
         collection = collection.concat( response.expand );
@@ -133,7 +173,7 @@ function internal_multiget( path, param_key, urls_list, callback ) {
             if(callback) callback({'expand' : collection})
         }
     }
-    
+     
     if( is_large_arrary( urls_list )  ) {
         chunks = chunk( urls_list, 15  );
         for(var i=0; i<chunks.length; i++) {
@@ -143,7 +183,8 @@ function internal_multiget( path, param_key, urls_list, callback ) {
             bitlyRequest( path,  bit_params, stitch);                      
         }
     } else {
-        expand_params[ param_key ] = urls_list;  
+        bit_params[ param_key ] = urls_list;  
+        console.log("try to send ", bit_params)
         bitlyRequest( path,  bit_params, callback);                
     }
 }

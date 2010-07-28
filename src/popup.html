@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="awesome" />
         <meta name="description" content="" />
-        
+        <link rel="stylesheet" href="css/popup.css" type="text/css" charset="utf-8" />        
     </head>
     <body>
         <div id="container">
@@ -16,6 +16,17 @@
             </div> <!-- end #top -->
             
             <div id="middle">
+                
+                <form action="#" id="bitly_bento_submit" method="get" accept-charset="utf-8">
+                      
+                      <div class="bentoShareBoxContainer">
+                          <textarea id="bento_share" name="bento_share"></textarea>                                
+                          <div id="loading_short_url">loading...</div>
+                      </div>
+                      <div>
+                        <input type="submit" name="share_button" value="Share" id="share_button">
+                      </div>
+                </form>
 
             </div> <!-- END #middle -->
         
@@ -30,9 +41,9 @@
         <script type="text/javascript" charset="utf-8">
             
             // get the current document location
-            
+            var txtarea = document.getElementById("bento_share"), current_title = "";
             function shorten_complete_callback( jo ) {
-                
+                txtarea.innerHTML = current_title + " " + (jo.url || "");
             }
             
             chrome.tabs.getSelected(null, function( curr_tab) {
@@ -42,8 +53,10 @@
                var message = {
                    'action' : 'shorten',
                    'long_url' : curr_tab.url,
-                   'tab_id' : curr_tab.id
+                   'tab_id' : curr_tab.id,
+                   'title' : curr_tab.title
                }
+               current_title = curr_tab.title
                chrome.extension.sendRequest( message, shorten_complete_callback )
                
                 

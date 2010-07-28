@@ -31,96 +31,81 @@
         <script type="text/javascript" charset="utf-8">
             
             
-            function init_api() {
-                // get from local storage?
-                // use the 
-                
-                var login = 'chromext',
-                    apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
-                    b = BitlyAPI(login, apiKey);
-                    
-                //b.set_credentials("gregory80", "R_c699d2dfba6ec2343243c607a17e188a")                
-                return b;
-//              return BitlyAPI("gregory80", "R_c699d2dfba6ec2343243c607a17e188a");                                 
-            }
+        /*
+            Start up sequence
             
             
+                1. Look for use credentials in localstorage and local SQL DB
+                2. Load 'settings.js' file into app
+                3. Once I have both of the above, let the widget 'continue' 
+                        aka do an initalization function 
+                        ... possibly setup a queue of requests I missed.
             
-            var bitly = init_api();
+        */
+        
+        
+        function init_api() {
+            // get from local storage?
+            // pull this value from a settings file
+            var login = 'chromext',
+                apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
+                b = BitlyAPI(login, apiKey);
+
+            return b;                                
+        }
+
+
+
+        var bitly = init_api();        
+        
+        
+        bitly.auth("exttestaccount", "whatever", function(response) {
+            // TEST
+            // fix this later to allow multiple account login...
+            bitly.expand_and_meta( ["http://4sq.com/d4QrFC"], function(jo) {
+                console.log(jo)
+            } )
+        });
             
-            
-            function test_shorten() {
-                bitly.shorten("http://jehiah.cz", function(response) {
-                    console.log("woo-hoo a callback", response)
-                });                
-            }
-            
-            function test_expand( the_url_or_urls ) {
-                bitly.expand("http://gt-co.de/b9jSS9");
-                bitly.expand(["http://gt-co.de/9r2DgB", "http://gt-co.de/b9jSS9"])
-            }
-            
-            function test_overload() {
-                var many_urls = ["http://bit.ly/aYOnWr", "http://gt-co.de/9r2DgB", "http://gt-co.de/b9jSS9", "http://bit.ly/bn8RFF", "http://bit.ly/dfD4Ya", "http://bit.ly/9lksmy", "http://bit.ly/bHLvTA", "http://bit.ly/bHLA", "http://bit.ly/9ZRrsZ", "http://bit.ly/bMKKxB", "http://bit.ly/bjlNiP", "http://bit.ly/d5Hz9n", "http://bit.ly/9ozQ28", "http://bit.ly/9m6y86", "http://bit.ly/9JdS3p", "http://bit.ly/bmGYxY", "http://bit.ly/bVr7fH", "http://bit.ly/9mBQBV"]
-                bitly.expand( many_urls, function(response) {
-                    console.log(response, " final overload call, right?");
-                } );
-            }
-            
-            function run_tests() {
-                bitly.auth("exttestaccount", "whatever", function(response) {
-                    console.log("callback for auth is -->", response)
-                    
-                    
-                    test_shorten();
-                    //test_expand();  
-                    test_overload();                  
-                    
-                });
+        function actions_listeners( request, sender, sendResponse ) {
+            if(!request.action) return;
+            var act = request.action;
+            switch( act ) {
                 
                 
-
+                case "shorten":
+                    console.log("shorten");
+                    chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});                      
+                    bitly.shorten( request.long_url, sendResponse );
+                break;
                 
-
+                case "expand_and_meta":
+                    // this event triggered by a content script
+                    console.log("expand", request, bitly)
+                    bitly.expand( request.short_url, sendResponse );
+                break;
+                
+                case "page_selection":
+                    // the current selection?
+                    // Race condition
+                    // options
+                    //  1. wait till this script completes / errors out
+                    //  2. return box anyway, inject later
+                    //  3. forget about this completely...
+                    console.log(request, "page has a selection")
+                break;
+                
+                default:
+                    // fall throw or error?
+                    sendResponse({"foo" : "bar"})                
+                break;
+                
+                
             }
-            
-            run_tests();
-
-
-
-            /*
-                Connections:
-                           chrome.extension.onRequest.addListener(function( request, sender, sendResponse ) {
-            */
-            
-            function actions_listeners( request, sender, sendResponse ) {
-                if(!request.action) return;
-                var act = request.action;
-                switch( act ) {
-                    
-                    
-                    case "shorten":
-                        console.log("shorten")
-                        bitly.shorten( request.long_url, sendResponse );
-                    break;
-                    
-                    case "expand":
-                        // this event triggered by a content script
-                        bitly.expand( request.short_url, sendResponse );
-                    break;
-                    
-                    default:
-                        // fall throw
-                    break;
-                    
-                    
-                }
-                console.log("hear a request", request)
-                sendResponse({"foo" : "bar"})                
-            }
+        }
             
             
-            chrome.extension.onRequest.addListener(actions_listeners);
+        chrome.extension.onRequest.addListener(actions_listeners);
             
         </script>
       

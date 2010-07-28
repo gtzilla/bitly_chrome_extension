@@ -22,7 +22,7 @@ The version number is automatically incremented by deploy_extension.sh
     "128" : "s/graphics/small_bitly_puffer.png"    
   },
   "permissions": [
-    // "http://*/*",
+    "http://*/*",
     "http://api.bit.ly/",
     "tabs", 
     "unlimited_storage"     
@@ -30,9 +30,10 @@ The version number is automatically incremented by deploy_extension.sh
   
   "content_scripts": [
     {
-      // TODO: narrow this match?
+      // TODO: narrow this match? --- - ,
      "matches": ["http://*/*"],
-     "js": ["js/content_plugins/bitly.images.js", "js/content_plugins/bitly.urlexpander.js"]
+     //"js/content_plugins/bitly.images.js"
+     "js": ["js/content_plugins/bitly.urlexpander.js"]
     }
   ],
   "update_url": "http:/chrome.bit.ly/bitly_extension_updates.xml"   
