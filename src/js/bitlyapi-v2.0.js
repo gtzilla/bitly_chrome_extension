@@ -6,6 +6,8 @@
 
 (function() {
 
+// TODO
+// move this info to settings file
 var host = "http://api.bit.ly", 
     urls = {
         'shorten' : '/v3/shorten',
@@ -18,29 +20,9 @@ var host = "http://api.bit.ly",
 
 var BitlyAPI = function(  user, APIKey, settings  ) {
     // this should be an object
+    if(settings && settings.host ) host = settings.host;
     return new BitlyAPI.fn.init( user, APIKey )
 } 
-
-var buildparams = function( obj ) {
-    // todo, be more complex
-    var params = [], a;
-    for(var k in obj ) {
-        if(typeof obj[k] === "string") {
-            // check has own property
-            params[params.length] = k + "=" +encodeURIComponent( obj[k] );
-        } else if(obj[k] && obj[k].length > 0) {
-            // could be an object or an array
-            a = obj[k];
-
-            for(var i=0; i<a.length; i++) {
-                params[params.length] = k + "=" + encodeURIComponent(a[i]);                    
-            }
-
-        }
-
-    }
-    return params.join("&");
-}
 
 // TODO
 // check to make sure there is no NameSpace collision
@@ -76,51 +58,20 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     
     expand : function(  short_urls, callback ) {
 
-        var expand_params = copy_obj( this.bit_request ), 
-            request_count = 0, collection = [];
+        // var expand_params = copy_obj( this.bit_request ), 
+        //     request_count = 0, collection = [];
 
         this.count+=1;
 
-        function stitch( response ) {
-            request_count-=1;
-            collection = collection.concat( response.expand );
-            if(request_count <= 0) {
-                if(callback) callback({'expand' : collection})
-            }
-        }
-        
-        if( is_large_arrary( short_urls )  ) {
-            var chunks = chunk( short_urls, 15  );
-            for(var i=0; i<chunks.length; i++) {
-                request_count+=1;
-                expand_params.shortUrl = chunks[i];                  
-                bitlyRequest( urls.expand,  expand_params, stitch);                      
-            }
-        } else {
-            expand_params.shortUrl = short_urls;  
-            bitlyRequest( urls.expand,  expand_params, callback);                
-        }
-        
-        
+        internal_multiget( urls.expand, 'shortUrl', short_urls, callback );        
+    },
+    
+    clicks : function(short_urls, callback) {
+        // yet another one that needs stitching...
     },
     
     info : function( short_urls, callback ) {
-        var info_params = copy_obj( this.bit_request ), request_count = 0, collection = [];
-        
-        function stitch( response ) {
-            request_count-=1;
-            collection = collection.concat( response.expand );
-            if(request_count <= 0) {
-                if(callback) callback({'expand' : collection})
-            }
-        }        
-        
-        
-        if( is_large_arrary( short_urls ) ) {
-            
-        } else {
-            
-        }
+        internal_multiget( urls.info, 'shortUrl', short_urls, callback );        
     },
     
     auth : function( username, password, callback ) {
@@ -167,11 +118,34 @@ function copy_obj( obj ) {
 }
 
 function is_large_arrary( array ) {
-    
     if( typeof array !== "string" && array.length > 15) { return true; }
-    
     return false;
+}
+
+function internal_multiget( path, param_key, urls_list, callback ) {
+    // props to @jehiah for the above naming convention...
+    var collection = [], request_count, chunks = [],
+        bit_params = copy_obj( this.bit_request );
+    function stitch( response ) {
+        request_count-=1;
+        collection = collection.concat( response.expand );
+        if(request_count <= 0) {
+            if(callback) callback({'expand' : collection})
+        }
+    }
     
+    if( is_large_arrary( urls_list )  ) {
+        chunks = chunk( urls_list, 15  );
+        for(var i=0; i<chunks.length; i++) {
+            // break into arrays of length < 15 - bit.ly API has a limit on # per request
+            request_count+=1;
+            bit_params[ param_key ] = chunks[i];                  
+            bitlyRequest( path,  bit_params, stitch);                      
+        }
+    } else {
+        expand_params[ param_key ] = urls_list;  
+        bitlyRequest( path,  bit_params, callback);                
+    }
 }
 
 function chunk(array, chunkSize) {
@@ -183,13 +157,36 @@ function chunk(array, chunkSize) {
    return base;
 }
 
+
+function buildparams( obj ) {
+    // todo, be more complex
+    var params = [], a;
+    for(var k in obj ) {
+        if(typeof obj[k] === "string") {
+            // check has own property
+            params[params.length] = k + "=" +encodeURIComponent( obj[k] );
+        } else if(obj[k] && obj[k].length > 0) {
+            // could be an object or an array
+            a = obj[k];
+
+            for(var i=0; i<a.length; i++) {
+                params[params.length] = k + "=" + encodeURIComponent(a[i]);                    
+            }
+
+        }
+
+    }
+    return params.join("&");
+}
+
 function bitlyRequest( api_path, params, callback ) {
     ajaxRequest({
         'url' : host + api_path + "?" + buildparams( params ),
         'success' : function(jo) {
             console.log(jo, "bit.ly response: ", api_path);               
             if(callback) callback( jo );    // send back the long url as a second arg
-        }
+        },
+        error : callback
     });    
 }
 
@@ -202,10 +199,13 @@ function ajaxRequest( obj ) {
          if (xhr.readyState == 4) {
              // do success
              if(xhr.status!=200) {
+                 // TODO
+                 // handle errors better
                  if(obj.error) obj.error();
+                 else obj.success({ 'error' : JSON.parse(xhr.responseText) })
                  console.log("status is not 200")
                  return;
-             }
+             } 
              try {
                  message = JSON.parse(xhr.responseText);
                  if(message.status_code === 200) {
@@ -219,8 +219,6 @@ function ajaxRequest( obj ) {
                  console.log("not json")
                  message = xhr.responseXML || xhr.responseText
              }
-             
-             //console.log(message)
              obj.success( message )
          }
     }

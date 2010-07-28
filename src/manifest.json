@@ -4,14 +4,15 @@ The version number is automatically incremented by deploy_extension.sh
 
 {
   "name": "bit.ly | a simple URL Shortner",
-  "version": "0.1.1.1",
+  "version": "0.1.2.1",
   "options_page": "bitly_options.html",
   "description": "Shorten, share and track your urls",
   "background_page": "background.html",
   "browser_action": {
     "default_title": "bit.ly",  
     "default_icon": "bitly.png",
-    "popup" : "bitly_signin.html"
+    "popup" : "popup.html"
+    //"popup" : "bitly_signin.html"
   },
   // "chrome_url_overrides": {
   //     "newtab": "local_history.html"
