@@ -63,14 +63,27 @@ function brainResponse(jo) {
         href = links[i].getAttribute("href")
         //console.log(href)
         // TODO
-        // careful with the continue statements
+            // careful with the continue statements
+            // I could use lastindexof("/") and then check my value, 
+            // might be faster b/c a split is a regex and has to create an array
 
         if(!href) continue;
         bit_keys = href.split("/");        
-        user_hash = bit_keys.pop()
+        user_hash = bit_keys.pop();
+        
+        if(!user_hash) continue;
         bit_result = jo.expand_and_meta[ user_hash ]
+        
         if(!bit_result) continue;
-        console.log(bit_result);
+        //console.log(bit_result);
+        (function( result, elem_num  ) {
+            links[elem_num].addEventListener('mouseover', function(e) {
+                console.log(result)
+            })            
+        })(bit_result, i);
+
+        
+        // result is good, add event listener, wrap this data in via a closure
 
     }
     // this idea is to handle AJAX pages, like twitter, where a full page refresh can add urls
