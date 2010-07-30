@@ -1,0 +1,12 @@
+#bitly_expanded_container {
+    position:absolute;
+    background:white;
+    border:1px solid #ccc;
+    /* round the corners  */
+    bottom:1px;
+    z-index:5000;
+/*    width:100%;*/
+    left:0px;
+    display:none;
+    padding:10px;
+}

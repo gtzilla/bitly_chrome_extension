@@ -47,7 +47,8 @@ function find_short_links() {
     console.log("running the expander script")
     var links = document.getElementsByTagName("a"), href, matches, final_matches=[], url
     for(var i=0; i<links.length; i++) {
-        href = (links[i].innerHTML).trim()
+        //href = (links[i].innerHTML).trim()
+        href = links[i].getAttribute("href")
         if(!href) continue;
         matches = href.match(fullUriRegex)
         if(!matches) continue;
@@ -70,8 +71,12 @@ function brainResponse(jo) {
         href, bit_key, user_hash, bit_result, 
         container, body = document.getElementsByTagName("body")[0];
     
-    container = document.createElement("div");
-    container.id = "bitly_expanded_container"
+    container = document.getElementById("bitly_expanded_container") || document.createElement("div");
+    if(!container.id || container.id === "") {
+        container.id = "bitly_expanded_container";
+    }
+
+
     
     if(jo.total <= 0) return; // bail, no links
     
@@ -89,6 +94,9 @@ function brainResponse(jo) {
         bit_keys = href.split("/");        
         user_hash = bit_keys.pop();
         
+        
+        // todo
+        // broken for keywords, need to match on hash || shorturl || keyword 
         if(!user_hash) continue;
         bit_result = jo.expand_and_meta[ user_hash ]
         
@@ -99,15 +107,22 @@ function brainResponse(jo) {
         (function( result, elem_num  ) {
             var html = '';
             html += '<div>'
+                html += result.user_clicks + " clicks for "
                 html += result.long_url
             html += '</div>'
             
             links[elem_num].addEventListener('mouseover', function(e) {
-                console.log(result, e, e.currentTarget, container)
-                e.clientX
+                console.log(result, e, e.screenX, container)
+                container.style.display="block";                
+                container.style.top = (e.target.pageY + e.target.offsetY) + "px";
+                container.style.left = (e.target.pageX - e.target.offsetX) + "px";                
                 container.innerHTML = html;
                 
-            })            
+            })
+            links[elem_num].addEventListener('mouseout', function(e) {
+                container.style.display="none"
+            });
+            
         })(bit_result, i);
 
         

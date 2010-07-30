@@ -82,7 +82,10 @@
                 case "expand":
                     // this event triggered by a content script
                     console.log("expand", request, bitly)
+                    
+                    chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"});
                     bitly.expand_and_meta( request.short_url, sendResponse );
+                    
                 break;
                 
                 case "page_selection":

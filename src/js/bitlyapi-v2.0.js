@@ -63,7 +63,10 @@ BitlyAPI.fn = BitlyAPI.prototype = {
 
         this.count+=1;
 
-        internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, callback );        
+        internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, function(jo) {
+            console.log("working", jo)
+            callback(jo)
+        } );        
     },
     
     expand_and_meta : function( short_urls, callback ) {
@@ -74,7 +77,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         var requests = 3, final_results = {};
         function sticher( response ) {
             requests-=1;
-            console.log(response, "the expand and meta sticher")
+            //console.log(response, "the expand and meta sticher")
             
             // clicks || info || expand
             var items = response.clicks || response.info || response.expand;
@@ -83,6 +86,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                 
                 // blend data
                 //console.log(items[i])
+                if(items[i].error) continue;
+                
                 var item_hash = items[i].user_hash
                 if(!final_results[ item_hash ] ) {
                     // 
@@ -143,7 +148,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                 if( jo.authenticate.successful ) {
                     self.set_credentials( jo.authenticate.username, jo.authenticate.api_key )              
                 }
-                if(callback) callback( jo );    // send back the long url as a second arg
+                if(callback) callback( jo );
             }
         });        
         
@@ -157,7 +162,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     }
     
 }  
-// make the magic
+// make the magic happen, allows var b = BitlyAPI("whatever")
+//                                  b.shorten("http://google.com")
 BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
 
@@ -180,13 +186,21 @@ function is_large_arrary( array ) {
 
 function internal_multiget( path, param_key, urls_list, params, callback ) {
     // props to @jehiah for the above naming convention...
-    var collection = [], request_count, chunks = [],
-        bit_params = copy_obj( params );
+    var collection = [], request_count=0, chunks = [],
+        bit_params = copy_obj( params ), key_name = "expand";
     function stitch( response ) {
         request_count-=1;
-        collection = collection.concat( response.expand );
+        console.log("stich response", response)
+        for(var k in response) {
+            if(response[k] && response[k].length >= 0) key_name = k
+        }
+        console.log("the key is", key_name )
+        collection = collection.concat( response[key_name] );
+
         if(request_count <= 0) {
-            if(callback) callback({'expand' : collection})
+            var final_respone = {}
+            final_respone[key_name] = collection; // required syntax, JS can't turn var into obj keys otherwise
+            if(callback) callback( final_respone )
         }
     }
      
