@@ -51,21 +51,28 @@ function find_short_links() {
                 final_matches.push(url)
             }
         }
-    }
-    console.log(final_matches)
-    if(final_matches.length > 0) {
-        //port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
-        chrome.extension.sendRequest({'action' : 'expand', 'short_url' : final_matches }, brainResponse)        
-    }
-
+    }    
+    return final_matches;
 }
 
 function brainResponse(jo) {
-    console.log(jo, "the expanded urls")
-}
+    console.log(jo, "the expanded urls");
+    
+    var links =  document.getElementsByTagName("a"), href, bit_key, user_hash, bit_result;
+    for(var i=0; i<links.length; i++) {
+        href = links[i].getAttribute("href")
+        //console.log(href)
+        // TODO
+        // careful with the continue statements
 
-function init() {
-    find_short_links();
+        if(!href) continue;
+        bit_keys = href.split("/");        
+        user_hash = bit_keys.pop()
+        bit_result = jo.expand_and_meta[ user_hash ]
+        if(!bit_result) continue;
+        console.log(bit_result);
+
+    }
     // this idea is to handle AJAX pages, like twitter, where a full page refresh can add urls
     // consider an ONHOVER, check instead...
     // document.addEventListener('click', function(e) {
@@ -74,7 +81,31 @@ function init() {
     //     timeout_link = setTimeout(function() {
     //         find_short_links();
     //     }, 500)
-    // })
+    // })    
+}
+
+function callBrain( final_matches ) {
+    if(final_matches.length > 0) {
+        //port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
+        console.log("expand found short links")
+        chrome.extension.sendRequest({'action' : 'expand', 'short_url' : final_matches }, brainResponse)        
+    }
+    
+    return;
+}
+
+/*
+    1. create doc frag
+    2. create correct 'hover' structure, save this value to be cloned
+    3. find all the links, attached hover events to these links
+    4. clone from saved value, display info
+
+*/
+
+function init() {
+    var matches = find_short_links();
+    callBrain( matches );
+
 }
 init();
 

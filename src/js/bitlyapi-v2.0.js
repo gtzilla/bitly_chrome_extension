@@ -104,12 +104,13 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             
             if(requests<=0) {
                 // put it all together
-                var list_results = [];
+                var list_results = [], count=0;
                 for(var key in final_results) {
-                    list_results.push( final_results[key] )
+                    count+=1;
+                    //list_results.push( final_results[key] )
                 }
                 console.log("merged up data is", final_results)
-                callback( {'expand_and_meta' : list_results } )
+                callback( {'expand_and_meta' : final_results, 'total' : count } )
             }
         }
         this.expand( short_urls, sticher );
