@@ -1,8 +1,16 @@
 var port = chrome.extension.connect({ "name" : "url_expander"}), page_links,
     timeout_link,
-    domains = new RegExp( "(twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com)+" ),
+    domains = new RegExp( "(twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly)+" ),
     fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi");
 
+
+// unreal possibility
+//http://ow.ly/2iBnE || http://bit.ly/2iBnE+
+// bit.ly returns the google news page
+// this is a link to the mashable article on the same topic
+//  http://mashable.com/2010/07/29/google-search-blocked-china-report/
+//  http://news.google.com/news/url?fd=R&sa=T&url=http://www.vindy.com/news/2009/jul/19/heritage-foundation-has-an-alternative-to-health/&usg=AFQjCNGkbpZcLvUGeznDlIAywfUhqa--OA
+//  
 port.onMessage.addListener(function(msg) {
     console.log("I hear", msg)
     if( msg.expands.length > 0) {
@@ -58,7 +66,17 @@ function find_short_links() {
 function brainResponse(jo) {
     console.log(jo, "the expanded urls");
     
-    var links =  document.getElementsByTagName("a"), href, bit_key, user_hash, bit_result;
+    var links =  document.getElementsByTagName("a"), 
+        href, bit_key, user_hash, bit_result, 
+        container, body = document.getElementsByTagName("body")[0];
+    
+    container = document.createElement("div");
+    container.id = "bitly_expanded_container"
+    
+    if(jo.total <= 0) return; // bail, no links
+    
+    body.appendChild( container )
+    
     for(var i=0; i<links.length; i++) {
         href = links[i].getAttribute("href")
         //console.log(href)
@@ -76,9 +94,19 @@ function brainResponse(jo) {
         
         if(!bit_result) continue;
         //console.log(bit_result);
+        
+        // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
+            var html = '';
+            html += '<div>'
+                html += result.long_url
+            html += '</div>'
+            
             links[elem_num].addEventListener('mouseover', function(e) {
-                console.log(result)
+                console.log(result, e, e.currentTarget, container)
+                e.clientX
+                container.innerHTML = html;
+                
             })            
         })(bit_result, i);
 
@@ -86,6 +114,8 @@ function brainResponse(jo) {
         // result is good, add event listener, wrap this data in via a closure
 
     }
+    
+    
     // this idea is to handle AJAX pages, like twitter, where a full page refresh can add urls
     // consider an ONHOVER, check instead...
     // document.addEventListener('click', function(e) {
