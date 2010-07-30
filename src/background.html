@@ -79,10 +79,10 @@
                     bitly.shorten( request.long_url, sendResponse );
                 break;
                 
-                case "expand_and_meta":
+                case "expand":
                     // this event triggered by a content script
                     console.log("expand", request, bitly)
-                    bitly.expand( request.short_url, sendResponse );
+                    bitly.expand_and_meta( request.short_url, sendResponse );
                 break;
                 
                 case "page_selection":

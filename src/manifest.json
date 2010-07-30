@@ -1,5 +1,9 @@
 /*
 The version number is automatically incremented by deploy_extension.sh
+    Note:
+        In order to deploy this to google extension gallery, must remove all comments and the update url
+        
+        Consider altering 'deploy' script to handle this
 */
 
 {

@@ -71,7 +71,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         // 2. run an info
         // 3. run a clicks
         // stitch all, return data
-        var requests = 3, final_results {};
+        var requests = 3, final_results = {};
         function sticher( response ) {
             requests-=1;
             console.log(response, "the expand and meta sticher")
@@ -82,19 +82,34 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             for(var i=0; i<items.length; i++) {
                 
                 // blend data
+                //console.log(items[i])
+                var item_hash = items[i].user_hash
+                if(!final_results[ item_hash ] ) {
+                    // 
+                    final_results[ item_hash ] = items[i];
+                } else {
+                    // merge in new values
+                    // if I was using jQuery, I would just call $.extend({}, obj1, obj2)
+                    var store = final_results[ item_hash ]
+                    for(var k in items[i]) {
+                        
+                        
+                        if( store[k] ) continue;
+                        store[k] = items[i][k]
+                        
+                    }
+                }
+                
             }
-            if(response.clicks) {
-                // 
-            } else if( response.info ) {
-                //
-            } else if(response.expand) {
-                //
-            }
-            
             
             if(requests<=0) {
                 // put it all together
-                callback( {} )
+                var list_results = [];
+                for(var key in final_results) {
+                    list_results.push( final_results[key] )
+                }
+                console.log("merged up data is", final_results)
+                callback( {'expand_and_meta' : list_results } )
             }
         }
         this.expand( short_urls, sticher );
@@ -184,7 +199,7 @@ function internal_multiget( path, param_key, urls_list, params, callback ) {
         }
     } else {
         bit_params[ param_key ] = urls_list;  
-        console.log("try to send ", bit_params)
+        //console.log("try to send ", bit_params)
         bitlyRequest( path,  bit_params, callback);                
     }
 }
