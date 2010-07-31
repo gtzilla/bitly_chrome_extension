@@ -112,10 +112,10 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                 var list_results = [], count=0;
                 for(var key in final_results) {
                     count+=1;
-                    //list_results.push( final_results[key] )
+                    list_results.push( final_results[key] )
                 }
                 console.log("merged up data is", final_results)
-                callback( {'expand_and_meta' : final_results, 'total' : count } )
+                callback( {'expand_and_meta' : final_results, 'list_results' : list_results, 'total' : count } )
             }
         }
         this.expand( short_urls, sticher );
@@ -190,13 +190,10 @@ function internal_multiget( path, param_key, urls_list, params, callback ) {
         bit_params = copy_obj( params ), key_name = "expand";
     function stitch( response ) {
         request_count-=1;
-        console.log("stich response", response)
         for(var k in response) {
             if(response[k] && response[k].length >= 0) key_name = k
         }
-        console.log("the key is", key_name )
         collection = collection.concat( response[key_name] );
-
         if(request_count <= 0) {
             var final_respone = {}
             final_respone[key_name] = collection; // required syntax, JS can't turn var into obj keys otherwise

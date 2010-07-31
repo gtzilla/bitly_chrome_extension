@@ -69,6 +69,7 @@ function brainResponse(jo) {
     
     var links =  document.getElementsByTagName("a"), 
         href, bit_key, user_hash, bit_result, 
+        possible_keywords = [], matched_results = [],
         container, body = document.getElementsByTagName("body")[0];
     
     container = document.getElementById("bitly_expanded_container") || document.createElement("div");
@@ -80,28 +81,12 @@ function brainResponse(jo) {
     
     if(jo.total <= 0) return; // bail, no links
     
+    var matches_links = find_link_elements_by_response( jo );    
+    console.log(matches_links)
     body.appendChild( container )
     
-    for(var i=0; i<links.length; i++) {
-        href = links[i].getAttribute("href")
-        //console.log(href)
-        // TODO
-            // careful with the continue statements
-            // I could use lastindexof("/") and then check my value, 
-            // might be faster b/c a split is a regex and has to create an array
-
-        if(!href) continue;
-        bit_keys = href.split("/");        
-        user_hash = bit_keys.pop();
-        
-        
-        // todo
-        // broken for keywords, need to match on hash || shorturl || keyword 
-        if(!user_hash) continue;
-        bit_result = jo.expand_and_meta[ user_hash ]
-        
-        if(!bit_result) continue;
-        //console.log(bit_result);
+    for(var i=0; i<matches_links.length; i++) {
+       
         
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
@@ -111,19 +96,19 @@ function brainResponse(jo) {
                 html += result.long_url
             html += '</div>'
             
-            links[elem_num].addEventListener('mouseover', function(e) {
-                console.log(result, e, e.screenX, container)
+            matches_links[elem_num].elem.addEventListener('mouseover', function(e) {
+                console.log(result, e, e.screenX, e.target.offsetWidth)
                 container.style.display="block";                
-                container.style.top = (e.target.pageY + e.target.offsetY) + "px";
-                container.style.left = (e.target.pageX - e.target.offsetX) + "px";                
+                container.style.top = (e.pageY + e.target.offsetHeight) + "px";
+                container.style.left = (e.pageX - e.target.offsetWidth) + "px";                
                 container.innerHTML = html;
                 
             })
-            links[elem_num].addEventListener('mouseout', function(e) {
+            matches_links[elem_num].elem.addEventListener('mouseout', function(e) {
                 container.style.display="none"
             });
             
-        })(bit_result, i);
+        })(matches_links[i].bit_result, i);
 
         
         // result is good, add event listener, wrap this data in via a closure
@@ -140,6 +125,54 @@ function brainResponse(jo) {
     //         find_short_links();
     //     }, 500)
     // })    
+}
+
+function find_link_elements_by_response( jo ) {
+    var links =  document.getElementsByTagName("a"), 
+        href, bit_key, user_hash, bit_result, 
+        possible_keywords = [], matched_results = [];
+        
+    if(jo.total <= 0) return; // bail, no links
+        
+    for(var i=0; i<links.length; i++) {
+        href = links[i].getAttribute("href")
+        //console.log(href)
+        // TODO
+            // careful with the continue statements
+            // I could use lastindexof("/") and then check my value, 
+            // might be faster b/c a split is a regex and has to create an array
+
+        if(!href) continue;
+        bit_keys = href.split("/");        
+        user_hash = bit_keys.pop();
+        
+        // note, this could miss keywords and other values, we'll pick those up via possible_keywords
+        if(!user_hash) continue;
+        bit_result = jo.expand_and_meta[ user_hash ]
+        
+        if(!bit_result) {
+            possible_keywords.push( links[i] )
+            continue;
+        } else {
+            matched_results.push( {'elem' : links[i], 'bit_result' : bit_result } )
+        }
+    }
+    
+    for(var i=0; i<possible_keywords.length; i++) {
+        href = possible_keywords[i].getAttribute("href");
+        var bit_obj = jo.expand_and_meta;
+        for(var k in bit_obj) {
+            if(bit_obj[k].short_url === href) {
+                matched_results.push(  {'elem' : links[i], 'bit_result' : bit_obj }  )
+                break;
+            }
+        }
+    }
+    
+    return matched_results;
+    
+    /// loop over the possible keywords
+      
 }
 
 function callBrain( final_matches ) {
