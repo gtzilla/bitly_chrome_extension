@@ -1,12 +1,27 @@
 #bitly_expanded_container {
     position:absolute;
-    background:white;
-    border:1px solid #ccc;
+
     /* round the corners  */
     bottom:1px;
     z-index:5000;
 /*    width:100%;*/
     left:0px;
     display:none;
-    padding:10px;
+
+}
+
+.bit_url_expander_box {
+    padding:10px;    
+    background:white;
+    border:3px solid #ccc;    
+    -webkit-border-radius: 6px;
+    -webkit-box-shadow: 2px 2px 5px #9a9a9a;    
+}
+
+.bit_clearer {
+    clear:both;
+    float:none;
+}
+.bit_clearer hr {
+    display:none;
 }

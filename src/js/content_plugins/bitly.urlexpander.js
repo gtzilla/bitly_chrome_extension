@@ -1,5 +1,5 @@
 var port = chrome.extension.connect({ "name" : "url_expander"}), page_links,
-    timeout_link,
+    timeout_link, expander_visible = false,
     domains = new RegExp( "(twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly)+" ),
     fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi");
 
@@ -75,6 +75,9 @@ function brainResponse(jo) {
     container = document.getElementById("bitly_expanded_container") || document.createElement("div");
     if(!container.id || container.id === "") {
         container.id = "bitly_expanded_container";
+        container.addEventListener('mouseover', function(e) {
+            expander_visible = true;
+        });
     }
 
 
@@ -91,9 +94,13 @@ function brainResponse(jo) {
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
             var html = '';
-            html += '<div>'
-                html += result.user_clicks + " clicks for "
-                html += result.long_url
+            html += '<div class="bit_url_expander_box">'
+                html += '<ul><li><a href="'+ result.short_url +'+">' + result.user_clicks + "</a></li>"
+                html += '<li>of</li>'
+                html += '<li><a href="'+ result.short_url +'+">' + result.global_clicks + "</a></li>"
+                html += '</ul>'
+                html += '<p><a href="'+ result.long_url +'">' + trimTitle( result.title || result.long_url ) + '</a></p>'
+                html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'
             
             matches_links[elem_num].elem.addEventListener('mouseover', function(e) {
@@ -105,6 +112,7 @@ function brainResponse(jo) {
                 
             })
             matches_links[elem_num].elem.addEventListener('mouseout', function(e) {
+                if(expander_visible) return;
                 container.style.display="none"
             });
             
@@ -125,6 +133,10 @@ function brainResponse(jo) {
     //         find_short_links();
     //     }, 500)
     // })    
+}
+
+function trimTitle( str ) {
+    return str
 }
 
 function find_link_elements_by_response( jo ) {
