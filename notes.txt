@@ -1,0 +1,9 @@
+
+
+=== Handling Images / Screen Captures ===
+
+it might be possible to port an image lib to JS and have an ext worker resize, crop etc etc the results from capture visible tab area.
+
+The worker should be able to make a local ajax connection and load the library (if it hasn't already) then process any results and return a string.
+
+If this was possible, it would mean the server aspect could be removed and data could be uploaded directly to twitpic or facebook etc etc

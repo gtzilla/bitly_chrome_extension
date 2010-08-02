@@ -1,6 +1,6 @@
 var port = chrome.extension.connect({ "name" : "url_expander"}), page_links,
-    timeout_link, expander_visible = false,
-    domains = new RegExp( "(twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly)+" ),
+    timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
+    domains = new RegExp( "(twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly|mash\.to)+" ),
     fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi");
 
 
@@ -48,6 +48,10 @@ function find_short_links() {
     var links = document.getElementsByTagName("a"), href, matches, final_matches=[], url
     for(var i=0; i<links.length; i++) {
         //href = (links[i].innerHTML).trim()
+        if(expanded_elements.indexOf( links[i] ) > -1) {
+          console.log("skipping, element, expanded already")
+          return;  
+        } 
         href = links[i].getAttribute("href")
         if(!href) continue;
         matches = href.match(fullUriRegex)
@@ -79,24 +83,39 @@ function findPos(obj) {
 function brainResponse(jo) {
     console.log(jo, "the expanded urls");
     
+    // start looking for more
+    run_find_more_links();
+    
     var links =  document.getElementsByTagName("a"), 
         href, bit_key, user_hash, bit_result, 
         possible_keywords = [], matched_results = [],
-        container, body = document.getElementsByTagName("body")[0];
+        body = document.getElementsByTagName("body")[0];
     
     container = document.getElementById("bitly_expanded_container") || document.createElement("div");
     if(!container.id || container.id === "") {
         container.id = "bitly_expanded_container";
         container.addEventListener('mouseover', function(e) {
+            clearTimeout(timeout_link);
             expander_visible = true;
         });
+        container.addEventListener('mouseout', closeBitlyUrlExpanderBox);
+        container.addEventListener('click', function(e) {
+
+            if(e.target.className === "bitly_url_expander_box_close") {
+                console.log("close it.");
+                e.preventDefault();
+                container.style.display="none";
+                return false;
+            }
+        })
     }
 
 
     
     if(jo.total <= 0) return; // bail, no links
     
-    var matches_links = find_link_elements_by_response( jo );    
+    var matches_links = expanded_elements = find_link_elements_by_response( jo );   
+     
     console.log(matches_links)
     body.appendChild( container )
     
@@ -105,49 +124,36 @@ function brainResponse(jo) {
         
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
-            var html = '';
+            var html = '', el = matches_links[elem_num].elem, positions = findPos( el );
             html += '<div class="bit_url_expander_box">'
-                html += '<ul><li><a href="'+ result.short_url +'+">' + result.user_clicks + "</a></li>"
-                html += '<li>of</li>'
-                html += '<li><a href="'+ result.short_url +'+">' + result.global_clicks + "</a></li>"
-                html += '</ul>'
-                html += '<p><a href="'+ result.long_url +'">' + trimTitle( result.title || result.long_url ) + '</a></p>'
+                html += '<div class="bitly_url_clicksbox">';
+                    html += '<ul>';
+                        html += '<li><a title="'+result.short_url+'+ Page" href="'+ result.short_url +'+">' + result.user_clicks + '</a></li>';
+                        html += '<li>of</li>';
+                        html += '<li><a title="http://bit.ly/'+ result.global_hash +'+ Page" href="http://bit.ly/'+ result.global_hash +'+">' + result.global_clicks + "</a></li>";
+                    html += '</ul>';
+                html += '</div>';
+                html += '<div class="bitly_url_infobox">'
+                    html += '<p><a title="'+result.long_url+'" href="'+ result.long_url +'">' + trimTitle( result.title || result.long_url ) + '</a></p>'
+                html += '</div>'
+                html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>'
                 html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'
             
-            var el = matches_links[elem_num].elem;
-            
-            // if (el.offsetParent) {
-            //     do {
-            //         curleft += obj.offsetLeft;
-            //         curtop += obj.offsetTop;
-            //     } while( el = el.offsetParent);
-            // }
-            var positions = findPos( el );
             
             el.addEventListener('mouseover', function(e) {
                 console.log(e, positions);
-                //console.log(e.pageY, e.pageX, e.offsetX, e.offsetY)
-                console.log('--break---')
+                clearTimeout(timeout_link);                
+                positions = findPos( el );
+                var left_pos = ( positions[0] > e.pageX ) ? e.pageX : positions[0];
                 container.style.display="block";                
-                // container.style.top = (e.pageY + e.target.offsetHeight) + "px";
-                // container.style.left = (e.pageX - e.target.offsetWidth) + "px";                
-                
-                /*
-                        - e.pageY & e.pageX
-                            This is the absolute position of the mouse 
-                            in relation to the top of the total window (larger than visible area)
-                        - In order to pageY and X to be useful, I need to know the size of the element I just touched.
-                */
                 container.style.top = ( positions[1] + e.target.offsetHeight ) + "px";
-                container.style.left = positions[0] + "px";                
+                container.style.left = left_pos + "px";                
                 container.innerHTML = html;
                 
             })
-            el.addEventListener('mouseout', function(e) {
-                if(expander_visible) return;
-                container.style.display="none"
-            });
+            el.addEventListener('mouseout', closeBitlyUrlExpanderBox);
+            
             
         })(matches_links[i].bit_result, i);
 
@@ -155,15 +161,13 @@ function brainResponse(jo) {
     }
     
     
-    // this idea is to handle AJAX pages, like twitter, where a full page refresh can add urls
-    // consider an ONHOVER, check instead...
-    // document.addEventListener('click', function(e) {
-    //     console.log('document got click... ')
-    //     if(timeout_link) { clearTimeout(timeout_link); timeout_link=null; }
-    //     timeout_link = setTimeout(function() {
-    //         find_short_links();
-    //     }, 500)
-    // })    
+ 
+}
+
+function closeBitlyUrlExpanderBox(e) {
+    timeout_link = setTimeout(function(){
+        container.style.display="none";
+    }, 280)    
 }
 
 function trimTitle( str ) {
@@ -218,11 +222,36 @@ function find_link_elements_by_response( jo ) {
       
 }
 
+function run_find_more_links() {
+    
+    
+    return;
+    
+    
+    
+    if(get_more_links_timeout) {
+        clearTimeout(get_more_links_timeout);
+        get_more_links_timeout = null;
+    }
+    
+    get_more_links_timeout = setTimeout(function() {
+        
+        var shorts = find_short_links();
+        
+        callBrain(shorts)
+        
+    }, 7000)
+}
+
 function callBrain( final_matches ) {
+    //var body = document.getElementsByTagName("body")[0];
+   
     if(final_matches.length > 0) {
         //port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
         console.log("expand found short links")
         chrome.extension.sendRequest({'action' : 'expand', 'short_url' : final_matches }, brainResponse)        
+    } else {
+        run_find_more_links();
     }
     
     return;
@@ -238,6 +267,8 @@ function callBrain( final_matches ) {
 
 function init() {
     var matches = find_short_links();
+//    var body = document.getElementsByTagName("body")[0];
+
     callBrain( matches );
 
 }
