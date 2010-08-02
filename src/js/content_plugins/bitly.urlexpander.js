@@ -64,6 +64,18 @@ function find_short_links() {
     return final_matches;
 }
 
+function findPos(obj) {
+    var curleft = curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curleft += obj.offsetLeft;
+            curtop += obj.offsetTop;
+        } while(obj = obj.offsetParent)
+    }
+    
+    return [curleft, curtop];
+}
+
 function brainResponse(jo) {
     console.log(jo, "the expanded urls");
     
@@ -103,23 +115,42 @@ function brainResponse(jo) {
                 html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'
             
-            matches_links[elem_num].elem.addEventListener('mouseover', function(e) {
-                console.log(result, e, e.screenX, e.target.offsetWidth)
+            var el = matches_links[elem_num].elem;
+            
+            // if (el.offsetParent) {
+            //     do {
+            //         curleft += obj.offsetLeft;
+            //         curtop += obj.offsetTop;
+            //     } while( el = el.offsetParent);
+            // }
+            var positions = findPos( el );
+            
+            el.addEventListener('mouseover', function(e) {
+                console.log(e, positions);
+                //console.log(e.pageY, e.pageX, e.offsetX, e.offsetY)
+                console.log('--break---')
                 container.style.display="block";                
-                container.style.top = (e.pageY + e.target.offsetHeight) + "px";
-                container.style.left = (e.pageX - e.target.offsetWidth) + "px";                
+                // container.style.top = (e.pageY + e.target.offsetHeight) + "px";
+                // container.style.left = (e.pageX - e.target.offsetWidth) + "px";                
+                
+                /*
+                        - e.pageY & e.pageX
+                            This is the absolute position of the mouse 
+                            in relation to the top of the total window (larger than visible area)
+                        - In order to pageY and X to be useful, I need to know the size of the element I just touched.
+                */
+                container.style.top = ( positions[1] + e.target.offsetHeight ) + "px";
+                container.style.left = positions[0] + "px";                
                 container.innerHTML = html;
                 
             })
-            matches_links[elem_num].elem.addEventListener('mouseout', function(e) {
+            el.addEventListener('mouseout', function(e) {
                 if(expander_visible) return;
                 container.style.display="none"
             });
             
         })(matches_links[i].bit_result, i);
 
-        
-        // result is good, add event listener, wrap this data in via a closure
 
     }
     
@@ -136,7 +167,7 @@ function brainResponse(jo) {
 }
 
 function trimTitle( str ) {
-    return str
+    return (str.length > 40) ? str.substring(0,40) + "..." : str;
 }
 
 function find_link_elements_by_response( jo ) {

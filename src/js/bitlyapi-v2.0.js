@@ -58,11 +58,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     
     expand : function(  short_urls, callback ) {
 
-        // var expand_params = copy_obj( this.bit_request ), 
-        //     request_count = 0, collection = [];
-
         this.count+=1;
-
         internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, function(jo) {
             console.log("working", jo)
             callback(jo)
@@ -80,7 +76,11 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             //console.log(response, "the expand and meta sticher")
             
             // clicks || info || expand
-            var items = response.clicks || response.info || response.expand;
+            var items = [];
+            try {
+                items = response.clicks || response.info || response.expand;
+            } catch(e) {}
+            
             
             for(var i=0; i<items.length; i++) {
                 
@@ -90,18 +90,14 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                 
                 var item_hash = items[i].user_hash
                 if(!final_results[ item_hash ] ) {
-                    // 
                     final_results[ item_hash ] = items[i];
                 } else {
                     // merge in new values
                     // if I was using jQuery, I would just call $.extend({}, obj1, obj2)
                     var store = final_results[ item_hash ]
                     for(var k in items[i]) {
-                        
-                        
                         if( store[k] ) continue;
                         store[k] = items[i][k]
-                        
                     }
                 }
                 
@@ -169,7 +165,7 @@ BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
 /*
     Utilities
-        Namespace contained by outer closure function
+        Namespace contained by outter closure function
 */
 function copy_obj( obj ) {
     var copy = {};
