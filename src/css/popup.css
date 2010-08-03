@@ -2,14 +2,28 @@
     See README.txt for copyright and Licsense
 */
 .popup_body {
-    background:#ededed;
+
+}
+#container {
+    padding:10px;
+/*    background:#ededed;*/
+
+    background:-webkit-gradient(linear, right bottom, right top, 
+                             from(#ededed), to(#fff), 
+                             color-stop(0.4, #eee), color-stop(0.2, #f0f0f0));
+    -webkit-border-radius: 5px;
+    border:1px solid #ccc;
+    
 }
 
 #bento_share {
-    font-size:14px;
+    font-size:18px;
     padding:10px;
-    min-width:400px;
-    min-height:130px;
+    color:#444;
+    min-width:390px;
+    min-height:90px;
+    
     border:1px solid #ccc;
+    background:#feffec;
 }
 

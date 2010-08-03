@@ -42,7 +42,76 @@
                         ... possibly setup a queue of requests I missed.
             
         */
+        // these are common helper funcs
+        function localstore( itemKey, itemValue ) {
+            // do I need to remove this key first??
+            var response = window.localStorage.setItem( itemKey, window.JSON.stringify( itemValue ) );
+            return response
+        }
+
+        function localfetch( itemKey ) {
+            var item = window.localStorage.getItem( itemKey )
+            try{
+                var json_item = JSON.parse(item);
+                return json_item
+            } catch(e) {
+                console.log('Error getting key', itemKey, e)
+            }
+            return null;                    
+        }
+             
+             
+        function sign_in(username, password, callback) {
+            bitly.auth(username, password, function(response) {
+                
+                var auth = response.authenticate;
+                if(auth && auth.successful) {
+                    var current_user = {
+                        "x_login": auth.username,
+                        "x_apiKey": auth.api_key
+                    }
+                    localstore("user_data", current_user);
+                }
+                if(callback) callback(response)
+                
+            });            
+        }
+
+
+        function set_current_bitly_user_from_cache() {
+            var user_data = localfetch("user_data");
+            if(user_data.x_login && user_data.x_apiKey) {
+                // change the popup
+                
+                bitly.set_credentials( user_data.x_login, user_data.x_apiKey )                
+                
+            } else {
+                sign_in("exttestaccount", "whatever", function(response) {
+                    console.log(response, " fake logged in");
+
+                });
+            }
+        }
         
+        function decode_tinyurl() {
+            var xhr = new XMLHttpRequest(), message;
+            var obj = {
+                url : "http://tinyurl.com/gxve"
+            }
+            xhr.open(obj.type || "GET", obj.url, true);           
+            xhr.onreadystatechange = function() {
+                 if (xhr.readyState == 4) {
+                     // do success
+                     console.log(xhr, "wow")
+                     console.log(xhr.responseText)
+                 }
+            }
+            xhr.send( obj.data || null );
+
+            return xhr;            
+            
+            
+        }
         
         function init_api() {
             // get from local storage?
@@ -53,19 +122,22 @@
 
             return b;                                
         }
-
-
-
-        var bitly = init_api();        
         
         
-        bitly.auth("exttestaccount", "whatever", function(response) {
-            // TEST
-            // fix this later to allow multiple account login...
-            bitly.expand_and_meta( ["http://4sq.com/d4QrFC"], function(jo) {
-                console.log(jo)
-            } )
-        });
+
+
+        // the bit.ly API worker
+        var bitly = init_api();   
+        set_current_bitly_user_from_cache();
+           
+        decode_tinyurl();
+ 
+        
+        /*
+            Listen for requests from content scripts, popups and other pages
+        */
+        
+
             
         function actions_listeners( request, sender, sendResponse ) {
             if(!request.action) return;
@@ -74,18 +146,23 @@
                 
                 
                 case "shorten":
-                    console.log("shorten");
-                    chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});                      
+                    console.log("shorten", sender);
+                    //chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});                      
                     bitly.shorten( request.long_url, sendResponse );
                 break;
                 
-                case "expand":
+                case "expand_and_meta":
                     // this event triggered by a content script
                     console.log("expand", request, bitly)
                     
                     chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"});
                     bitly.expand_and_meta( request.short_url, sendResponse );
                     
+                break;
+                
+                case "expand":
+                    console.log("expand", request, bitly)
+                    bitly.expand( request.short_url, sendResponse );                    
                 break;
                 
                 case "page_selection":
@@ -107,6 +184,12 @@
             }
         }
             
+            
+        /*
+        http://code.google.com/chrome/extensions/extension.html
+        chrome.extension.onConnectExternal.addListener(function(Port port) {...});
+        
+        */
             
         chrome.extension.onRequest.addListener(actions_listeners);
             

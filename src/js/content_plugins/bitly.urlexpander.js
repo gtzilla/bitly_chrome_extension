@@ -43,16 +43,25 @@ function no_look_domains( url ) {
 /*
     the trim method native to a string maybe html5 specific, caution
 */
+
+/*
+    http://www.quirksmode.org/blog/archives/2008/01/using_the_assig.html
+    http://paste.ly/4Y5
+    var x = document.getElementsByTagName('div');
+    for (var i=0,div;div=x[i];i++) {
+        doSomething(div);
+    }
+
+*/
+
 function find_short_links() {
     console.log("running the expander script")
-    var links = document.getElementsByTagName("a"), href, matches, final_matches=[], url
-    for(var i=0; i<links.length; i++) {
-        //href = (links[i].innerHTML).trim()
-        if(expanded_elements.indexOf( links[i] ) > -1) {
-          console.log("skipping, element, expanded already")
-          return;  
-        } 
-        href = links[i].getAttribute("href")
+    var links = document.getElementsByTagName("a"), 
+        href, matches, final_matches=[], 
+        url, i=0, elem;
+        
+    for ( ; elem=links[i]; i++ ) {
+        href = elem.getAttribute("href")
         if(!href) continue;
         matches = href.match(fullUriRegex)
         if(!matches) continue;
@@ -114,17 +123,18 @@ function brainResponse(jo) {
     
     if(jo.total <= 0) return; // bail, no links
     
-    var matches_links = expanded_elements = find_link_elements_by_response( jo );   
+    var matches_links = find_link_elements_by_response( jo );   
      
     console.log(matches_links)
     body.appendChild( container )
     
     for(var i=0; i<matches_links.length; i++) {
        
-        
+        //expanded_elements.push( matches_links[i].elem )
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
             var html = '', el = matches_links[elem_num].elem, positions = findPos( el );
+            //el.setAttribute("title", result.long_url)
             html += '<div class="bit_url_expander_box">'
                 html += '<div class="bitly_url_clicksbox">';
                     html += '<ul>';
@@ -134,9 +144,11 @@ function brainResponse(jo) {
                     html += '</ul>';
                 html += '</div>';
                 html += '<div class="bitly_url_infobox">'
-                    html += '<p><a title="'+result.long_url+'" href="'+ result.long_url +'">' + trimTitle( result.title || result.long_url ) + '</a></p>'
+                    html += '<h3><a title="'+result.long_url+'" href="'+ result.long_url +'">' + ( result.title || result.long_url ) + '</a></h3>'
+                    html += '<p><a href="'+ result.long_url +'" class="bit_long_link_preview">'+result.long_url+'</a></p>'
                 html += '</div>'
-                html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>'
+                html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>';
+                html += '<a title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="http://bit.ly/">bit.ly</a>';                
                 html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'
             
@@ -145,7 +157,7 @@ function brainResponse(jo) {
                 console.log(e, positions);
                 clearTimeout(timeout_link);                
                 positions = findPos( el );
-                var left_pos = ( positions[0] > e.pageX ) ? e.pageX : positions[0];
+                var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0];
                 container.style.display="block";                
                 container.style.top = ( positions[1] + e.target.offsetHeight ) + "px";
                 container.style.left = left_pos + "px";                
@@ -176,19 +188,21 @@ function trimTitle( str ) {
 
 function find_link_elements_by_response( jo ) {
     var links =  document.getElementsByTagName("a"), 
-        href, bit_key, user_hash, bit_result, 
+        href, bit_key, user_hash, 
+        bit_result, i=0, elem,
         possible_keywords = [], matched_results = [];
         
     if(jo.total <= 0) return; // bail, no links
         
-    for(var i=0; i<links.length; i++) {
-        href = links[i].getAttribute("href")
+    //for(var i=0; i<links.length; i++) {
+        
+    for ( ; elem=links[i];i++ ) {        
+        href = elem.getAttribute("href")
         //console.log(href)
         // TODO
             // careful with the continue statements
             // I could use lastindexof("/") and then check my value, 
             // might be faster b/c a split is a regex and has to create an array
-
         if(!href) continue;
         bit_keys = href.split("/");        
         user_hash = bit_keys.pop();
@@ -224,10 +238,7 @@ function find_link_elements_by_response( jo ) {
 
 function run_find_more_links() {
     
-    
     return;
-    
-    
     
     if(get_more_links_timeout) {
         clearTimeout(get_more_links_timeout);
@@ -249,7 +260,7 @@ function callBrain( final_matches ) {
     if(final_matches.length > 0) {
         //port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
         console.log("expand found short links")
-        chrome.extension.sendRequest({'action' : 'expand', 'short_url' : final_matches }, brainResponse)        
+        chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : final_matches }, brainResponse)        
     } else {
         run_find_more_links();
     }

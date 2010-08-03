@@ -12,11 +12,11 @@
 
 .bit_url_expander_box {
     margin-top:3px;
-    padding:10px;    
+    padding:0 10px;
     background:white;
-    border:4px solid #ccc;    
+    border:3px solid #ccc;    
     -webkit-border-radius: 6px;
-    -webkit-box-shadow: 2px 2px 6px #9d9d9d;    
+    -webkit-box-shadow: 3px 3px 6px #9d9d9d;    
     width:360px;
     text-align:left;
     position:relative;
@@ -31,17 +31,50 @@
 }
 .bitly_url_clicksbox {
     float:left;
-    width:60px;
-    text-align:left;    
+    width:30px;
+    text-align:left;  
+    padding:10px 10px 10px 0; 
+    border-right:1px solid #ccc;        
+}
+.bit_url_expander_box a, .bitly_url_clicksbox a {
+    color:#69f;
 }
 
 .bitly_url_infobox {
     float:left;
     width:290px;
     text-align:left;    
+    padding:10px 0 10px 10px; 
+
 }
-.bitly_url_expander_box_close {
+
+.bitly_url_infobox p, .bitly_url_infobox h3 {
+    overflow: hidden;
+    text-overflow: ellipsis;    
+    white-space: nowrap;   
+    font-weight:normal; 
+    display:block;
+}
+.bitly_url_infobox h3 {
+    font-size:13px;
+}
+.bit_url_expander_box .bitly_url_expander_box_close {
     position:absolute;
     top:3px;
     right:6px;
+    color:#999;
+    font-size:11px;
+}
+
+.bit_url_expander_box .bit_long_link_preview {
+    font-size:11px;
+    color:#999;
+    
+}
+.bit_url_expander_box .bitly_home_promo {
+    position:absolute;
+    bottom:3px;
+    right:6px;
+    font-size:11px;
+    color:#c79840;    
 }

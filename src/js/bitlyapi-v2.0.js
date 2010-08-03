@@ -271,6 +271,7 @@ function ajaxRequest( obj ) {
                  return;
              } 
              try {
+                 console.log(xhr, "the xhr")
                  message = JSON.parse(xhr.responseText);
                  if(message.status_code === 200) {
                      message = message.data;
