@@ -21,6 +21,7 @@
             </div> <!-- END #middle -->
         
             <div id="bottom">
+                    <div id="escape_worker"></div>
 
             </div> <!-- end #bottom -->
             
@@ -62,6 +63,7 @@
              
              
         function sign_in(username, password, callback) {
+            console.log(username, password, "auth attempt")
             bitly.auth(username, password, function(response) {
                 
                 var auth = response.authenticate;
@@ -71,47 +73,56 @@
                         "x_apiKey": auth.api_key
                     }
                     localstore("user_data", current_user);
+                    chrome.browserAction.setPopup({ "popup" : "popup.html"});                      
                 }
                 if(callback) callback(response)
                 
             });            
         }
+        
+        function sign_out() {
+            bitly.remove_credentials();
+            localstore("user_data", null);
+            chrome.browserAction.setPopup({ "popup" : "bitly_signin.html"});
+            return;
+        }
+        
+        function get_chrome_page( page_name ) {
+            var url =  chrome.extension.getURL(page_name),
+                 createTab=true, params = { 'selected' : true, 'url' : url };
+            chrome.tabs.getAllInWindow(null, function(tab_array) {
+
+               for(var i=0; i<tab_array.length; i++) {
+
+                   if( tab_array[i].url === url ) {
+                       createTab=false;
+                       chrome.tabs.update( tab_array[i].id, params);
+                       break;
+                   }
+               }
+
+                if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL(page_name) }) }
+            });
+        }        
 
 
         function set_current_bitly_user_from_cache() {
             var user_data = localfetch("user_data");
-            if(user_data.x_login && user_data.x_apiKey) {
+            if(user_data && user_data.x_login && user_data.x_apiKey) {
                 // change the popup
                 
-                bitly.set_credentials( user_data.x_login, user_data.x_apiKey )                
+                bitly.set_credentials( user_data.x_login, user_data.x_apiKey );
+                chrome.browserAction.setPopup({ "popup" : "popup.html"});                              
                 
             } else {
-                sign_in("exttestaccount", "whatever", function(response) {
-                    console.log(response, " fake logged in");
-
-                });
+                // //  Test account
+                // sign_in("exttestaccount", "whatever", function(response) {
+                //     console.log(response, " fake logged in");
+                // 
+                // });
             }
         }
         
-        function decode_tinyurl() {
-            var xhr = new XMLHttpRequest(), message;
-            var obj = {
-                url : "http://tinyurl.com/gxve"
-            }
-            xhr.open(obj.type || "GET", obj.url, true);           
-            xhr.onreadystatechange = function() {
-                 if (xhr.readyState == 4) {
-                     // do success
-                     console.log(xhr, "wow")
-                     console.log(xhr.responseText)
-                 }
-            }
-            xhr.send( obj.data || null );
-
-            return xhr;            
-            
-            
-        }
         
         function init_api() {
             // get from local storage?
@@ -129,9 +140,7 @@
         // the bit.ly API worker
         var bitly = init_api();   
         set_current_bitly_user_from_cache();
-           
-        decode_tinyurl();
- 
+
         
         /*
             Listen for requests from content scripts, popups and other pages

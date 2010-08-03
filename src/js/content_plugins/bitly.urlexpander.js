@@ -138,9 +138,9 @@ function brainResponse(jo) {
             html += '<div class="bit_url_expander_box">'
                 html += '<div class="bitly_url_clicksbox">';
                     html += '<ul>';
-                        html += '<li><a title="'+result.short_url+'+ Page" href="'+ result.short_url +'+">' + result.user_clicks + '</a></li>';
+                        html += '<li class="bit_user_clicks_box"><a title="'+result.short_url+'+ Page" href="'+ result.short_url +'+">' + result.user_clicks + '</a></li>';
                         html += '<li>of</li>';
-                        html += '<li><a title="http://bit.ly/'+ result.global_hash +'+ Page" href="http://bit.ly/'+ result.global_hash +'+">' + result.global_clicks + "</a></li>";
+                        html += '<li class="bit_global_clicks_box"><a title="http://bit.ly/'+ result.global_hash +'+ Page" href="http://bit.ly/'+ result.global_hash +'+">' + result.global_clicks + "</a></li>";
                     html += '</ul>';
                 html += '</div>';
                 html += '<div class="bitly_url_infobox">'

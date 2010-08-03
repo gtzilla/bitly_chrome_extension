@@ -34,7 +34,9 @@
     width:30px;
     text-align:left;  
     padding:10px 10px 10px 0; 
-    border-right:1px solid #ccc;        
+    border-right:1px solid #ccc;    
+    font-size:11px;
+    color:#999;    
 }
 .bit_url_expander_box a, .bitly_url_clicksbox a {
     color:#69f;
@@ -45,7 +47,7 @@
     width:290px;
     text-align:left;    
     padding:10px 0 10px 10px; 
-
+    
 }
 
 .bitly_url_infobox p, .bitly_url_infobox h3 {
@@ -77,4 +79,7 @@
     right:6px;
     font-size:11px;
     color:#c79840;    
+}
+.bit_user_clicks_box {
+    font-size:13px;
 }

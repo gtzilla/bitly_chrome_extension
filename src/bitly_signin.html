@@ -29,11 +29,11 @@
                     <div id="ext_bento_inner" >
                         
                         <div id="logo">
-                            <img src="s/graphics/bitly_sidebar_logo.png" alt="" border="0" width="49" height="26" />
+                            <a href="http://bit.ly"><img src="s/graphics/bitly_sidebar_logo.png" alt="" border="0" width="49" height="26" /></a>
                         </div>                     
                         
                         <div id="authenticateContainer">
-                            <a href="" class="signUpPromoButton largeSizeButton">Sign In to bit.ly</a>
+                            <a href="" id="signin_button" class="signUpPromoButton largeSizeButton">Sign In to bit.ly</a>
                         </div>
                         
                     </div> <!-- end #ext_bento_inner -->
@@ -46,19 +46,15 @@
             
             </div> <!-- end #bottom -->
         </div> <!-- end #container -->
-    
-        <script type="text/javascript" src="js/bitly_settings.js" charset="utf-8"></script>    
-        <script type="text/javascript" src="js/jquery-1.4.2.js"></script>
- 
- 
+     
         <script type="text/javascript" charset="utf-8">
-            $(function(){
+
+            var b = document.getElementById("signin_button");
+            b.addEventListener('click', function(e) {
                 
-                //var $bento_text_area = $('#bento_share');
-                $('#authenticateContainer a').bind('click', function(e) {
-                    e.preventDefault();
-                    chrome.extension.getBackgroundPage().get_chrome_page("bitly_options.html");                   
-                })
+                e.preventDefault();
+                chrome.extension.getBackgroundPage().get_chrome_page("options.html");                   
+                
             })
         </script>
              

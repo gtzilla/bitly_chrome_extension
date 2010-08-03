@@ -38,10 +38,13 @@
             
             <div id="middle">
                 
+                <h1 id="bitly_options">Settings</h1>                
+                
                 <div id="signedin_info_contents" style="display:none;">
                     
-                    
-                    <a href="#">Sign Out</a>
+                    <div id="signOutButtonContainer">
+                        <a class="signout" href="#">Sign Out</a>
+                    </div>                    
                     <form action="#" method="get" accept-charset="utf-8">
 
                         <div  class="inputContainer">
@@ -58,7 +61,7 @@
                     </form>                    
                 </div>
                 <div id="signedout_info_contents" style="display:none;">
-                    <form action="#" method="get" accept-charset="utf-8">
+                    <form id="signin_form" action="#" method="get" accept-charset="utf-8">
 
 
                         <div class="inputContainer">
@@ -79,7 +82,37 @@
                         
                         <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_in">Get an account</a></p>
                     </form>                    
-                </div>                
+                </div>    
+                
+                
+                
+                <div style="display:none;">
+                    
+                    <!-- <div class="api_type_selector">
+                        
+                        
+                        <p>You can choose either the bit.ly API or the j.mp API. Both work just the same way, but j.mp is just a little shorter. This change only applies to new shortens.</p>
+                        
+                        <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
+                            
+                            <div class="bentoOptions">
+                                
+                                <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
+                                <label for="jmp">Use bit.ly API</label>
+                            </div>
+                            
+                            <div class="bentoOptions">
+                                <input type="radio" name="api_choice" value="j.mp" id="bitly">
+                                <label for="bitly">Use j.mp API</label>
+                            
+                            </div>
+                        
+                        
+                        </form>
+                    </div>     -->                
+                    
+                    
+                </div>            
 
                 
                
@@ -98,17 +131,47 @@
             <script type="text/javascript" charset="utf-8">
                 
                 var bg = chrome.extension.getBackgroundPage(), 
-                    user_data = bg.localfetch("user_data");
+                    user_data = bg.localfetch("user_data"),
+                    elem,
+                    bod = document.getElementsByTagName("body")[0];
                     
                 function _id( name ) {
                     return document.getElementById( name )
                 }
                 if(user_data && user_data.x_login) {
-                    var elem = _id("signedin_info_contents");
+                    elem = _id("signedin_info_contents");
                     elem.style.display="block";
                     _id("api_key").setAttribute("value", user_data.x_apiKey);
                     _id("current_username").innerText = user_data.x_login;
+                } else {
+                    elem = _id("signedout_info_contents");
+                    elem.style.display="block";
+                    _id("signin_form").addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        console.log("submit the form....");
+                        // validate form
+                        var username = _id("username"), pass = _id("password");
+                        if(username.value === "" ||  pass.value === "") {
+                            console.log("all fields required")
+                            return;
+                        }
+                        bg.sign_in( username.value, pass.value, function(e) {
+                            console.log("logged in")
+                            document.location.reload();
+                        })
+                    })
+                    
                 }
+                
+                bod.addEventListener('click', function(e) {
+                    
+                    if(e.target.className === "signout") {
+                        e.preventDefault();
+                        bg.sign_out();
+                        document.location.reload();
+                    }
+                    
+                })
                 
             </script>
       

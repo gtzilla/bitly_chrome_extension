@@ -155,6 +155,11 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         // set as default
         this.bit_request.x_login = x_login;
         this.bit_request.x_apiKey = x_apiKey;        
+    },
+    
+    remove_credentials : function() {
+        delete this.bit_request.x_login;
+        delete this.bit_request.x_apiKey;        
     }
     
 }  

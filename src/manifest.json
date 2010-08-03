@@ -16,8 +16,8 @@ The version number is automatically incremented by deploy_extension.sh
   "browser_action": {
     "default_title": "bit.ly",  
     "default_icon": "bitly.png",
-    "popup" : "popup.html"
-    //"popup" : "bitly_signin.html"
+    //"popup" : "popup.html"
+    "popup" : "bitly_signin.html"
   },
   // "chrome_url_overrides": {
   //     "newtab": "local_history.html"
