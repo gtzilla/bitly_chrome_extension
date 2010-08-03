@@ -87,6 +87,13 @@
             });            
         }
         
+        function save_api_domain( api_domain ) {
+            var api_change = bitly.set_domain( api_domain );
+            if(api_change) {
+                localstore("domain", api_domain);
+            }
+        }
+        
         function sign_out() {
             bitly.remove_credentials();
             localstore("user_data", null);
@@ -114,20 +121,19 @@
 
 
         function set_current_bitly_user_from_cache() {
-            var user_data = localfetch("user_data");
+            var user_data = localfetch("user_data"), domain = localfetch("domain");
             if(user_data && user_data.x_login && user_data.x_apiKey) {
                 // change the popup
                 logger("User credentials found in cache")
                 bitly.set_credentials( user_data.x_login, user_data.x_apiKey );
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});                              
                 
-            } else {
-                // //  Test account
-                // sign_in("exttestaccount", "whatever", function(response) {
-                //     console.log(response, " fake logged in");
-                // 
-                // });
+            } 
+            
+            if(domain) {
+                bitly.set_domain( domain );
             }
+            
         }
         
         

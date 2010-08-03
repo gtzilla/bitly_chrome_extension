@@ -1,7 +1,9 @@
 var page_links, queried_matches = [],
     timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
-    domains = new RegExp( "(brizzly\.com|post\.ly|twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly|mash\.to)+" ),
-    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,6}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi");
+    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,6}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi"),
+    false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
+                            "yfrog.com", "su.pr", 
+                            "is.gd", "tinyurl.com", "twurl.nl", "twitter.com", "ow.ly", "mash.to"];
 
 
 // unreal possibility
@@ -14,9 +16,18 @@ var page_links, queried_matches = [],
 
 
 function no_look_domains( url ) {
-    var matches = url.match(domains);
-    if(matches && matches.length > 0) return true;
+    // var matches = url.match(domains);
+    // if(matches && matches.length > 0) return true;
+    // return false;
+    var test_string="";
+    for(var i=0; i<false_positive_list.length; i++) {
+            test_string = ("http://" + false_positive_list[i]).trim();
+            if( url.indexOf( false_positive_list[i] ) > -1 ) {
+                return true;
+            }
+    }
     return false;
+
 }
 
 /*
@@ -126,7 +137,7 @@ function brainResponse(jo) {
                     html += '</ul>';
                 html += '</div>';
                 html += '<div class="bitly_url_infobox">'
-                    html += '<h3><a title="'+result.long_url+'" href="'+ result.long_url +'">' + ( result.title || result.long_url ) + '</a></h3>'
+                    html += '<h3><a title="'+result.long_url+'" href="'+ result.short_url +'">' + ( result.title || result.long_url ) + '</a></h3>'
                     html += '<p><a href="'+ result.long_url +'" class="bit_long_link_preview">'+result.long_url+'</a></p>'
                 html += '</div>'
                 html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>';
@@ -140,6 +151,8 @@ function brainResponse(jo) {
                 clearTimeout(timeout_link);                
                 positions = findPos( el );
                 var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0];
+                // TODO
+                // animate this?
                 container.style.display="block";                
                 container.style.top = ( positions[1] + e.target.offsetHeight ) + "px";
                 container.style.left = left_pos + "px";                

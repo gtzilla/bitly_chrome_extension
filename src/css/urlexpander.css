@@ -40,7 +40,7 @@
 }
 #bitly_expanded_container .bitly_url_clicksbox {
     float:left;
-    width:30px;
+    width:40px;
     text-align:left;  
     padding:10px 10px 10px 0; 
     border-right:1px solid #ccc;    
@@ -53,9 +53,9 @@
 
 #bitly_expanded_container .bitly_url_infobox {
     float:left;
-    width:290px;
+    width:275px;
     text-align:left;    
-    padding:10px 0 10px 10px; 
+    padding:10px 0 10px 15px; 
     
 }
 

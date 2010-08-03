@@ -152,6 +152,18 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         
     },
     
+    set_domain : function( api_domain ) {
+        var types = ["bit.ly", "j.mp"];
+        if(types.indexOf(api_domain) > -1 ) {
+            this.bit_request.domain = api_domain;
+            return true;
+        } else {
+            this.bit_request.domain = types[0];
+        }
+        
+        return false;
+    },
+    
     set_credentials : function( x_login, x_apiKey) {
         
         // set as default
