@@ -29,8 +29,10 @@
                       </div> -->
                 </form>
                 
-                <div>
-                    <a href="options.html">options</a>
+                <div class="bitly_shorten_box_meta_links">
+                    <a class="options_page" id="options_page" href="options.html">options</a>
+                    <a class="bitly_popup_promo" href="http://bit.ly">bit.ly</a>
+
                 </div>
 
             </div> <!-- END #middle -->
@@ -46,7 +48,11 @@
         <script type="text/javascript" charset="utf-8">
             
             // get the current document location
-            var txtarea = document.getElementById("bento_share"), current_title = "";
+            var txtarea = document.getElementById("bento_share"), 
+                current_title = "",
+                b = document.getElementById("options_page"),
+                bg = chrome.extension.getBackgroundPage();
+
             function shorten_complete_callback( jo ) {
                 txtarea.innerHTML = current_title + " " + (jo.url || "");
             }
@@ -66,6 +72,14 @@
                
                 
             });
+            
+
+            b.addEventListener('click', function(e) {
+                
+                e.preventDefault();
+                bg.get_chrome_page("options.html");                   
+                
+            });            
             
         </script>
         

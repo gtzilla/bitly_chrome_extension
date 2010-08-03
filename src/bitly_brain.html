@@ -502,7 +502,7 @@
                 bitly.user_data={};
                 // delete from DB here
                 $.localStorage.set('user_data', bitly.user_data);
-                chrome.browserAction.setPopup({ "popup" : "bitly_signin.html"});
+                chrome.browserAction.setPopup({ "popup" : "sign_in.html"});
                 $.sql.deleteFrom( bitly_settings.users_table, function(tx,result) {
                     console.log('tx,result success', tx,result)
                 }, function(tx,result) {
