@@ -49,6 +49,13 @@
             var response = window.localStorage.setItem( itemKey, window.JSON.stringify( itemValue ) );
             return response
         }
+        
+        function logger( message ) {
+            
+            var logs = localfetch("logs") || [];
+            logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
+            localstore("logs", logs);
+        }
 
         function localfetch( itemKey ) {
             var item = window.localStorage.getItem( itemKey )
@@ -110,7 +117,7 @@
             var user_data = localfetch("user_data");
             if(user_data && user_data.x_login && user_data.x_apiKey) {
                 // change the popup
-                
+                logger("User credentials found in cache")
                 bitly.set_credentials( user_data.x_login, user_data.x_apiKey );
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});                              
                 
@@ -138,6 +145,7 @@
 
 
         // the bit.ly API worker
+        logger("Initialize bit.ly extension");
         var bitly = init_api();   
         set_current_bitly_user_from_cache();
 
@@ -162,7 +170,9 @@
                 
                 case "expand_and_meta":
                     // this event triggered by a content script
-                    console.log("expand", request, bitly)
+                    console.log("expand", request, bitly);
+                    var lngth = (typeof request.short_url !== "string") ? request.short_url.length : 1;
+                    logger("Attempt expand and find clicks for " + lngth )
                     
                     chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"});
                     bitly.expand_and_meta( request.short_url, sendResponse );

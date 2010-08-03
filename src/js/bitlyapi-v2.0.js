@@ -15,7 +15,7 @@ var host = "http://api.bit.ly",
         'info' : '/v3/info',
         'auth' : '/v3/authenticate',
         'clicks' : '/v3/clicks'
-    }
+    }, errors = [];
 
 
 var BitlyAPI = function(  user, APIKey, settings  ) {
@@ -71,12 +71,13 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         // 3. run a clicks
         // stitch all, return data
         var requests = 3, final_results = {};
+        
         function sticher( response ) {
             requests-=1;
             //console.log(response, "the expand and meta sticher")
             
             // clicks || info || expand
-            var items = [];
+            var items = [], item_hash, store;
             try {
                 items = response.clicks || response.info || response.expand;
             } catch(e) {}
@@ -84,17 +85,15 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             
             for(var i=0; i<items.length; i++) {
                 
-                // blend data
-                //console.log(items[i])
                 if(items[i].error) continue;
                 
-                var item_hash = items[i].user_hash
+                item_hash = items[i].short_url
                 if(!final_results[ item_hash ] ) {
                     final_results[ item_hash ] = items[i];
                 } else {
                     // merge in new values
                     // if I was using jQuery, I would just call $.extend({}, obj1, obj2)
-                    var store = final_results[ item_hash ]
+                    store = final_results[ item_hash ]
                     for(var k in items[i]) {
                         if( store[k] ) continue;
                         store[k] = items[i][k]
@@ -111,7 +110,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                     list_results.push( final_results[key] )
                 }
                 console.log("merged up data is", final_results)
-                callback( {'expand_and_meta' : final_results, 'list_results' : list_results, 'total' : count } )
+                callback( {'expand_and_meta' : final_results, 'list_results' : list_results, 'total' : count } );
             }
         }
         this.expand( short_urls, sticher );
@@ -141,8 +140,11 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             'type' : "POST",
             'success' : function(jo) {
                 console.log(jo, "bit.ly response: ", urls.auth); 
-                if( jo.authenticate.successful ) {
+                if( jo.authenticate && jo.authenticate.successful ) {
                     self.set_credentials( jo.authenticate.username, jo.authenticate.api_key )              
+                } else {
+                    // the errors should be tallied here
+                    errors.push({ 'error' : 'auth', 'data' : jo })
                 }
                 if(callback) callback( jo );
             }
@@ -163,7 +165,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     }
     
 }  
-// make the magic happen, allows var b = BitlyAPI("whatever")
+// make the magic happen, allows var b = BitlyAPI("whatever", "R_whatever")
 //                                  b.shorten("http://google.com")
 BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
@@ -186,7 +188,7 @@ function is_large_arrary( array ) {
 }
 
 function internal_multiget( path, param_key, urls_list, params, callback ) {
-    // props to @jehiah for the above naming convention...
+    // props to @jehiah for the above naming convention.
     var collection = [], request_count=0, chunks = [],
         bit_params = copy_obj( params ), key_name = "expand";
     function stitch( response ) {
@@ -248,14 +250,14 @@ function buildparams( obj ) {
     return params.join("&");
 }
 
-function bitlyRequest( api_path, params, callback ) {
+function bitlyRequest( api_path, params, callback, error_callback ) {
     ajaxRequest({
         'url' : host + api_path + "?" + buildparams( params ),
         'success' : function(jo) {
             console.log(jo, "bit.ly response: ", api_path);               
             if(callback) callback( jo );    // send back the long url as a second arg
         },
-        error : callback
+        error : error_callback || callback
     });    
 }
 
@@ -267,10 +269,13 @@ function ajaxRequest( obj ) {
     xhr.onreadystatechange = function() {
          if (xhr.readyState == 4) {
              // do success
-             if(xhr.status!=200) {
+             if(xhr.status!==200) {
                  // TODO
                  // handle errors better
-                 if(obj.error) obj.error();
+                 if(obj.error) { 
+                     
+                     obj.error();
+                 }
                  else obj.success({ 'error' : JSON.parse(xhr.responseText) })
                  console.log("status is not 200")
                  return;

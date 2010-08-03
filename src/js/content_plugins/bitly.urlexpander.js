@@ -1,7 +1,7 @@
 var page_links, queried_matches = [],
     timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
-    domains = new RegExp( "(post\.ly|twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly|mash\.to)+" ),
-    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi");
+    domains = new RegExp( "(brizzly\.com|post\.ly|twitpic\.com|yfrog\.com|su\.pr|is\.gd|tinyurl\.com|twurl\.nl|twitter\.com|ow\.ly|mash\.to)+" ),
+    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,6}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi");
 
 
 // unreal possibility
@@ -12,22 +12,6 @@ var page_links, queried_matches = [],
 //  http://news.google.com/news/url?fd=R&sa=T&url=http://www.vindy.com/news/2009/jul/19/heritage-foundation-has-an-alternative-to-health/&usg=AFQjCNGkbpZcLvUGeznDlIAywfUhqa--OA
 //  
 
-
-function expand_links( long_urls  ) {
-    var links = document.getElementsByTagName("a"), href
-    
-    for(var i=0; i<links.length; i++) {
-        href = links[i].innerHTML, text = links[i].innerHTML;
-        if(!href || href === "") continue;
-        for(var j=0; j< long_urls.length; j++) {
-            if(long_urls[j].error) continue;
-            if(text === long_urls[j].short_url) {
-                links[i].innerHTML = long_urls[j].long_url
-                // I could pu the bit.ly back to fix the backtype item here
-            }
-        }
-    }
-}
 
 function no_look_domains( url ) {
     var matches = url.match(domains);
@@ -131,6 +115,7 @@ function brainResponse(jo) {
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
             var html = '', el = matches_links[elem_num].elem, positions = findPos( el );
+            if(!result || result.error) return;
             //el.setAttribute("title", result.long_url)
             html += '<div class="bit_url_expander_box">'
                 html += '<div class="bitly_url_clicksbox">';
@@ -179,9 +164,6 @@ function closeBitlyUrlExpanderBox(e) {
     }, 280)    
 }
 
-function trimTitle( str ) {
-    return (str.length > 40) ? str.substring(0,40) + "..." : str;
-}
 
 function find_link_elements_by_response( jo ) {
     var links =  document.getElementsByTagName("a"), 
@@ -201,12 +183,15 @@ function find_link_elements_by_response( jo ) {
             // I could use lastindexof("/") and then check my value, 
             // might be faster b/c a split is a regex and has to create an array
         if(!href) continue;
-        bit_keys = href.split("/");        
-        user_hash = bit_keys.pop();
-        
-        // note, this could miss keywords and other values, we'll pick those up via possible_keywords
-        if(!user_hash) continue;
-        bit_result = jo.expand_and_meta[ user_hash ]
+        // bit_keys = href.split("/");        
+        // user_hash = bit_keys.pop();
+        // 
+        // // note, this could miss keywords and other values, we'll pick those up via possible_keywords
+        // if(!user_hash) continue;
+        try{
+            bit_result = jo.expand_and_meta[ href ]            
+        } catch(e){}
+
         
         if(!bit_result) {
             possible_keywords.push( links[i] )
@@ -273,5 +258,6 @@ function init() {
     callBrain( matches );
 
 }
+// hi there, look for short urls
 init();
 
