@@ -142,6 +142,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         this.lookup(long_urls, sticher);
     },
         
+
     info : function( short_urls, callback ) {
         this.count+=1;        
         internal_multiget( urls.info, 'shortUrl', short_urls, this.bit_request, callback );        

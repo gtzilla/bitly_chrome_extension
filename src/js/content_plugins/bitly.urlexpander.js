@@ -218,8 +218,8 @@ function find_link_elements_by_response( jo ) {
                 break;
             }
         }
-    }
-    
+    }    
+
     return matched_results;
     
     /// loop over the possible keywords
