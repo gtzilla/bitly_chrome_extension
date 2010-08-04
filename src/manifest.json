@@ -17,8 +17,9 @@ The version number is automatically incremented by deploy_extension.sh
     "popup" : "sign_in.html"
   },
   "icons" : { 
-    "48" : "s/graphics/small_bitly_puffer.png",
-    "128" : "s/graphics/small_bitly_puffer.png"    
+    "16" : "s/graphics/bitly_fish_16.png",
+    "48" : "s/graphics/bitly_fish_48.png",
+    "128" : "s/graphics/bitly_fish_128.png"    
   },
   "permissions": [
     "http://*/*",
