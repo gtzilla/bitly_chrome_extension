@@ -128,7 +128,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     
     clicks_by_url : function( long_urls, callback ) {
         this.count+=1;
-        
+        // todo
+        // not working
         var request_count = 2;
         function sticher( jo ) {
             request_count -= 1;
