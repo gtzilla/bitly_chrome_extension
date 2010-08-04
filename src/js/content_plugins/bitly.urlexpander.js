@@ -2,7 +2,7 @@ var page_links, queried_matches = [],
     timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
     fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,6}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi"),
     false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
-                            "yfrog.com", "su.pr", 
+                            "yfrog.com", "su.pr", "venmo.com", "blippy.com", "felttip.com",
                             "is.gd", "tinyurl.com", "twurl.nl", "twitter.com", "ow.ly", "mash.to"];
 
 
@@ -57,14 +57,9 @@ function find_short_links() {
 
         matches = href.match(fullUriRegex)
         if(!matches) continue;
-        for(var j=0; j<matches.length; j++) {
-            url = matches[j].trim()
-            if( no_look_domains( url ) ) { continue; }
-            
-            if( url.indexOf(document.location.host) == -1  ) {
-                final_matches.push(url)
-            }
-        }
+        
+        if( no_look_domains( matches[0] ) ) { continue; }
+        final_matches.push(href);
     }    
     return final_matches;
 }
