@@ -14,7 +14,8 @@ var host = "http://api.bit.ly",
         'expand' : '/v3/expand',
         'info' : '/v3/info',
         'auth' : '/v3/authenticate',
-        'clicks' : '/v3/clicks'
+        'clicks' : '/v3/clicks',
+        'lookup' : '/v3/lookup'
     }, errors = [];
 
 
@@ -125,10 +126,30 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         internal_multiget( urls.clicks, 'shortUrl', short_urls, this.bit_request, callback );          
     },
     
+    clicks_by_url : function( long_urls, callback ) {
+        this.count+=1;
+        
+        var request_count = 2;
+        function sticher( jo ) {
+            request_count -= 1;
+            
+            if(jo.lookup) {
+                
+            }
+        }
+        
+        this.lookup(long_urls, sticher);
+    },
+        
     info : function( short_urls, callback ) {
         this.count+=1;        
         internal_multiget( urls.info, 'shortUrl', short_urls, this.bit_request, callback );        
     },
+    
+    lookup : function(long_urls, callback) {
+        this.count+=1;        
+        internal_multiget( urls.lookup, 'url', long_urls, this.bit_request, callback );
+    },    
     
     auth : function( username, password, callback ) {
         // call the set credentials  when this is run
