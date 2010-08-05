@@ -33,5 +33,5 @@ The version number is automatically incremented by deploy_extension.sh
      "js": ["js/content_plugins/bitly.urlexpander.js"]
     }
   ],
-  "update_url": "http:/chrome.bit.ly/bitly_extension_updates.xml"   
+  "update_url": "http://chrome.bit.ly/static/bitly_chrome_extension_updates.xml"   
 }
