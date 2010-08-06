@@ -1,0 +1,161 @@
+#ext_logo {
+    padding-top:5px;
+    float:left;
+    margin-right:20px;
+}
+#ext_logo a {
+    display:block;
+    overflow:hidden;
+    width:49px;
+    height:26px;
+    background:url(/s/graphics/bitly_sidebar_logo.png) no-repeat 0 0;
+    text-indent:-1000em;
+}
+
+#ext_top_nav {
+    color:white;
+
+    padding:4px;
+    border:1px solid #ccc;
+    border-left:0;
+    border-right:0;
+
+
+    background:-webkit-gradient(linear, left top, left bottom, 
+                                 from(#6BAFF0), to(#9EC8F5), 
+                                 color-stop(0.5, #7EB8F2));
+
+    -webkit-box-shadow:-2px -2px 16px #000, inset -2px 0px 6px #6BAFF0;
+
+
+    margin-bottom:10px;
+    position:relative;    
+    
+    clear:both;
+    float:none;
+}
+#extSubmitButton {
+    -webkit-border-radius: 8px;    
+    color:white;
+    background:transparent;    
+}
+#ext_top_nav_inner {
+    background:white;
+    border:1px solid #ccc;
+    -webkit-border-radius: 8px;  
+    margin:2px;    
+    padding:2px 14px 4px;
+    float:left;
+    white-space:nowrap;
+    width:340px;
+    -webkit-box-shadow:2px 1px 3px #777, inset 2px 0px 4px #ccc;    
+    
+}
+#ext_top_search_container_outer {
+    padding-top:4px;
+    color:#454545;
+}
+
+
+.inputContainerBackground {
+    
+    border:0;
+    border:1px solid #ccc;    
+    border-radius: 8px;    
+    font-size:16px;    
+    background:#feffec;
+    z-index:3;
+    -webkit-box-shadow:1px 1px 6px #ddd, inset -2px -2px 6px #feffd7;     
+    margin-right:6px;
+
+/*    background:#feffec;*/
+
+}
+
+/*
+    this is a css3 only selector style
+        http://apirocks.com/html5/html5.html#slide35
+        http://apirocks.com/html5/html5.html#slide28
+*/
+#ext_top_search_container_outer input[type=submit], .narrowExtButtonBackground, .extButtonBackground {
+    color:white;
+    border:1px solid #ccc;
+    border-radius:8px;
+    padding:2px 10px 3px;
+    cursor:pointer;
+    font-size:14px;
+    text-align:center;
+    background:-webkit-gradient(linear, right bottom, right top, 
+                                 from(#6BAFF0), to(#9EC8F5), 
+                                 color-stop(0.5, #7EB8F2));   
+                                 
+    -webkit-box-shadow:2px 2px 6px #ccc, inset -2px -2px 6px #999;    
+    
+}
+#ext_top_search_container_outer input[type=submit]:hover {
+    -webkit-box-shadow:inset 2px 2px 6px #ccc;
+}
+
+#ext_top_search_container_outer input[type=submit]:hover, .narrowExtButtonBackground:hover, .extButtonBackground:hover {
+    color:white;
+}
+.extButtonBackground {
+    padding:5px 10px 5px;    
+}
+
+.narrowSearchInputTextField {
+    width:178px;
+    padding:2px 5px 1px;
+   
+}
+
+
+#localHistoryFooter {
+     min-height:60px;
+     border-top:1px solid #ccc;
+     margin:10px 30px;
+     padding:10px 20px 30px;
+
+ }
+ /* common ?? */
+.footerLinks {
+      float:left;
+      font-size:14px;
+      margin-right:30px;
+      
+  }
+  
+.footerLinks li { 
+    padding:3px 0;
+}
+.footerLinks h3 {
+    font-weight:normal;
+    font-size:16px;
+    padding-bottom:5px;
+}
+
+
+.ext_nav_list {
+   padding:25px 10px 10px; 
+}
+.ext_nav_list li {
+    display:inline;
+    
+}
+.ext_nav_list li a {
+    color:white;
+    padding:0 5px;
+    line-height:1em;
+}
+.ext_nav_list li:first-child {
+    border-right:1px solid #efefef;
+    
+    padding-left:10px;
+
+}
+
+#blueBanner {
+    height:45px;
+    background:#6BAFF0;
+    -webkit-box-shadow:0 4px 4px #D9D9D9;    
+}
