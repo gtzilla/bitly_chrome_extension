@@ -222,7 +222,7 @@
                     // _id("api_key").setAttribute("value", user_data.x_apiKey);
                     // _id("current_username").innerText = user_data.x_login;
                     var domain_elem = _id("api_domains")
-                    header.innerText = user_data.x_login + " Account Settings";
+                    header.innerText = user_data.x_login + " Extension Settings";
                     chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
                     api_domains_elem.style.display="block";
                     _id("auto_expand_container").style.display="block";

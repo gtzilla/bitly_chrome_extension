@@ -69,7 +69,9 @@
 
             function shorten_complete_callback( jo ) {
                 _id("loading_short_url").style.display="none";
-                txtarea.innerHTML = current_title + " " + (jo.url || "");
+                // test runs OK
+                //current_title = "<b>Test Hommie</b>"
+                txtarea.innerText = current_title + " " + (jo.url || "");
             }
             function _id( name ) {
                 return document.getElementById( name )
