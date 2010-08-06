@@ -1,3 +1,0 @@
-1. finish sql wrapper -- working for update / insert / find
-2. oauth login and html/visual interation (popup and options) -- working
-3. md5 fix for false positives using cached /v3/all_domains results

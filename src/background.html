@@ -59,7 +59,10 @@
             return false;
         }
         
+<<<<<<< HEAD
 
+=======
+>>>>>>> vr1
         function localfetch( itemKey ) {
             var item = window.localStorage.getItem( itemKey )
             try{
@@ -177,13 +180,16 @@
         
         function sign_out() {
             bitly.remove_credentials();
-            // localstore("user_data", null);
-            // localstore("share_accounts", null);            
-            localdelete("user_data")
-            localdelete("share_accounts")
+            localdelete("user_data");
+            localdelete("share_accounts"); //  we don't store share accounts in SQL
+            
+            bit_db.remove("user_data", delete_sql_handler );
+            bit_db.remove("domain", delete_sql_handler );
+            bit_db.remove("auto_expand_urls", delete_sql_handler );
             chrome.browserAction.setPopup({ "popup" : ""});
             return;
         } 
+<<<<<<< HEAD
         
         function clear_domain_list() {
             domains_list = [];
@@ -192,6 +198,20 @@
             })
         }               
         
+=======
+        
+        function delete_sql_handler() {
+            console.log("signing out user", arguments)
+        }
+        
+        function clear_domain_list() {
+            domains_list = [];
+            bit_db.remove( "domains_list" , function() {
+                console.log("success deleting domains list", arguments)
+            })
+        }               
+        
+>>>>>>> vr1
         function set_api_domain( api_domain ) {
             var api_change = bitly.set_domain( api_domain );
             if(api_change) {
@@ -209,6 +229,7 @@
 
         function get_url_expansion() {
             return auto_expand_urls;
+<<<<<<< HEAD
         }
         
         function set_url_expansion( bool_value) {
@@ -218,6 +239,17 @@
             })
         }
         
+=======
+        }
+        
+        function set_url_expansion( bool_value) {
+            auto_expand_urls = (bool_value) ? true : false;
+            bit_db.save("auto_expand_urls", { 'auto_expand' : auto_expand_urls }, function() {
+                console.log("saved auto expand urls", arguments)
+            })
+        }
+        
+>>>>>>> vr1
               
                 
         function set_current_bitly_user_from_cache() {
@@ -230,22 +262,27 @@
 
             } else {
                 bit_db.find("user_data", function( sql_user_data ) {
-                    console.log("found", arguments)
+                    
+                    // set values from SQL
+                    if(!sql_user_data || !sql_user_data.x_login) { return; }
                     localstore("user_data", sql_user_data);
+                    // stash access credentials into bitly API
                     bitly.set_credentials( sql_user_data.x_login, sql_user_data.x_apiKey, sql_user_data.access_token );
                     chrome.browserAction.setPopup({ "popup" : "popup.html"}); 
                                           
                 })
             }
-            
-            // if(domain) {
-            //     bitly.set_domain( domain );
-            // }            
+           
         }
         
         function set_auto_expand_from_cache() {
             bit_db.find("auto_expand_urls", function(jo) {
+<<<<<<< HEAD
                 auto_expand_urls = jo.auto_expand;
+=======
+                if(jo === undefined) auto_expand_urls=true
+                else auto_expand_urls = jo.auto_expand;
+>>>>>>> vr1
             })
         }
         
@@ -260,6 +297,7 @@
             bit_db.find("domains_list", function(jo) {
                 var now =  (new Date()).getTime(), then = now - (24*60*60*1000)*5;
                 if(jo && jo.timestamp > then && jo.domains.length > 10) {
+<<<<<<< HEAD
                     domains_list = jo.domains || jo;
                 } else {
                     logger("Get latest domains")
@@ -270,6 +308,18 @@
                                                         'timestamp' : now }, function() {
                             
                             console.log("storing domains to sql", arguments)
+=======
+                    console.log("now and then", now, then)
+                    domains_list = jo.domains || jo;
+                } else {
+                    logger("Get latest domains");
+                    // returns a list of md5 domains
+                    bitly.bitly_domains( function(jo) {
+                        var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : now };
+                        console.log(bit_domains.length)
+                        bit_db.save( "domains_list", params, function() {
+                            console.log("storing domains to sql", bit_domains.length)
+>>>>>>> vr1
                         })
                         domains_list = bit_domains;
                     });

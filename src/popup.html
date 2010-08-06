@@ -66,6 +66,10 @@
             
             // get the current document location
 
+            function actions_listeners( request, sender, sendResponse) {
+                if(!request.action || request.action !== "page_selection") return;
+                console.log("pop says", request)
+            }
 
             function shorten_complete_callback( jo ) {
                 _id("loading_short_url").style.display="none";
@@ -79,6 +83,7 @@
             function share_callback(jo) {
                 console.log(jo, "share");
                 if(jo.error || jo.share.length <=0 ) { return; }
+
                 txtarea.innerHTML = "";
                 var message = _id("message_box");
                 message.innerHTML = "Successfully shared your message";
@@ -86,22 +91,26 @@
                 
                 _id("share_loading_graphic").style.display="none";
                 _id("sharing_buttons_box").style.display="block";                
-                setTimeout(close_message_box, 5000);
+                setTimeout(close_message_box, 4000);
             }
             function close_message_box() {
                 var message = _id("message_box");
-                message.style.display="none";                
+                message.style.display="none";  
+                txtarea.innerHTML = stash_text;              
             }
             function list_accounts_callback(jo) {
                 //console.log(jo)
                 var i=0, account, accounts = jo && jo.share_accounts, html = "", 
                     status, images=[], img;
                 
+                active_account_list = [];                
                 if(accounts.length > 0 ) {
                     html += '<span class="share_account_header">Active:</span>'
                     html += '<ul id="share_accounts">'
                     for( ; account=accounts[i]; i++) {
-                        status = (account.active) ? "on" : "off"                    
+                        status = (account.active) ? "on" : "off"; 
+                        if(account.active){ active_account_list.push( account ); }
+                        
                         html += '<li>'
                             html += '<img class="account_icon" id="'+ account.account_id + '"';
                             html += ' title="' + (account.account_name || account.account_login) + '" '
@@ -127,8 +136,8 @@
             
             
             var txtarea = _id("bento_share"), share_form = _id("bitly_bento_submit"),
-                current_title = "",
-                b = _id("options_page"),
+                current_title = "", stash_text = "",
+                active_account_list = [], b = _id("options_page"), 
                 bg = chrome.extension.getBackgroundPage();            
             
             chrome.tabs.getSelected(null, function( curr_tab) {
@@ -143,6 +152,7 @@
                }
                current_title = curr_tab.title
                chrome.extension.sendRequest( message, shorten_complete_callback );
+               // send request to inject getSelected.js
                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )               
                
                 
@@ -151,13 +161,17 @@
             share_form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 var txt = txtarea.value, params = {'action' : 'share' };
-                _id("share_loading_graphic").style.display="block";
-                _id("sharing_buttons_box").style.display="none";
-                if(txt !== "") {
-                    params.share_text = txt;
-                    chrome.extension.sendRequest( params, share_callback )               
+                if(txt !== "" && active_account_list.length > 0 ) {
+                    params.share_text = stash_text = txt;
+                    
+                    _id("share_loading_graphic").style.display="block";
+                    _id("sharing_buttons_box").style.display="none";
+                                        
+                    chrome.extension.sendRequest( params, share_callback );
                 } else {
                     console.log("nothing to share, error the UI")
+                    _id("share_loading_graphic").style.display="none";
+                    _id("sharing_buttons_box").style.display="block";                    
                 }
                 console.log(txtarea.value)
             });
@@ -181,7 +195,10 @@
                 e.preventDefault();
                 bg.get_chrome_page("options.html");                   
                 
-            });            
+            });  
+            
+            
+            chrome.extension.onRequest.addListener(actions_listeners);          
             
         </script>
         

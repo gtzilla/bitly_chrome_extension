@@ -7,10 +7,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="bit.ly" />
         <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
-        <link rel="stylesheet" href="css/bitly_ext_common.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
         <link rel="stylesheet" href="css/options.css" type="text/css" charset="utf-8" />
-        
-        
     </head>
     <body>
         <div id="container">
@@ -115,6 +113,10 @@
 
                     </form>                    
                 </div>    
+                
+                <div id="logging_box" style="display:none;">
+                    <a id="logs_show_link" href="#">Logs</a>
+                </div>
 
             </div> <!-- END #middle -->
         
@@ -137,7 +139,8 @@
                     api_form_elem = _id("api_choice_form"),
                     api_domains_elem = _id("api_domains"), 
                     url_expand_input = _id("show_link_preview")
-                    bod = document.getElementsByTagName("body")[0];
+                    bod = document.getElementsByTagName("body")[0]
+                    active_account_list = [];
                     
                 function _id( name ) {
                     return document.getElementById( name )
@@ -169,7 +172,7 @@
                     html += '<p>Share your links on:</p>'
                     html += '<ul>'
                     for(; account=accounts[i]; i++) {
-                        status = (account.active) ? "on" : "off"
+                        status = (account.active) ? "on" : "off";
                         html += '<li id="'+ account.account_id +'" status="'+status+'">'
                         html += '<img class="account_icon" src="s/graphics/'+ account.account_type +'-'+ status +'.png" border="0" alt="0" />'
                         html += '<span class="account_name">' + ( account.account_name || account.account_login ) + '</span>';
@@ -222,7 +225,7 @@
                     // _id("api_key").setAttribute("value", user_data.x_apiKey);
                     // _id("current_username").innerText = user_data.x_login;
                     var domain_elem = _id("api_domains")
-                    header.innerText = user_data.x_login + " Extension Settings";
+                    header.innerText = user_data.x_login + " Settings";
                     chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
                     api_domains_elem.style.display="block";
                     _id("auto_expand_container").style.display="block";

@@ -90,9 +90,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             try {
                 items = response.clicks || response.info || response.expand;
             } catch(e) {}
-            
-            
-            for(var i=0; i<items.length; i++) {
+                        
+            for(var i=0; items && i<items.length; i++) {
                 
                 if(items[i].error) continue;
                 
