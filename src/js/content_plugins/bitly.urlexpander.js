@@ -34,6 +34,11 @@ function no_look_domains( url ) {
 
 */
 
+function escaper( string ) {
+    return string.replace('&', "&amp;").replace('"', "&quot;").replace("'", "&#39;")
+                 .replace('>', "&gt;").replace('<', "&lt;")
+}
+
 function find_short_links() {
     var links = document.getElementsByTagName("a"), 
         href, matches, final_matches=[], 
@@ -113,20 +118,23 @@ function brainResponse(jo) {
         //expanded_elements.push( matches_links[i].elem )
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
-            var html = '', el = matches_links[elem_num].elem, positions = findPos( el );
+            var html = '', el = matches_links[elem_num].elem, 
+                positions = findPos( el ),
+                sUrl = escaper(result.short_url),
+                lUrl = escaper( result.long_url ), title = escaper( result.title || result.long_url );
             if(!result || result.error) return;
             //el.setAttribute("title", result.long_url)
             html += '<div class="bit_url_expander_box">'
                 html += '<div class="bitly_url_clicksbox">';
                     html += '<ul>';
-                        html += '<li class="bit_user_clicks_box"><a title="'+result.short_url+'+ Page" href="'+ result.short_url +'+">' + result.user_clicks + '</a></li>';
+                        html += '<li class="bit_user_clicks_box"><a title="'+sUrl+'+ Page" href="'+ sUrl +'+">' + result.user_clicks + '</a></li>';
                         html += '<li>of</li>';
                         html += '<li class="bit_global_clicks_box"><a title="http://bit.ly/'+ result.global_hash +'+ Page" href="http://bit.ly/'+ result.global_hash +'+">' + result.global_clicks + "</a></li>";
                     html += '</ul>';
                 html += '</div>';
                 html += '<div class="bitly_url_infobox">'
-                    html += '<h3><a title="'+result.long_url+'" href="'+ result.short_url +'">' + ( result.title || result.long_url ) + '</a></h3>'
-                    html += '<p><a href="'+ result.long_url +'" class="bit_long_link_preview">'+result.long_url+'</a></p>'
+                    html += '<h3><a title="'+lUrl +'" href="'+ sUrl +'">' + title + '</a></h3>'
+                    html += '<p><a href="'+ lUrl+'" class="bit_long_link_preview">'+ lUrl +'</a></p>'
                 html += '</div>'
                 html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>';
                 html += '<a title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="http://bit.ly/">bit.ly</a>';                
