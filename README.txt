@@ -1,9 +1,7 @@
-bit.ly chrome extension
+bit.ly Chrome Extension
 =======================
 
-This is the official bit.ly chrome extension. It is currently in alpha development and is not designed for widespread use.
-
-Official versions can be found at http://chrome.bit.ly/
+This is the official bit.ly chrome extension.
 
 Installing
 ==========

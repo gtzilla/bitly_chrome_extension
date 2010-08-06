@@ -10,6 +10,7 @@ The version number is automatically incremented by deploy_extension.sh
   "version": "0.1.3.3",
   "options_page": "options.html",
   "description": "Shorten, share and track your urls",
+  "default_locale": "en",
   "background_page": "background.html",
   "browser_action": {
     "default_title": "bit.ly",  
@@ -33,6 +34,5 @@ The version number is automatically incremented by deploy_extension.sh
      "matches": ["http://*/*"],
      "js": ["js/content_plugins/bitly.urlexpander.js"]
     }
-  ],
-  "update_url": "http://chrome.bit.ly/static/bitly_chrome_extension_updates.xml"   
+  ]
 }

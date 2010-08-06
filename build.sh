@@ -23,12 +23,10 @@ perl -pe 's/(\s+.version.: .\d+\.\d+\.\d+\.)(\d+)/$1.($2+1)/eg' -i "src/manifest
 VERSION=`cat src/manifest.json | grep '"version"' | awk -F '"' '{print $4}'`
 echo "new extension version is $VERSION"
 
-# update in the updates.xml file
-perl -pi -e "s/version=\"(\d\.)+\d+\"\s\/>/version=\"$VERSION\" \/>/g" "website/static/chrome_extension_updates.xml"
-echo "__version__ = \"$VERSION\"" > website/current_version.py;
-
+# build the crx file
+mkdir -p "$CWD/build"
 echo "compiling bitly_chrome_extension.crx";
 "$CHROME" --pack-extension=$CWD/src --pack-extension-key=$KEY --no-message-box
-mv "$CWD/src.crx" "$CWD/bitly_chrome_extension-$VERSION.crx"
-echo "built bitly_chrome_extension-$VERSION.crx";
+mv "$CWD/src.crx" "$CWD/build/bitly_chrome_extension-$VERSION.crx"
+echo "finished build/bitly_chrome_extension-$VERSION.crx";
 
