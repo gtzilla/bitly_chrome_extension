@@ -1,11 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
-<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml 
-    this is my test
-    
-    testing git merge --squash
--->
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -33,6 +29,8 @@
     
         
         <script type="text/javascript" src="js/bitlyapi-v2.0.js"></script>
+        <script type="text/javascript" src="js/bitlydb-v1.0.js"></script>   
+        <script type="text/javascript" src="js/libs/md5.js"></script>                
         <script type="text/javascript" charset="utf-8">
             
             
@@ -53,14 +51,13 @@
             var response = window.localStorage.setItem( itemKey, window.JSON.stringify( itemValue ) );
             return response
         }
-        
-        function logger( message ) {
+        function localdelete( itemKey ) {
+            try {
+                return window.localStorage.removeItem( itemKey )
+            } catch(e){}
             
-            var logs = localfetch("logs") || [];
-            logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
-            localstore("logs", logs);
+            return false;
         }
-
         function localfetch( itemKey ) {
             var item = window.localStorage.getItem( itemKey )
             try{
@@ -71,40 +68,67 @@
             }
             return null;                    
         }
-             
-             
-        function sign_in(username, password, callback) {
-            console.log(username, password, "auth attempt")
-            bitly.auth(username, password, function(response) {
+        
+        function sqlstore( key, data ) {
+            
+        }
+        
+        function sqlfetch( key, data ) {
+            
+        }
                 
-                var auth = response.authenticate;
-                if(auth && auth.successful) {
-                    var current_user = {
-                        "x_login": auth.username,
-                        "x_apiKey": auth.api_key
+        function logger( message ) {
+            
+            var logs = localfetch("logs") || [];
+            logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
+            localstore("logs", logs);
+        }
+        
+        function process_domains( url_list ) {
+            var i=0, j=0, domain, possible,
+                possible_domains = parse_domains( url_list ),
+                total_possible = possible_domains.length,
+                l = domains_list || [], final_results = [];
+            
+
+            if(possible_domains <= 0 ) return;
+            
+            if(l.length > 1 ) {
+                for( ; final_results.length < total_possible && i<l.length; i++) {
+                    //domain
+                    domain = l[i];
+                    for(j=0; possible=possible_domains[j]; j++) {
+                        if(possible.md5 === domain ) {
+                            final_results.push(possible.short_url); // positive match
+                        }
                     }
-                    localstore("user_data", current_user);
-                    chrome.browserAction.setPopup({ "popup" : "popup.html"});                      
-                }
-                if(callback) callback(response)
-                
-            });            
-        }
-        
-        function save_api_domain( api_domain ) {
-            var api_change = bitly.set_domain( api_domain );
-            if(api_change) {
-                localstore("domain", api_domain);
+                }                
+            } else {
+                final_results = url_list;
             }
+            console.log(i)
+            return final_results;
+            
         }
         
-        function sign_out() {
-            bitly.remove_credentials();
-            localstore("user_data", null);
-            chrome.browserAction.setPopup({ "popup" : "sign_in.html"});
-            return;
+        function parse_domains( url_list ) {
+            var final_list = [], 
+                regex = new RegExp("(?:https?://){1}([^/]*)/(?:.*)", 'i'), 
+                matches, md5_domain;
+            for(var i=0, url; url=url_list[i]; i++) {
+                matches = url.match(regex)
+                if(matches && matches.length > 1) md5_domain = hex_md5( matches[1] );
+                else  {
+                    md5_domain = null;
+                    continue;
+                }
+                //console.log(matches)
+                final_list.push({ 'md5' : md5_domain, 'short_url' : url })
+            }
+            
+            return final_list;
         }
-        
+
         function get_chrome_page( page_name ) {
             var url =  chrome.extension.getURL(page_name),
                  createTab=true, params = { 'selected' : true, 'url' : url };
@@ -121,23 +145,112 @@
 
                 if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL(page_name) }) }
             });
+        }
+             
+             
+        function sign_in(username, password, callback) {
+            console.log("auth attempt for", username)
+            bitly.auth(username, password, function(response) {
+                
+                var auth = response;
+                if(auth && auth.login !== "" ) {
+                    var current_user = {
+                        "x_login": auth.login,
+                        "x_apiKey": auth.apiKey,
+                        "access_token" : auth.access_token
+                    }
+                    localstore("user_data", current_user);
+                    
+                    bit_db.save( "user_data", current_user, function( tx, sql ) {
+                        // do something with results?
+                    });                    
+                    chrome.browserAction.setPopup({ "popup" : "popup.html"});                      
+                }
+                if(callback) callback(response)
+                
+            });            
+        }
+        
+        function sign_out() {
+            bitly.remove_credentials();
+            // localstore("user_data", null);
+            // localstore("share_accounts", null);            
+            localdelete("user_data")
+            localdelete("share_accounts")
+            chrome.browserAction.setPopup({ "popup" : ""});
+            return;
         }        
-
-
+        
+        function save_api_domain( api_domain ) {
+            var api_change = bitly.set_domain( api_domain );
+            if(api_change) {
+                localstore("domain", api_domain);
+            }
+        }
+        
+        function load_false_positive_list_from_cache() {
+            
+            //var list = sqlfetch( "list" )
+            // if doesn't exist or check timestamp on file
+            //      fetch new values and cache into sql and memory
+            
+        }
+                
         function set_current_bitly_user_from_cache() {
             var user_data = localfetch("user_data"), domain = localfetch("domain");
             if(user_data && user_data.x_login && user_data.x_apiKey) {
                 // change the popup
                 logger("User credentials found in cache")
-                bitly.set_credentials( user_data.x_login, user_data.x_apiKey );
+                bitly.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});                              
-                
-            } 
-            
-            if(domain) {
-                bitly.set_domain( domain );
+
+            } else {
+                bit_db.find("user_data", function( sql_user_data ) {
+                    console.log("found", arguments)
+                    localstore("user_data", sql_user_data);
+                    bitly.set_credentials( sql_user_data.x_login, sql_user_data.x_apiKey, sql_user_data.access_token );
+                    chrome.browserAction.setPopup({ "popup" : "popup.html"}); 
+                                          
+                })
             }
             
+            // if(domain) {
+            //     bitly.set_domain( domain );
+            // }            
+        }
+        
+        function clear_domain_list() {
+            domains_list = [];
+            bit_db.remove( "domains_list" , function() {
+                console.log("success deleting domains list", arguments)
+            })
+        }
+        
+        function set_domain_list_from_cache() {
+            
+            bit_db.find("domains_list", function(jo) {
+                
+                if(jo && jo.length > 10) {
+                    domains_list = jo;
+                } else {
+                    bitly.bitly_domains( function(jo) {
+                        var bit_domains = jo.reverse();
+                        
+                        console.log(bit_domains.length)
+                        bit_db.save( "domains_list", bit_domains, function() {
+                            
+                            console.log("storing domains to sql", arguments)
+                        })
+                        domains_list = bit_domains;
+                    });
+                }
+
+            });
+        }
+        
+        function browser_action_listener( curr_tab ) {
+            //hasListener
+            get_chrome_page("options.html");
         }
         
         
@@ -146,9 +259,33 @@
             // pull this value from a settings file
             var login = 'chromext',
                 apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
+                client_id = "298b336871d6aa29e06b3033269f21ced9717625",
+                client_signature = "319b6d82931c7b92bc05d83e005c3f415a66e31b",
                 b = BitlyAPI(login, apiKey);
 
+            b.set_oauth_credentials(client_id, client_signature);
             return b;                                
+        }
+        function init_db( name ) {
+            return bitlyDB("bitly_local_db");
+        }
+
+        function testdb() {
+            //var bit_db = bitlyDB("bitly_local_db")
+            
+            var user_data = localfetch("user_data");
+            if(!user_data) {
+                console.log("no user data");
+                return;
+            }
+            bit_db.drop_table(function() {
+                console.log("sucess in dropping table: args", arguments)
+            })
+            var response = bit_db.save( "user_data", user_data, function() {
+                console.log("arguments for update success", arguments)
+            }  );
+            
+            console.log(response)
         }
         
         
@@ -156,8 +293,14 @@
 
         // the bit.ly API worker
         logger("Initialize bit.ly extension");
-        var bitly = init_api();   
+        var bitly=init_api(), bit_db=init_db(), domains_list,
+            // for google tracking, when that's ready
+            _gaq = _gaq || [];   
         set_current_bitly_user_from_cache();
+        set_domain_list_from_cache();
+
+        // testing
+        //testdb();
 
         
         /*
@@ -170,31 +313,100 @@
             if(!request.action) return;
             var act = request.action;
             switch( act ) {
+
+                case "expand_and_meta":
+                    // this event triggered by a content script
+                    console.log("expand", request, bitly);
+                    parse_domains( request.short_url )
+                    var sUrl = (typeof request.short_url !== "string") ? request.short_url : [request.short_url],
+                        expand_url_list =  process_domains( sUrl ),
+                        lngth = expand_url_list.length;
+                    logger("Attempt expand and find clicks for " + lngth )
+
+                    bitly.expand_and_meta( expand_url_list, sendResponse );
+                    
+                break;
                 
+                case "share_accounts":
+                    var user_share_accounts = localfetch("share_accounts");
+                    console.log(user_share_accounts)
+                    if(!user_share_accounts) {
+                        bitly.share_accounts( function(response) {
+                            
+                            if(response.share_accounts) { localstore("share_accounts", response); }
+                            sendResponse(response);
+                            
+                        });
+                    } else {
+                        sendResponse( user_share_accounts )
+                    }
+
+                break;
                 
+                case "re_sync_share_accounts":
+                    bitly.share_accounts( function(response) {
+                        // no cache
+                        if(response.share_accounts) { localstore("share_accounts", response); }
+                        sendResponse(response);
+                    
+                    });                
+                break;
+
+                
+                case "share":
+                    //share_text
+                    var user_share_accounts = localfetch("share_accounts"),
+                        accounts = user_share_accounts && user_share_accounts.share_accounts,
+                        i=0, account, share_ids = [], params = {};
+                    
+                    for(; account=accounts[i]; i++) {
+                        if(account.active) {
+                            share_ids.push( account.account_id );
+                        }
+                    }
+                    if(share_ids.length <= 0 ) {
+                        sendResponse({'error' : 'no active accounts'})
+                        return;
+                    }
+                    params.account_id = share_ids;
+                    params.share_text = request.share_text;
+                    bitly.share( params, sendResponse );
+                    
+                break;
+
+                case "activate_account":
+                    request.account_id
+                    request.active
+                    var user_share_accounts = localfetch("share_accounts"),
+                        accounts = user_share_accounts && user_share_accounts.share_accounts,
+                        i=0, account, flag=false;
+                        
+                    for(; account=accounts[i]; i++) {
+                        if(account.account_id === request.account_id) {
+                            account.active = request.active;
+                            flag = true;
+                            break;
+                        }
+                    }
+                    console.log("message received and saved for accounts", user_share_accounts)
+                    localstore("share_accounts", user_share_accounts);
+                    sendResponse(user_share_accounts)
+                    
+                break;
+
+
                 case "shorten":
                     console.log("shorten", sender);
                     //chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});                      
                     bitly.shorten( request.long_url, sendResponse );
                 break;
                 
-                case "expand_and_meta":
-                    // this event triggered by a content script
-                    console.log("expand", request, bitly);
-                    var lngth = (typeof request.short_url !== "string") ? request.short_url.length : 1;
-                    logger("Attempt expand and find clicks for " + lngth )
-                    
-                    chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"});
-                    bitly.expand_and_meta( request.short_url, sendResponse );
-                    
-                break;
-                
+
                 case "expand":
                     console.log("expand", request, bitly)
                     bitly.expand( request.short_url, sendResponse );                    
                 break;
                 
-
                 case "lookup":
                     //
                     bitly.lookup( request.long_url, sendResponse );
@@ -227,9 +439,34 @@
         
         */
             
+           
         chrome.extension.onRequest.addListener(actions_listeners);
+        
+        if( !chrome.browserAction.onClicked.hasListener( browser_action_listener ) ) {
+            chrome.browserAction.onClicked.addListener( browser_action_listener );                                    
+        }        
+        
+        
+        /*
+            TODO
+            // do not implement this!
+            
+            analytics init
+                this is broken on Google's side
+                http://code.google.com/chrome/extensions/trunk/tut_analytics.html
+        */
+
+        // _gaq.push(['_setAccount', 'UA-XXXXXX-X']);
+        // _gaq.push(['_trackPageview']);
+        // 
+        // (function() {
+        //   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        //   ga.src = 'https://ssl.google-analytics.com/ga.js';
+        //   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+        // })();        
             
         </script>
       
     </body>
 </html>
+

@@ -3,7 +3,7 @@
 
 <!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
-        <title></title>
+        <title>bit.ly Options</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="bit.ly" />
         <link rel="stylesheet" href="css/bitly_basic.css" type="text/css" charset="utf-8" />
@@ -45,7 +45,7 @@
                     <div id="signOutButtonContainer">
                         <a class="signout" href="#">Sign Out</a>
                     </div>                    
-                    <form action="#" method="get" accept-charset="utf-8">
+                    <!-- <form action="#" method="get" accept-charset="utf-8">
 
                         <div  class="inputContainer">
                             <label for="username">Username</label>
@@ -58,7 +58,12 @@
                             <input type="text" name="api_key" value="" id="api_key">                            
                         </div>
 
-                    </form>                    
+                    </form>   -->
+                    
+                    
+                    <div id="share_accounts"></div>
+                    
+                    <div id="api_domains"></div>
                 </div>
                 <div id="signedout_info_contents" style="display:none;">
                     <form id="signin_form" action="#" method="get" accept-charset="utf-8">
@@ -76,11 +81,14 @@
                             <input type="password" name="password" value="" id="password">                            
                         </div>
 
+                        <div>
+                            <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Sign In" id="some_name">
+                        </div>
+                        
+                        <div class="meta_graph">
+                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_in">Get an account</a></p>                            
+                        </div>
 
-                        <input type="submit" name="some_name" value="Sign In" id="some_name">
-                        
-                        
-                        <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_in">Get an account</a></p>
                     </form>                    
                 </div>    
                 
@@ -129,7 +137,7 @@
             <!-- <script type="text/javascript" src=""></script> -->
       
             <script type="text/javascript" charset="utf-8">
-                
+
                 var bg = chrome.extension.getBackgroundPage(), 
                     user_data = bg.localfetch("user_data"),
                     elem,
@@ -138,30 +146,86 @@
                 function _id( name ) {
                     return document.getElementById( name )
                 }
+                
+                function list_accounts_callback(response) {
+                    console.log(response, "accounts list")
+                    var accounts = response && response.share_accounts, i=0, 
+                        account, html = "", status;
+                    
+                    
+                    html += '<h3>Sevices</h3>'
+                    html += '<p>Share your links on:</p>'
+                    html += '<ul>'
+                    for(; account=accounts[i]; i++) {
+                        status = (account.active) ? "on" : "off"
+                        html += '<li id="'+ account.account_id +'" status="'+status+'">'
+                        html += '<img class="account_icon" src="s/graphics/'+ account.account_type +'-'+ status +'.png" border="0" alt="0" />'
+                        html += '<span class="account_name">' + ( account.account_name || account.account_login ) + '</span>';
+                        html += '<a class="sharingControl" href="#">Sharing ' + status + '</a>'
+                        html += '<li>'
+                    }
+                    html += '</ul>';
+                    
+                    html += '<div class="meta_graph">'
+                        html += '<p><a target="new" href="http://bit.ly/a/account">Add or remove</a> accounts on bit.ly | <a class="resync" href="#">Refresh account list</a></p>'
+                    html += '</div>'
+                    
+                    var elem = _id("share_accounts");
+                    elem.innerHTML = html;
+                }  
+                
+                function signin_form_event( e ){
+                    e.preventDefault();
+                    console.log("submit the form....");
+                    // validate form
+                    var username = _id("username"), pass = _id("password");
+                    if(username.value === "" ||  pass.value === "") {
+                        console.log("all fields required")
+                        return;
+                    }
+                    bg.sign_in( username.value, pass.value, function(e) {
+                        console.log("logged in")
+                        document.location.reload();
+                    })                    
+                    
+                }
+                
+                
+                var header = _id("bitly_options"), shares_elem = _id("share_accounts")
                 if(user_data && user_data.x_login) {
                     elem = _id("signedin_info_contents");
                     elem.style.display="block";
-                    _id("api_key").setAttribute("value", user_data.x_apiKey);
-                    _id("current_username").innerText = user_data.x_login;
+                    // _id("api_key").setAttribute("value", user_data.x_apiKey);
+                    // _id("current_username").innerText = user_data.x_login;
+                    var domain_elem = _id("api_domains")
+                    header.innerText = user_data.x_login + " Account Settings";
+                    chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )
                 } else {
                     elem = _id("signedout_info_contents");
                     elem.style.display="block";
-                    _id("signin_form").addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        console.log("submit the form....");
-                        // validate form
-                        var username = _id("username"), pass = _id("password");
-                        if(username.value === "" ||  pass.value === "") {
-                            console.log("all fields required")
-                            return;
-                        }
-                        bg.sign_in( username.value, pass.value, function(e) {
-                            console.log("logged in")
-                            document.location.reload();
-                        })
-                    })
+                    header.innerText = "Sign in via bit.ly"
+                    _id("signin_form").addEventListener('submit', signin_form_event)
                     
                 }
+                
+                shares_elem.addEventListener('click', function(e) {
+                    
+                    var params={ 'action' : 'activate_account' }, img, status, parent;
+                    if(e.target.nodeName.toLowerCase() === "img" || e.target.className === "sharingControl") {
+                        parent = e.target.parentNode;
+                        status = ( parent.getAttribute("status").indexOf("on") < 0 );
+                        console.log(status)
+                        params.account_id = parent.id
+                        params.active = status;
+                        chrome.extension.sendRequest( params, list_accounts_callback );
+                    }
+                    
+                    if(e.target.className === "resync") {
+                        e.preventDefault();
+                        chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback )
+                    }
+                    
+                })
                 
                 bod.addEventListener('click', function(e) {
                     

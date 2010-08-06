@@ -1,27 +1,17 @@
 var page_links, queried_matches = [],
     timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
-    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,6}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi"),
+    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi"),
+    // keep this basic list, to eliminate already known items and save some cyles later
     false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
-                            "yfrog.com", "su.pr", "venmo.com", "blippy.com", "felttip.com",
+                            "yfrog.com", "digg.com", "twitgoo.com", "ficly.com", "google.com", "paste.ly",
+                            "su.pr", "venmo.com", "blippy.com", "felttip.com", "github.com", "cnt.to",
                             "is.gd", "tinyurl.com", "twurl.nl", "twitter.com", "ow.ly", "mash.to"];
 
 
-// unreal possibility
-//http://ow.ly/2iBnE || http://bit.ly/2iBnE+
-// bit.ly returns the google news page
-// this is a link to the mashable article on the same topic
-//  http://mashable.com/2010/07/29/google-search-blocked-china-report/
-//  http://news.google.com/news/url?fd=R&sa=T&url=http://www.vindy.com/news/2009/jul/19/heritage-foundation-has-an-alternative-to-health/&usg=AFQjCNGkbpZcLvUGeznDlIAywfUhqa--OA
-//  
-
-
 function no_look_domains( url ) {
-    // var matches = url.match(domains);
-    // if(matches && matches.length > 0) return true;
-    // return false;
+    // just a simple test to weed out obvious domains
     var test_string="";
     for(var i=0; i<false_positive_list.length; i++) {
-            test_string = ("http://" + false_positive_list[i]).trim();
             if( url.indexOf( false_positive_list[i] ) > -1 ) {
                 return true;
             }
@@ -48,6 +38,9 @@ function find_short_links() {
     var links = document.getElementsByTagName("a"), 
         href, matches, final_matches=[], 
         url, i=0, elem;
+        
+    // todo
+    // i'm finding my hover
         
     for ( ; elem=links[i]; i++ ) {
         href = elem.getAttribute("href")
@@ -100,7 +93,7 @@ function brainResponse(jo) {
             if(e.target.className === "bitly_url_expander_box_close") {
                 //console.log("close it.");
                 e.preventDefault();
-                container.style.display="none";
+                close_container();
                 return false;
             }
         })
@@ -166,9 +159,14 @@ function brainResponse(jo) {
  
 }
 
+function close_container() {
+    container.style.display="none"; 
+    container.innerHTML = "";
+}
+
 function closeBitlyUrlExpanderBox(e) {
     timeout_link = setTimeout(function(){
-        container.style.display="none";
+        close_container();
     }, 280)    
 }
 

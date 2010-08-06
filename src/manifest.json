@@ -14,8 +14,8 @@ The version number is automatically incremented by deploy_extension.sh
   "background_page": "background.html",
   "browser_action": {
     "default_title": "bit.ly",  
-    "default_icon": "bitly.png",
-    "popup" : "sign_in.html"
+    "default_icon": "bitly.png" //,
+    //"popup" : "sign_in.html"
   },
   "icons" : { 
     "16" : "s/graphics/bitly_fish_16.png",
@@ -23,8 +23,9 @@ The version number is automatically incremented by deploy_extension.sh
     "128" : "s/graphics/bitly_fish_128.png"    
   },
   "permissions": [
-    "http://*/*",
+    "http://*/*", 
     "http://api.bit.ly/",
+    "https://*.bit.ly/",
     "tabs", 
     "unlimited_storage"     
   ],
@@ -32,7 +33,8 @@ The version number is automatically incremented by deploy_extension.sh
   "content_scripts": [
     {
      "matches": ["http://*/*"],
-     "js": ["js/content_plugins/bitly.urlexpander.js"]
+     "js": ["js/content_plugins/bitly.urlexpander.js"],
+     "css": ["css/urlexpander.css"]     
     }
   ]
 }

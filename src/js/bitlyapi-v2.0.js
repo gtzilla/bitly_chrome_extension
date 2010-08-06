@@ -9,11 +9,16 @@
 // TODO
 // move this info to settings file
 var host = "http://api.bit.ly", 
+    ssl_host = "https://api-ssl.bit.ly",
     urls = {
         'shorten' : '/v3/shorten',
         'expand' : '/v3/expand',
         'info' : '/v3/info',
         'auth' : '/v3/authenticate',
+        'oauth' : '/oauth/access_token',
+        'accounts' : '/v3/user/share_accounts',
+        'domains' : '/v3/all_domains',
+        'share' : '/v3/user/share',
         'clicks' : '/v3/clicks',
         'lookup' : '/v3/lookup'
     }, errors = [];
@@ -36,7 +41,15 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         apiKey : "",
         format : 'json',
         domain : 'bit.ly',
+        access_token : null,
         x_login : null, x_apiKey : null
+    },
+    
+    oauth_client : {
+        client_id : null,
+        client_secret : null,
+        x_auth_username : '',
+        x_auth_password : ''
     },
     
     version : "2.0",
@@ -54,16 +67,13 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         var shorten_params = copy_obj( this.bit_request );
         shorten_params.longUrl = long_url;        
         this.count+=1;
-        bitlyRequest( urls.shorten, shorten_params, callback);        
+        bitlyRequest( host + urls.shorten, shorten_params, callback);        
     },
     
     expand : function(  short_urls, callback ) {
 
         this.count+=1;
-        internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, function(jo) {
-            console.log("working", jo)
-            callback(jo)
-        } );        
+        internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, callback);        
     },
     
     expand_and_meta : function( short_urls, callback ) {
@@ -74,9 +84,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         var requests = 3, final_results = {};
         
         function sticher( response ) {
-            requests-=1;
-            //console.log(response, "the expand and meta sticher")
-            
+            requests-=1;            
             // clicks || info || expand
             var items = [], item_hash, store;
             try {
@@ -110,7 +118,6 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                     count+=1;
                     list_results.push( final_results[key] )
                 }
-                console.log("merged up data is", final_results)
                 callback( {'expand_and_meta' : final_results, 'list_results' : list_results, 'total' : count } );
             }
         }
@@ -151,25 +158,59 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     lookup : function(long_urls, callback) {
         this.count+=1;        
         internal_multiget( urls.lookup, 'url', long_urls, this.bit_request, callback );
-    },    
+    }, 
+    
+    share_accounts : function( callback ) {
+        if(!callback) callback = function(){ console.log(arguments); }
+        // this is an oauth endpoint -- /v3/user/share_accounts
+        
+        var share_params = { 'access_token' : this.bit_request.access_token }
+
+        this.count+=1;
+        bitlyRequest( ssl_host + urls.accounts, share_params, callback);        
+    },
+    
+    bitly_domains : function( callback )  {
+        // 
+        var params = { 'access_token' : this.bit_request.access_token }        
+        //http://api.bit.ly/v3/all_domains
+        bitlyRequest( ssl_host + urls.domains, params, callback);  
+    },
+    
+    share : function( params, callback ) {
+        var share_params = copy_obj(params);
+        share_params.access_token = this.bit_request.access_token;
+        
+        this.count+=1;
+        bitlyRequest( ssl_host + urls.share, share_params, callback);        
+    },
     
     auth : function( username, password, callback ) {
         // call the set credentials  when this is run
-        var self = this, auth_params = copy_obj( this.bit_request );
-        auth_params.x_login = username;
-        auth_params.x_password = password;        
+        var self = this, auth_params = copy_obj( this.oauth_client );
+
+        auth_params.x_auth_username = username;
+        auth_params.x_auth_password = password;        
         ajaxRequest({
-            'url' : host + urls.auth + "?" + buildparams( auth_params ),
+            'url' : ssl_host + urls.oauth,
             'type' : "POST",
-            'success' : function(jo) {
-                console.log(jo, "bit.ly response: ", urls.auth); 
-                if( jo.authenticate && jo.authenticate.successful ) {
-                    self.set_credentials( jo.authenticate.username, jo.authenticate.api_key )              
-                } else {
-                    // the errors should be tallied here
-                    errors.push({ 'error' : 'auth', 'data' : jo })
+            'data' : buildparams( auth_params ),
+            'success' : function( url_param_string ) {
+                if(typeof object === "object") { 
+                    callback({'error' : url_param_string }); 
+                    return;
                 }
-                if(callback) callback( jo );
+                var oauth_info = parse_oauth_response( url_param_string );
+                if(!oauth_info) {
+                    console.log('error');
+                    errors.push({'error' : 'auth', 'data' : url_param_string })
+                    oauth_info = { 'error' : 'unknown issue with auth' }
+                } else {
+                    self.set_credentials( oauth_info.login, oauth_info.apiKey, oauth_info.access_token );
+                }
+
+
+                if(callback) callback( oauth_info );
             }
         });        
         
@@ -187,11 +228,17 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         return false;
     },
     
-    set_credentials : function( x_login, x_apiKey) {
+    set_oauth_credentials : function( client_id, client_secret ) {
+        this.oauth_client.client_id = client_id;
+        this.oauth_client.client_secret = client_secret;
+    },
+    
+    set_credentials : function( x_login, x_apiKey, access_token) {
         
         // set as default
         this.bit_request.x_login = x_login;
-        this.bit_request.x_apiKey = x_apiKey;        
+        this.bit_request.x_apiKey = x_apiKey;   
+        this.bit_request.access_token = access_token;                
     },
     
     remove_credentials : function() {
@@ -215,6 +262,20 @@ function copy_obj( obj ) {
         copy[k] = obj[k];
     }
     return copy;
+}
+
+function parse_oauth_response( url_string ) {
+    //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
+    var items = ( url_string && typeof url_string === "string" ) && url_string.split("&")
+    if(!items) return null;
+    var response = {}
+    for(var i=0; i<items.length; i++) {
+        var params = items[i].split("=");
+        response[ (params[0]) ] = params[1]
+    }
+    
+    return response;
+
 }
 
 function is_large_arrary( array ) {
@@ -245,12 +306,12 @@ function internal_multiget( path, param_key, urls_list, params, callback ) {
             // break into arrays of length < 15 - bit.ly API has a limit on # per request
             request_count+=1;
             bit_params[ param_key ] = chunks[i];                  
-            bitlyRequest( path,  bit_params, stitch);                      
+            bitlyRequest( host + path,  bit_params, stitch);                      
         }
     } else {
         bit_params[ param_key ] = urls_list;  
         //console.log("try to send ", bit_params)
-        bitlyRequest( path,  bit_params, callback);                
+        bitlyRequest( host + path,  bit_params, callback);                
     }
 }
 
@@ -285,11 +346,11 @@ function buildparams( obj ) {
     return params.join("&");
 }
 
-function bitlyRequest( api_path, params, callback, error_callback ) {
+function bitlyRequest( api_url, params, callback, error_callback ) {
     ajaxRequest({
-        'url' : host + api_path + "?" + buildparams( params ),
+        'url' : api_url + "?" + buildparams( params ),
         'success' : function(jo) {
-            console.log(jo, "bit.ly response: ", api_path);               
+            //console.log(jo, "bit.ly response: ", api_url);               
             if(callback) callback( jo );    // send back the long url as a second arg
         },
         error : error_callback || callback
@@ -300,23 +361,25 @@ function ajaxRequest( obj ) {
     // outside of the ext, this lib needs JSONP
     // 7/25/2010 - for google chrome ext
     var xhr = new XMLHttpRequest(), message;
-    xhr.open(obj.type || "GET", obj.url, true);           
+    xhr.open(obj.type || "GET", obj.url, true);  
+    if(obj.data) {
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+    }         
     xhr.onreadystatechange = function() {
          if (xhr.readyState == 4) {
              // do success
              if(xhr.status!==200) {
                  // TODO
                  // handle errors better
+                 console.log("API invalid response error", obj)                 
                  if(obj.error) { 
-                     
+                     console.log("API invalid response error")
                      obj.error();
                  }
-                 else obj.success({ 'error' : JSON.parse(xhr.responseText) })
+                 else { obj.success({ 'error' : 'unknown' }); }
                  console.log("status is not 200")
-                 return;
              } 
              try {
-                 console.log(xhr, "the xhr")
                  message = JSON.parse(xhr.responseText);
                  if(message.status_code === 200) {
                      message = message.data;

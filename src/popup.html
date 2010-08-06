@@ -22,16 +22,26 @@
                       
                       <div class="bentoShareBoxContainer">
                           <textarea id="bento_share" name="bento_share"></textarea>                                
-                          <!-- <div id="loading_short_url">loading...</div> -->
+                          <div id="loading_short_url">
+                              <img src="s/graphics/loader_58_58.gif" border="0" alt="0" />
+                          </div>
                       </div>
-                      <!-- <div>
-                        <input class="activeButtons" type="submit" name="share_button" value="Share" id="share_button">
-                      </div> -->
+                      <div id="sharing">
+                          <div id="sharing_accounts_display"></div>                    
+                          <div id="share_controls" style="display:none;">
+                            <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button">                          
+                          </div> 
+                          <div id="message_box" style="display:none;"></div>
+                          <div class="hr"><hr /></div>                   
+                      </div>
+
                 </form>
+                
+
+
                 
                 <div class="bitly_shorten_box_meta_links">
                     <a class="options_page" id="options_page" href="options.html">options</a>
-                    <a class="bitly_popup_promo" href="http://bit.ly">bit.ly</a>
 
                 </div>
 
@@ -48,14 +58,66 @@
         <script type="text/javascript" charset="utf-8">
             
             // get the current document location
-            var txtarea = document.getElementById("bento_share"), 
-                current_title = "",
-                b = document.getElementById("options_page"),
-                bg = chrome.extension.getBackgroundPage();
+
 
             function shorten_complete_callback( jo ) {
+                _id("loading_short_url").style.display="none";
                 txtarea.innerHTML = current_title + " " + (jo.url || "");
             }
+            function _id( name ) {
+                return document.getElementById( name )
+            }
+            function share_callback(jo) {
+                console.log(jo, "share");
+                if(jo.error) { return; }
+                txtarea.innerHTML = "";
+                var message = _id("message_box");
+                message.innerHTML = "Successfully shared your message";
+                message.style.display="block";
+                setTimeout(close_message_box, 5000);
+            }
+            function close_message_box() {
+                var message = _id("message_box");
+                message.style.display="none";                
+            }
+            function list_accounts_callback(jo) {
+                //console.log(jo)
+                var i=0, account, accounts = jo && jo.share_accounts, html = "", 
+                    status, images=[], img;
+                
+                if(accounts.length > 0 ) {
+                    html += '<span class="share_account_header">Active:</span>'
+                    html += '<ul id="share_accounts">'
+                    for( ; account=accounts[i]; i++) {
+                        status = (account.active) ? "on" : "off"                    
+                        html += '<li>'
+                            html += '<img class="account_icon" id="'+ account.account_id + '"';
+                            html += ' title="' + (account.account_name || account.account_login) + '" '
+                            html += ' src="s/graphics/'+account.account_type+'-'+status+'.png" border="0" alt="" />'
+                        html += '</li>'
+                    }
+                    html += '</ul>';
+                    html += '<div class="hr"><hr /></div>'                    
+                    _id("share_controls").style.display="block";
+                }
+
+                
+                _id("sharing_accounts_display").innerHTML = html;
+
+                // images = _id("share_accounts").getElementsByTagName("img")
+                // for(var i=0, img; img=images[i]; i++) {
+                //     console.log(i, "second loop")
+                // }
+                
+            }
+            
+            // end definitions
+            
+            
+            var txtarea = _id("bento_share"), share_form = _id("bitly_bento_submit"),
+                current_title = "",
+                b = _id("options_page"),
+                bg = chrome.extension.getBackgroundPage();            
             
             chrome.tabs.getSelected(null, function( curr_tab) {
                
@@ -68,10 +130,37 @@
                    'title' : curr_tab.title
                }
                current_title = curr_tab.title
-               chrome.extension.sendRequest( message, shorten_complete_callback )
+               chrome.extension.sendRequest( message, shorten_complete_callback );
+               chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )               
                
                 
             });
+            
+            share_form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var txt = txtarea.value, params = {'action' : 'share' };
+                
+                if(txt !== "") {
+                    params.share_text = txt;
+                    chrome.extension.sendRequest( params, share_callback )               
+                } else {
+                    console.log("nothing to share, error the UI")
+                }
+                console.log(txtarea.value)
+            });
+            
+            _id("sharing_accounts_display").addEventListener('click', function(e) {
+                if(e.target.nodeName.toLowerCase() === "img") {
+                    var img = e.target, src = img.src, 
+                        status = (src.indexOf("on.png") < 0 ),
+                        params = {'action' : 'activate_account'};
+                    params.account_id = img.id;
+                    params.active = status
+                    
+                    chrome.extension.sendRequest( params, list_accounts_callback )                           
+                }
+            });            
+            
             
 
             b.addEventListener('click', function(e) {

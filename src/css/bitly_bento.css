@@ -193,20 +193,9 @@ body {
 }
 .bentoShareBoxContainer {
     position:relative;
-
-
     text-align:center;    
 }
-#loading_short_url {
-    position:absolute;
-    min-width:490px;   
-    opacity:0.7; 
-    color:#999;
-    font-size:26px;
-    background:transparent;    
-    left:0;
-    top:35px;
-}
+
 
 #logo {
     margin-bottom:6px;

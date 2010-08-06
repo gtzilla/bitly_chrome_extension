@@ -24,12 +24,7 @@
     padding-bottom:8px;    
 }
 
-#bitly_options {
-    font-size:28px;
-    color:#999;
 
-    padding:12px 0;
-}
 #logo {
     margin:18px 30px 0;
 }
@@ -118,12 +113,10 @@
 }
 
 
-/*  linked accounts stuff...  */
 
+/*
 .linkedAccountsItems {
     border-top:1px solid #ccc;
-/*    border-radius:4px;
-    -webkit-box-shadow: inset 3px 2px 5px #9c9c9c;    */
     padding:8px 0px 8px;
     margin-bottom:5px;
     font-size:14px;
@@ -135,6 +128,45 @@
     color:#454545;
     padding:5px;
     margin-right:10px;
+}*/
+
+/* just a litle text at the bottom  */
+#bitly_options {
+    font-size:26px;
+    color:#999;
+    border-bottom:1px solid #ccc;
+    padding:12px 0 7px;
+    margin:0 0 13px;
+}
+
+.meta_graph {
+    padding-top:15px;
+}
+#share_accounts {
+    
+}
+#share_accounts ul {
+    
+}
+#share_accounts h3 {
+    font-size:15px;
+    font-weight:normal;
+    color:#555;
+    padding-bottom:5px;
+}
+#share_accounts p {
+    padding-bottom:5px;
 }
 
 
+#share_accounts li {
+    padding-bottom:5px;
+    font-size:13px;
+}
+.account_icon {
+    vertical-align:bottom;
+    padding-right:5px;
+}
+.account_name {
+    padding-right:5px;
+}

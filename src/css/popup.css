@@ -5,7 +5,7 @@
 
 }
 #container {
-    padding:10px 10px 18px;
+    padding:10px 10px 20px;
 /*    background:#ededed;*/
 
     background:-webkit-gradient(linear, right bottom, right top, 
@@ -21,12 +21,12 @@
     font-size:18px;
     padding:10px;
     color:#444;
-    min-width:390px;
+    min-width:420px;
     min-height:90px;
-    
     border:1px solid #ccc;
     background:#feffec;
     margin-bottom:8px;
+    -webkit-border-radius: 5px;    
 
 }
 
@@ -34,16 +34,66 @@
 .bitly_shorten_box_meta_links .bitly_popup_promo {
     color:#c79840;
     position:absolute;
-    bottom:5px;    
-    left:12px;
+    bottom:10px;    
+    left:20px;
+}
+#sharing {
+    padding:0 0 0 4px;
+}
+
+#share_accounts, #share_accounts li {
+    display:inline;
+}
+#share_accounts li {
+    padding-right:2px;
+}
+.account_icon {
+    vertical-align:bottom;
+    cursor:pointer;
 }
 
 .bitly_shorten_box_meta_links .options_page {
     position:absolute;
-    bottom:5px;
-    right:12px;    
+    bottom:14px;    
+    left:14px; 
+}
+.share_account_header {
+    font-size:13px;
+    padding:0 4px 7px 0;
+    
 }
 
 .bitly_shorten_box_meta_links {
-    font-size:11px;  
+    font-size:13px;  
+}
+
+#sharing_accounts_display {
+    float:left;
+    min-width:320px;
+}
+#share_controls {
+    float:right;
+    max-width:100px;
+}
+#message_box {
+    position:absolute;
+    min-width:420px;  
+    left:0;
+    top:35px; 
+    text-align:center;
+    color:#888;
+    font-size:18px;     
+}
+
+#loading_short_url {
+    /*http://preloaders.net/generator.php?image=35&speed=7&fore_color=888888&back_color=FEFFEC&size=50x50&transparency=0&reverse=0&uncacher=56.34618382900953*/    
+    position:absolute; 
+    opacity:0.7; 
+    color:#999;
+    font-size:26px;
+    background:transparent;    
+    left:0;
+    top:35px;
+    text-align:center;
+    min-width:420px;    
 }
