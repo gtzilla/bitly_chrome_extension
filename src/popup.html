@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="awesome" />
         <meta name="description" content="" />
-        <link rel="stylesheet" href="css/bitly_basic.css" type="text/css" charset="utf-8" />   
+        <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />   
         <link rel="stylesheet" href="css/popup.css" type="text/css" charset="utf-8" />        
     </head>
     <body class="popup_body">
@@ -29,7 +29,14 @@
                       <div id="sharing">
                           <div id="sharing_accounts_display"></div>                    
                           <div id="share_controls" style="display:none;">
-                            <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button">                          
+                              
+                            <div id="sharing_buttons_box">
+                            <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button">                                                          
+                            </div>
+                            <div id="share_loading_graphic">
+                                <img src="s/graphics/loader_share_30_30.gif" height="30" width="30" border="0" alt="" />
+                            </div>
+
                           </div> 
                           <div id="message_box" style="display:none;"></div>
                           <div class="hr"><hr /></div>                   
@@ -69,11 +76,14 @@
             }
             function share_callback(jo) {
                 console.log(jo, "share");
-                if(jo.error) { return; }
+                if(jo.error || jo.share.length <=0 ) { return; }
                 txtarea.innerHTML = "";
                 var message = _id("message_box");
                 message.innerHTML = "Successfully shared your message";
                 message.style.display="block";
+                
+                _id("share_loading_graphic").style.display="none";
+                _id("sharing_buttons_box").style.display="block";                
                 setTimeout(close_message_box, 5000);
             }
             function close_message_box() {
@@ -139,7 +149,8 @@
             share_form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 var txt = txtarea.value, params = {'action' : 'share' };
-                
+                _id("share_loading_graphic").style.display="block";
+                _id("sharing_buttons_box").style.display="none";
                 if(txt !== "") {
                     params.share_text = txt;
                     chrome.extension.sendRequest( params, share_callback )               

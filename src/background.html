@@ -58,6 +58,17 @@
             
             return false;
         }
+        
+        function escaper( string ) {
+            // tests
+            // http://bit.ly/u/j3h14h
+            
+            // .addEscape('"', "&quot;")
+            //     .addEscape('\'', "&#39;")
+            //     .addEscape('&', "&amp;")
+            //     .addEscape('<', "&lt;")
+            //     .addEscape('>', "&gt;")
+        }
         function localfetch( itemKey ) {
             var item = window.localStorage.getItem( itemKey )
             try{
@@ -147,6 +158,8 @@
             });
         }
              
+        
+
              
         function sign_in(username, password, callback) {
             console.log("auth attempt for", username)
@@ -179,22 +192,42 @@
             localdelete("share_accounts")
             chrome.browserAction.setPopup({ "popup" : ""});
             return;
-        }        
+        } 
         
-        function save_api_domain( api_domain ) {
+        function clear_domain_list() {
+            domains_list = [];
+            bit_db.remove( "domains_list" , function() {
+                console.log("success deleting domains list", arguments)
+            })
+        }               
+        
+        function set_api_domain( api_domain ) {
             var api_change = bitly.set_domain( api_domain );
             if(api_change) {
                 localstore("domain", api_domain);
+                bit_db.save("domain", api_domain, function() {
+                    console.log("setting api domain", arguments)
+                });
             }
         }
         
-        function load_false_positive_list_from_cache() {
-            
-            //var list = sqlfetch( "list" )
-            // if doesn't exist or check timestamp on file
-            //      fetch new values and cache into sql and memory
-            
+        function get_api_domain() {
+            return bitly.get_domain();
         }
+
+
+        function get_url_expansion() {
+            return auto_expand_urls;
+        }
+        
+        function set_url_expansion( bool_value) {
+            auto_expand_urls = (bool_value) ? true : false;
+            bit_db.save("auto_expand_urls", { 'auto_expand' : auto_expand_urls }, function() {
+                console.log("saved auto expand urls", arguments)
+            })
+        }
+        
+              
                 
         function set_current_bitly_user_from_cache() {
             var user_data = localfetch("user_data"), domain = localfetch("domain");
@@ -219,25 +252,31 @@
             // }            
         }
         
-        function clear_domain_list() {
-            domains_list = [];
-            bit_db.remove( "domains_list" , function() {
-                console.log("success deleting domains list", arguments)
+        function set_auto_expand_from_cache() {
+            bit_db.find("auto_expand_urls", function(jo) {
+                auto_expand_urls = jo.auto_expand;
             })
         }
         
+        function set_api_domain_from_cache() {
+            bit_db.find("domain", function(domain_string) {
+                bitly.set_domain( domain_string )
+            })            
+        }
+
         function set_domain_list_from_cache() {
             
             bit_db.find("domains_list", function(jo) {
-                
-                if(jo && jo.length > 10) {
-                    domains_list = jo;
+                var now =  (new Date()).getTime(), then = now - (24*60*60*1000)*5;
+                if(jo && jo.timestamp > then && jo.domains.length > 10) {
+                    domains_list = jo.domains || jo;
                 } else {
+                    logger("Get latest domains")
                     bitly.bitly_domains( function(jo) {
                         var bit_domains = jo.reverse();
-                        
                         console.log(bit_domains.length)
-                        bit_db.save( "domains_list", bit_domains, function() {
+                        bit_db.save( "domains_list", { 'domains' :  bit_domains, 
+                                                        'timestamp' : now }, function() {
                             
                             console.log("storing domains to sql", arguments)
                         })
@@ -293,12 +332,14 @@
 
         // the bit.ly API worker
         logger("Initialize bit.ly extension");
-        var bitly=init_api(), bit_db=init_db(), domains_list,
+        var bitly=init_api(), bit_db=init_db(), 
+            domains_list, auto_expand_urls = true,
             // for google tracking, when that's ready
             _gaq = _gaq || [];   
         set_current_bitly_user_from_cache();
         set_domain_list_from_cache();
-
+        set_auto_expand_from_cache();
+        set_api_domain_from_cache();
         // testing
         //testdb();
 
@@ -314,8 +355,17 @@
             var act = request.action;
             switch( act ) {
 
+                case "page_loaded":
+                    if(!auto_expand_urls) return; 
+                    //"css": ["css/urlexpander.css"]    
+                    chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})                                       
+                    chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});  
+                                                                                
+                break;
+                
                 case "expand_and_meta":
                     // this event triggered by a content script
+                   
                     console.log("expand", request, bitly);
                     parse_domains( request.short_url )
                     var sUrl = (typeof request.short_url !== "string") ? request.short_url : [request.short_url],
@@ -403,6 +453,7 @@
                 
 
                 case "expand":
+
                     console.log("expand", request, bitly)
                     bitly.expand( request.short_url, sendResponse );                    
                 break;

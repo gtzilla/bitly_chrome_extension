@@ -1,10 +1,9 @@
 /*
-    A wrapper to interact with local SQL and make it as simple as local storage
+    A wrapper to interact with local SQL and make it as simple as local storage, sorta
 */
 
 (function() {
-    
-    
+
     var default_desc = "A local SQL DB", default_size = 5000000, default_version = 1
         bitlyDB = function( name, options ) {
             if(!options) options = {};
@@ -34,7 +33,7 @@
                         result=sql_result.rows.item(i)
                         try {
                             db_value = JSON.parse( result.itemValue );
-                        } catch(e) {}
+                        } catch(e) { db_value = result.itemValue }
                     }
                     
                     if(callback) callback(db_value)
@@ -88,21 +87,7 @@
             var saved_value = (typeof value === "string") ? value : JSON.stringify( value );
                 items = [ key, saved_value ], attempts = 0, 
                 self=this, no_table = "no such table";
-            //console.log(items)
 
-            // var sql_insert_obj = {
-            //     'values' : items,
-            //     success : function( tx, sql_result) {
-            //         console.log("success?", sql_result)
-            //         if(callback) callback( sql_result )
-            //     },
-            //     error : function( tx, sql_error) {
-            //         // SQLTransaction tx, SQLError sql_error, 
-            //         console.log("tx", tx, sql_error)
-            //         console.log(sql_error, tx)
-            // 
-            //     }                                                 
-            // }
             
             function add_insert_error(tx, sql_error) {
                 if(sql_error.code === 1 ) {
@@ -178,44 +163,8 @@
         
     }
 
-
+    // magic
     bitlyDB.fn.init.prototype = bitlyDB.fn;
     
-    
-    // function table_insert_handler(  obj  ) {
-    //     if(!obj || !db) return false;
-    //     var markers = [], i=0, columns = obj.columns || ["itemKey", "itemValue"], 
-    //         sql_string = "INSERT INTO " + ( obj.table || "bitly" );
-    //     
-    //     for(; i<columns.length; i++) { markers.push("?"); }
-    //     // default "INSERT INTO bitly (itemKey, itemKey) VALUES(?,?)"
-    //     sql_string += " (" + columns.join(', ') + ") VALUES ("+ markers.join(',') +")";
-    //     
-    //     
-    //     try {
-    //         this.db.transaction(function(tx) {
-    //             tx.executeSql( sql_string, obj.values || [], obj.success, obj.error);
-    //         });            
-    //     } catch(e) {
-    //         console.log("try/catch error", e, db)
-    //     }
-    //            
-    // }
-    
-    function handleErrors( tx, error ) {
-        console.log(arguments);
-        var no_table = "no such table"
-        if(error.code === 1 || error.message.indexOf( no_table ) > -1 ) {
-            // create a table here... 
-        }
-    }    
-    
-    function failover_tablecreate() {
-        // db.transaction(function(tx) {
-        //                         tx.executeSql("CREATE TABLE " + tableName + " " + schema, [], callback, error )
-        //                     });
-        
-        
-    }
     
 })();

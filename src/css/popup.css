@@ -73,7 +73,9 @@
 }
 #share_controls {
     float:right;
-    max-width:100px;
+    position:relative;
+    width:72px;
+    min-height:30px;
 }
 #message_box {
     position:absolute;
@@ -83,6 +85,24 @@
     text-align:center;
     color:#888;
     font-size:18px;     
+}
+#share_loading_graphic {
+    position:absolute;
+    top:0;
+    left:0;
+    width:72px;
+    min-height:30px;
+    text-align:center;
+    display:none;
+}
+
+#sharing_buttons_box {
+
+    min-width:72px;
+    position:absolute;
+    top:0;
+    left:0;
+    min-height:30px;
 }
 
 #loading_short_url {

@@ -6,9 +6,9 @@
         <title>bit.ly Options</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="bit.ly" />
-        <link rel="stylesheet" href="css/bitly_basic.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
         <link rel="stylesheet" href="css/bitly_ext_common.css" type="text/css" charset="utf-8" />
-        <link rel="stylesheet" href="css/bitly_options.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/options.css" type="text/css" charset="utf-8" />
         
         
     </head>
@@ -44,30 +44,54 @@
                     
                     <div id="signOutButtonContainer">
                         <a class="signout" href="#">Sign Out</a>
-                    </div>                    
-                    <!-- <form action="#" method="get" accept-charset="utf-8">
-
-                        <div  class="inputContainer">
-                            <label for="username">Username</label>
-                            <span id="current_username"></span>                            
-                        </div>
-
-                        
-                        <div  class="inputContainer">
-                            <label for="api_key">API Key</label>
-                            <input type="text" name="api_key" value="" id="api_key">                            
-                        </div>
-
-                    </form>   -->
-                    
+                    </div>                                        
                     
                     <div id="share_accounts"></div>
                     
-                    <div id="api_domains"></div>
+                    
+                    <div id="auto_expand_container" style="display:none;" class="options_container">
+                        <h3>Auto Expand Links</h3>
+                        <p>Shows a link preview on pages you visit. This change only applies to new page loads.</p>
+                        <div>
+                            <input type="checkbox" checked name="show_link_preview" value="" id="show_link_preview">
+                            <label for="show_link_preview">Show Link Preview</label>                            
+                        </div>
+
+                    </div>                    
+                    
+                    <div id="api_domains">
+
+                        <div class="api_type_selector options_container">
+                        <h3>API Domains</h3>
+
+                            <p>You can choose either the bit.ly API or the j.mp API. Both work just the same way, but j.mp is just a little shorter. This change only applies to new shortens.</p>
+
+                            <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
+
+                                <div class="bentoOptions">
+
+                                    <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
+                                    <label for="jmp">Use bit.ly API</label>
+                                </div>
+
+                                <div class="bentoOptions">
+                                    <input type="radio" name="api_choice" value="j.mp" id="bitly">
+                                    <label for="bitly">Use j.mp API</label>
+
+                                </div>
+
+
+                            </form>
+                        </div>                        
+                    </div>
+                    
+
+                    
                 </div>
                 <div id="signedout_info_contents" style="display:none;">
                     <form id="signin_form" action="#" method="get" accept-charset="utf-8">
-
+                        
+                        <div id="errors_box" class="chrome_page_errors_box" style="display:none;"></div>
 
                         <div class="inputContainer">
                             <label for="username">Username</label>
@@ -91,39 +115,6 @@
 
                     </form>                    
                 </div>    
-                
-                
-                
-                <div style="display:none;">
-                    
-                    <!-- <div class="api_type_selector">
-                        
-                        
-                        <p>You can choose either the bit.ly API or the j.mp API. Both work just the same way, but j.mp is just a little shorter. This change only applies to new shortens.</p>
-                        
-                        <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
-                            
-                            <div class="bentoOptions">
-                                
-                                <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
-                                <label for="jmp">Use bit.ly API</label>
-                            </div>
-                            
-                            <div class="bentoOptions">
-                                <input type="radio" name="api_choice" value="j.mp" id="bitly">
-                                <label for="bitly">Use j.mp API</label>
-                            
-                            </div>
-                        
-                        
-                        </form>
-                    </div>     -->                
-                    
-                    
-                </div>            
-
-                
-               
 
             </div> <!-- END #middle -->
         
@@ -140,11 +131,32 @@
 
                 var bg = chrome.extension.getBackgroundPage(), 
                     user_data = bg.localfetch("user_data"),
-                    elem,
+                    errors_box_elem = _id("errors_box"),
+                    elem, header = _id("bitly_options"), 
+                    shares_elem = _id("share_accounts"),
+                    api_form_elem = _id("api_choice_form"),
+                    api_domains_elem = _id("api_domains"), 
+                    url_expand_input = _id("show_link_preview")
                     bod = document.getElementsByTagName("body")[0];
                     
                 function _id( name ) {
                     return document.getElementById( name )
+                }
+                
+                function set_api_radio_button() {
+                    var api_domain = bg.get_api_domain(), 
+                        radios = api_form_elem.getElementsByTagName("input"),
+                        i=0, radio;
+                        
+                    for(; radio=radios[i]; i++) {
+                        if( radio.type !== "radio" ) continue;
+                        
+                        if(radio.value.trim() === api_domain ) {
+                            radio.checked=true;
+                        } else {
+                            radio.checked=false;
+                        }
+                    }
                 }
                 
                 function list_accounts_callback(response) {
@@ -170,28 +182,40 @@
                         html += '<p><a target="new" href="http://bit.ly/a/account">Add or remove</a> accounts on bit.ly | <a class="resync" href="#">Refresh account list</a></p>'
                     html += '</div>'
                     
-                    var elem = _id("share_accounts");
-                    elem.innerHTML = html;
-                }  
+
+                    shares_elem.innerHTML = html;
+                } 
+                
+                // events 
                 
                 function signin_form_event( e ){
                     e.preventDefault();
                     console.log("submit the form....");
+                    
                     // validate form
                     var username = _id("username"), pass = _id("password");
                     if(username.value === "" ||  pass.value === "") {
                         console.log("all fields required")
                         return;
                     }
-                    bg.sign_in( username.value, pass.value, function(e) {
+                    errors_box_elem.style.display="none";
+                    bg.sign_in( username.value, pass.value, function(jo) {
                         console.log("logged in")
-                        document.location.reload();
+                        
+                        console.log(jo)
+                        if(jo && !jo.error) {
+                            document.location.reload();
+                        } else {
+                            errors_box_elem.innerHTML = "Sorry, you're username and password don't match"
+                            errors_box_elem.style.display="block";
+                        }
+                            
                     })                    
                     
                 }
                 
                 
-                var header = _id("bitly_options"), shares_elem = _id("share_accounts")
+                    
                 if(user_data && user_data.x_login) {
                     elem = _id("signedin_info_contents");
                     elem.style.display="block";
@@ -199,14 +223,26 @@
                     // _id("current_username").innerText = user_data.x_login;
                     var domain_elem = _id("api_domains")
                     header.innerText = user_data.x_login + " Account Settings";
-                    chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )
+                    chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+                    api_domains_elem.style.display="block";
+                    _id("auto_expand_container").style.display="block";
+                    
+                    if( bg.get_url_expansion() ) {
+                        url_expand_input.checked=true;
+                    } else {
+                        url_expand_input.checked=false;
+                    }
+                    set_api_radio_button();
                 } else {
                     elem = _id("signedout_info_contents");
                     elem.style.display="block";
                     header.innerText = "Sign in via bit.ly"
-                    _id("signin_form").addEventListener('submit', signin_form_event)
+
                     
                 }
+                
+                
+                _id("signin_form").addEventListener('submit', signin_form_event)                
                 
                 shares_elem.addEventListener('click', function(e) {
                     
@@ -225,6 +261,23 @@
                         chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback )
                     }
                     
+                });
+                
+                url_expand_input.addEventListener('change', function(e) {
+                    console.log("change", e, e.target.checked)
+                    if(e.target.checked) {
+                        console.log("it's active now")
+
+                    } 
+                    
+                    bg.set_url_expansion( e.target.checked )
+                })
+                
+                api_form_elem.addEventListener('change', function(e) {
+                    //e.target,
+                    if(e.target.type !== "radio") { return; }
+                    console.log(e, "api form changed", e.target.nodeName, e.target.type, e.target.value)
+                    bg.set_api_domain( e.target.value  )
                 })
                 
                 bod.addEventListener('click', function(e) {

@@ -33,8 +33,7 @@ The version number is automatically incremented by deploy_extension.sh
   "content_scripts": [
     {
      "matches": ["http://*/*"],
-     "js": ["js/content_plugins/bitly.urlexpander.js"],
-     "css": ["css/urlexpander.css"]     
+     "js": ["js/content_plugins/bitly.dispatcher.js"]   
     }
   ]
 }

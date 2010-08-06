@@ -196,10 +196,6 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             'type' : "POST",
             'data' : buildparams( auth_params ),
             'success' : function( url_param_string ) {
-                if(typeof object === "object") { 
-                    callback({'error' : url_param_string }); 
-                    return;
-                }
                 var oauth_info = parse_oauth_response( url_param_string );
                 if(!oauth_info) {
                     console.log('error');
@@ -226,6 +222,10 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         }
         
         return false;
+    },
+    
+    get_domain : function() {
+        return this.bit_request.domain;
     },
     
     set_oauth_credentials : function( client_id, client_secret ) {
@@ -266,11 +266,13 @@ function copy_obj( obj ) {
 
 function parse_oauth_response( url_string ) {
     //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
-    var items = ( url_string && typeof url_string === "string" ) && url_string.split("&")
-    if(!items) return null;
-    var response = {}
-    for(var i=0; i<items.length; i++) {
-        var params = items[i].split("=");
+    console.log("url string oauth", url_string)
+    var items = ( url_string && typeof url_string === "string" ) && url_string.split("&"), 
+        response = {}, i=0, params;
+    if(!items) { return  {'error' : url_string }; }
+
+    for(i=0; i<items.length; i++) {
+        params = items[i].split("=");
         response[ (params[0]) ] = params[1]
     }
     
@@ -316,9 +318,6 @@ function internal_multiget( path, param_key, urls_list, params, callback ) {
 }
 
 function chunk(array, chunkSize) {
-    // when I get more than N urls, need to make multiple calls
-    // the paradox:
-    // checking that chunkSize is a num costs N amount, proper usage would requie no error handling and faster code?
    var base = [], i, size = chunkSize || 5;
    for(i=0; i<array.length; i+=chunkSize ) { base.push( array.slice( i, i+chunkSize ) ); }	
    return base;
@@ -326,13 +325,13 @@ function chunk(array, chunkSize) {
 
 
 function buildparams( obj ) {
-    // todo, be more complex
+    // todo, handle errors / types better
     var params = [], a;
     for(var k in obj ) {
         if(typeof obj[k] === "string") {
             // check has own property
             params[params.length] = k + "=" +encodeURIComponent( obj[k] );
-        } else if(obj[k] && obj[k].length > 0) {
+        } else if(obj[k] && obj[k].length > 0 && typeof obj[k] === "object") {
             // could be an object or an array
             a = obj[k];
 
@@ -368,31 +367,35 @@ function ajaxRequest( obj ) {
     xhr.onreadystatechange = function() {
          if (xhr.readyState == 4) {
              // do success
-             if(xhr.status!==200) {
+             if(xhr.status !== 200) {
                  // TODO
                  // handle errors better
+                 var err_msg = { 'error' : 'unknown', 'status_code' : xhr.status }
                  console.log("API invalid response error", obj)                 
                  if(obj.error) { 
                      console.log("API invalid response error")
-                     obj.error();
-                 }
-                 else { obj.success({ 'error' : 'unknown' }); }
-                 console.log("status is not 200")
-             } 
-             try {
-                 message = JSON.parse(xhr.responseText);
-                 if(message.status_code === 200) {
-                     message = message.data;
-                 } else {
-                     // throw error back
+                     obj.error( err_msg );
                      
                  }
-             } catch(e) {
-                 // NOT JSON
-                 console.log("not json")
-                 message = xhr.responseXML || xhr.responseText
+                 else { obj.success( err_msg ); }
+                 console.log("status is not 200")
+             } else {
+                 try {
+                      message = JSON.parse(xhr.responseText);
+                      if(message.status_code === 200) {
+                          message = message.data;
+                      } else {
+                          // throw error back
+
+                      }
+                  } catch(e) {
+                      // NOT JSON
+                      console.log("not json")
+                      message = xhr.responseXML || xhr.responseText
+                  }
+                  obj.success( message )                 
              }
-             obj.success( message )
+             
          }
     }
     xhr.send( obj.data || null );

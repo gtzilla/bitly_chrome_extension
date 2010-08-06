@@ -22,7 +22,7 @@ Features / Description
 ===========
 -. Shorten and Share, right from the extension, instantly
 -. Supports direct login to bit.ly
--. Supports sharing via all your linked accounts, such as Twitter and Facebook
+-. Supports sharing to all your linked accounts, such as Twitter and Facebook
 -. Expands all bit.ly links, including white-label domains, such as 4sq.com
 -. Works with HTTPS / SSL websites
 -. Uses new bit.ly SSL oAuth for authentication. You're credentials are never sent as clear text.

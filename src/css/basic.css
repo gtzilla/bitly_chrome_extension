@@ -104,3 +104,12 @@ a:hover {
     color:white;
     -webkit-box-shadow: inset 1px 1px 2px #333;    
 }
+
+
+/*  */
+.chrome_page_errors_box {
+    padding:5px 0 8px;
+    font-size:13px;
+    color:red;
+    line-height:1.4em;
+}
