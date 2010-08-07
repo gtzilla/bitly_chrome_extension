@@ -182,3 +182,18 @@
 #api_domains {
     display:none;
 }
+
+.log_message {
+    
+}
+.log_date {
+    display:block;
+    width:120px;
+    float:left;
+}
+.log_item_list li {
+    padding-bottom:5px;
+    clear:both;
+    float:none;
+    
+}

@@ -73,8 +73,6 @@
 
             function shorten_complete_callback( jo ) {
                 _id("loading_short_url").style.display="none";
-                // test runs OK
-                //current_title = "<b>Test Hommie</b>"
                 txtarea.innerText = current_title + " " + (jo.url || "");
             }
             function _id( name ) {
@@ -82,7 +80,10 @@
             }
             function share_callback(jo) {
                 console.log(jo, "share");
-                if(jo.error || jo.share.length <=0 ) { return; }
+                if(jo.error || jo.share.length <=0 ) { 
+                    bg.logger("Error during share" + JSON.stringify(jo) );
+                    return; 
+                }
 
                 txtarea.innerHTML = "";
                 var message = _id("message_box");

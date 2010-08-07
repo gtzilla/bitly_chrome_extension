@@ -197,7 +197,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
             'success' : function( url_param_string ) {
                 var oauth_info = parse_oauth_response( url_param_string );
                 if(!oauth_info) {
-                    console.log('error');
+                    console.log('error during oauth');
                     errors.push({'error' : 'auth', 'data' : url_param_string })
                     oauth_info = { 'error' : 'unknown issue with auth' }
                 } else {
@@ -265,10 +265,14 @@ function copy_obj( obj ) {
 
 function parse_oauth_response( url_string ) {
     //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
-    console.log("url string oauth", url_string)
     var items = ( url_string && typeof url_string === "string" ) && url_string.split("&"), 
         response = {}, i=0, params;
-    if(!items) { return  {'error' : url_string }; }
+    if(!items) { 
+        if(typeof url_string === "object" && !url_string.length) {
+            return url_string;
+        }
+        return  {'error' : url_string }; 
+    }
 
     for(i=0; i<items.length; i++) {
         params = items[i].split("=");
@@ -311,7 +315,6 @@ function internal_multiget( path, param_key, urls_list, params, callback ) {
         }
     } else {
         bit_params[ param_key ] = urls_list;  
-        //console.log("try to send ", bit_params)
         bitlyRequest( host + path,  bit_params, callback);                
     }
 }
@@ -348,8 +351,7 @@ function bitlyRequest( api_url, params, callback, error_callback ) {
     ajaxRequest({
         'url' : api_url + "?" + buildparams( params ),
         'success' : function(jo) {
-            //console.log(jo, "bit.ly response: ", api_url);               
-            if(callback) callback( jo );    // send back the long url as a second arg
+            if(callback) callback( jo );
         },
         error : error_callback || callback
     });    
@@ -366,19 +368,7 @@ function ajaxRequest( obj ) {
     xhr.onreadystatechange = function() {
          if (xhr.readyState == 4) {
              // do success
-             if(xhr.status !== 200) {
-                 // TODO
-                 // handle errors better
-                 var err_msg = { 'error' : 'unknown', 'status_code' : xhr.status }
-                 console.log("API invalid response error", obj)                 
-                 if(obj.error) { 
-                     console.log("API invalid response error")
-                     obj.error( err_msg );
-                     
-                 }
-                 else { obj.success( err_msg ); }
-                 console.log("status is not 200")
-             } else {
+             if(xhr.status === 200) {
                  try {
                       message = JSON.parse(xhr.responseText);
                       if(message.status_code === 200) {
@@ -389,10 +379,21 @@ function ajaxRequest( obj ) {
                       }
                   } catch(e) {
                       // NOT JSON
-                      console.log("not json")
+                      //console.log("not json")
                       message = xhr.responseXML || xhr.responseText
                   }
-                  obj.success( message )                 
+                  obj.success( message )          
+             } else {
+                 
+                 // TODO
+                 // handle errors better
+                 var err_msg = { 'error' : xhr.responseText || "unknown", 'status_code' : xhr.status }
+                 console.log("API invalid response, not 200", obj)                 
+                 if(obj.error) { 
+                     obj.error( err_msg );
+                 }
+                 else { obj.success( err_msg ); }                 
+                
              }
              
          }

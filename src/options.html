@@ -114,7 +114,7 @@
                     </form>                    
                 </div>    
                 
-                <div id="logging_box" style="display:none;">
+                <div id="logging_box">
                     <a id="logs_show_link" href="#">Logs</a>
                 </div>
 
@@ -134,11 +134,12 @@
                 var bg = chrome.extension.getBackgroundPage(), 
                     user_data = bg.localfetch("user_data"),
                     errors_box_elem = _id("errors_box"),
+                    logging_box_elem = _id("logging_box"),
                     elem, header = _id("bitly_options"), 
                     shares_elem = _id("share_accounts"),
                     api_form_elem = _id("api_choice_form"),
                     api_domains_elem = _id("api_domains"), 
-                    url_expand_input = _id("show_link_preview")
+                    url_expand_input = _id("show_link_preview"),
                     bod = document.getElementsByTagName("body")[0]
                     active_account_list = [];
                     
@@ -162,8 +163,46 @@
                     }
                 }
                 
+                function display_logs() {
+
+                    var logs = bg.get_logs(), html = "", i=0, 
+                        log, div, time, 
+                        ul = logging_box_elem.getElementsByTagName("ul"),
+                        display_time, hour, am_or_pm;
+                        
+                    if(ul.length>0)  {
+                        console.log(ul)
+                        logging_box_elem.removeChild( _id("logs_list_box") )
+                        return;
+                    } else {
+                        div = document.createElement("div");
+                        div.id="logs_list_box"
+                    }
+                    html += '<ul class="log_item_list">'
+                    for( ; log=logs[i]; i++) {
+                        time = new Date( log.timestamp );
+                        hour = ( time.getHours() > 12 ) ? time.getHours() -12 : time.getHours();
+                        am_or_pm = ( time.getHours() > 12 ) ? "PM" : "AM";
+                        
+                        display_time = time.getDate() + "/" + (time.getMonth() + 1) + "/" + time.getFullYear();
+                        display_time += " " + hour + ":" + time.getMinutes() + ":" + time.getSeconds();
+                        display_time += am_or_pm + " "
+                        html += '<li>'
+                            html += '<span class="log_date">' + display_time + '</span>';
+                            html += '<span class="log_message">' + log.message + '</span>'
+                            html += '<div class="hr"><hr /></div>'
+                        html += '</li>'
+                    }
+                    html += '</ul>';
+                    div.innerHTML = html;
+                    console.log("insert logs")                    
+                    logging_box_elem.appendChild( div );
+                
+                }
+                
                 function list_accounts_callback(response) {
-                    console.log(response, "accounts list")
+                    //console.log(response, "accounts list")
+                    
                     var accounts = response && response.share_accounts, i=0, 
                         account, html = "", status;
                     
@@ -182,7 +221,10 @@
                     html += '</ul>';
                     
                     html += '<div class="meta_graph">'
-                        html += '<p><a target="new" href="http://bit.ly/a/account">Add or remove</a> accounts on bit.ly | <a class="resync" href="#">Refresh account list</a></p>'
+                        html += '<p>'
+                            html += '<a target="new" href="http://bit.ly/a/account">Add or remove</a>';
+                            html += ' accounts on bit.ly | <a class="resync" href="#">Refresh account list</a>'
+                        html += '</p>'
                     html += '</div>'
                     
 
@@ -192,32 +234,43 @@
                 // events 
                 
                 function signin_form_event( e ){
-                    e.preventDefault();
-                    console.log("submit the form....");
-                    
+                    e.preventDefault();                    
                     // validate form
-                    var username = _id("username"), pass = _id("password");
+                    var username = _id("username"), 
+                        pass = _id("password"),
+                        error_message_text = "Sorry, your username and password don't match";
                     if(username.value === "" ||  pass.value === "") {
                         console.log("all fields required")
+                        errors_box_elem.innerHTML = "All fields required"
+                        errors_box_elem.style.display="block";                        
                         return;
                     }
+                    
                     errors_box_elem.style.display="none";
                     bg.sign_in( username.value, pass.value, function(jo) {
-                        console.log("logged in")
+                        console.log("logging in...")
                         
-                        console.log(jo)
+                        //console.log(jo)
                         if(jo && !jo.error) {
                             document.location.reload();
+                            return;
+                        } else if(jo && jo.status_code === 401) {
+                            // set diff default text here
                         } else {
-                            errors_box_elem.innerHTML = "Sorry, you're username and password don't match"
-                            errors_box_elem.style.display="block";
+                            error_message_text = "An error occurred trying to sign in"
                         }
+                        errors_box_elem.innerHTML = error_message_text;
+                        errors_box_elem.style.display="block";                        
+                        console.log("Failed sign in")                        
+                        bg.logger("Failed sign in attempt: " + JSON.stringify( jo ) );
                             
                     })                    
                     
                 }
                 
-                
+                /*
+                     Determine which 'display' to show user. Signed In || Sign In
+                */
                     
                 if(user_data && user_data.x_login) {
                     elem = _id("signedin_info_contents");
@@ -244,16 +297,20 @@
                     
                 }
                 
+                _id("logs_show_link").addEventListener("click", function(e) {
+                    e.preventDefault();
+                    display_logs();
+
+                })
                 
                 _id("signin_form").addEventListener('submit', signin_form_event)                
                 
                 shares_elem.addEventListener('click', function(e) {
-                    
                     var params={ 'action' : 'activate_account' }, img, status, parent;
                     if(e.target.nodeName.toLowerCase() === "img" || e.target.className === "sharingControl") {
                         parent = e.target.parentNode;
                         status = ( parent.getAttribute("status").indexOf("on") < 0 );
-                        console.log(status)
+                        //console.log(status)
                         params.account_id = parent.id
                         params.active = status;
                         chrome.extension.sendRequest( params, list_accounts_callback );
@@ -267,10 +324,9 @@
                 });
                 
                 url_expand_input.addEventListener('change', function(e) {
-                    console.log("change", e, e.target.checked)
+                    //console.log("change", e, e.target.checked)
                     if(e.target.checked) {
-                        console.log("it's active now")
-
+                        //console.log("it's active now")
                     } 
                     
                     bg.set_url_expansion( e.target.checked )
@@ -279,7 +335,7 @@
                 api_form_elem.addEventListener('change', function(e) {
                     //e.target,
                     if(e.target.type !== "radio") { return; }
-                    console.log(e, "api form changed", e.target.nodeName, e.target.type, e.target.value)
+                    //console.log(e, "api form changed", e.target.nodeName, e.target.type, e.target.value)
                     bg.set_api_domain( e.target.value  )
                 })
                 
