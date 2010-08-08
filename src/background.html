@@ -13,16 +13,13 @@
         <div id="container">
             
             <div id="top">
-            
             </div> <!-- end #top -->
             
             <div id="middle">
-            
             </div> <!-- END #middle -->
             
             <div id="bottom">
                     <div id="escape_worker"></div>
-            
             </div> <!-- end #bottom -->
         
         </div> <!-- end #container -->
@@ -33,18 +30,6 @@
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" charset="utf-8">
         
-        
-        /*
-            Start up sequence
-                
-                
-                1. Look for use credentials in localstorage and local SQL DB
-                2. Load 'settings.js' file into app
-                3. Once I have both of the above, let the widget 'continue'
-                        aka do an initalization function
-                        ... possibly setup a queue of requests I missed.
-        
-        */
         // these are common helper funcs
         // local SQL can be done via bit_db (bit_db=bitlyDB("db_name"))
         function localstore( itemKey, itemValue ) {
@@ -53,7 +38,7 @@
             } catch(e) {}
             
             return;
-            
+        
         }
         function localdelete( itemKey ) {
             try {
@@ -73,7 +58,7 @@
             }
             return null;
         }
-                
+        
         function logger( message ) {
             var logs = localfetch("logs") || [];
             logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
@@ -133,7 +118,7 @@
         // wrapper method to chrome.tabs.update || chrome.tabs.create
         function get_chrome_page( page_name ) {
             var url =  chrome.extension.getURL(page_name),
-                curr_tab, i=0, 
+                curr_tab, i=0,
                 createTab=true, params = { 'selected' : true, 'url' : url };
             chrome.tabs.getAllInWindow(null, function(tab_array) {
                
@@ -148,8 +133,8 @@
                 if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL(page_name) }) }
             });
         }
-
              
+        
         
         
         function sign_in(username, password, callback) {
@@ -213,7 +198,7 @@
             domains.push(domain_host);
             bit_db.save("no_expand_domains", domains, function() {
                 logger("Update no expand domains to local SQL: " + domain_host);
-                
+            
             })
             localstore("no_expand_domains", domains);
         }
@@ -226,7 +211,7 @@
                     //
                 });
             }
-
+        
         }
         
         function get_no_expand_domains() {
@@ -235,7 +220,7 @@
                 domains_list = ["bit.ly", "j.mp"];
                 localstore("no_expand_domains", domains_list);
                 bit_db.save("no_expand_domains", domains_list, function() {
-                    
+                
                 });
             }
             
@@ -267,7 +252,7 @@
                 console.log("saved auto expand urls", arguments)
             })
         }
-
+        
         
         
         
@@ -294,7 +279,7 @@
         /*
             Methods to fetch from 'cache'
                 Local cache involes either window.localStorage || window.db.openDatabase || 'global variable'
-                
+        
         
         */
         function set_current_bitly_user_from_cache() {
@@ -331,7 +316,7 @@
                         bit_db.save("no_expand_domains", no_expand_domains, function() {
                             localstore("no_expand_domains", no_expand_domains);
                         })
-                    } else { 
+                    } else {
                         localstore("no_expand_domains", domains_list);
                     }
                 })
@@ -409,7 +394,7 @@
             //console.log(response)
         }
 
-
+        
         
         
         // the bit.ly API worker
@@ -443,11 +428,11 @@
                 
                 case "page_loaded":
                     if(!auto_expand_urls) return;
-                    var injectTabs = sender.tab && sender.tab.url, 
+                    var injectTabs = sender.tab && sender.tab.url,
                         no_expand_list = get_no_expand_domains();
                     
                     // only support http || https domains
-                    if(injectTabs && injectTabs.indexOf("http") === 0 && 
+                    if(injectTabs && injectTabs.indexOf("http") === 0 &&
                         no_expand_list.indexOf( request.domain_host ) === -1) {
                             
                             chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
@@ -473,10 +458,15 @@
                         sendResponse({'error' : 'no active accounts'})
                         return;
                     }
-                    logger("Share a message on " + share_ids.length + " accounts");
+
                     params.account_id = share_ids;
                     params.share_text = request.share_text;
-                    bitly.share( params, sendResponse );
+                    bitly.share( params, function(jo) {
+                        // do something with results
+                        console.log(jo)
+                        logger("Success. Shared a message on " + share_ids.length + " accounts");                        
+                        sendResponse(jo);
+                    } );
                 
                 break;
                 

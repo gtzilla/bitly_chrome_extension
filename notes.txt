@@ -8,10 +8,11 @@ Improvement Ideas:
     
     2. display a series of 'messages' to user, in order of response (ticker-like style. Similar to bit.ly error handling)
     
-    3. Add link to 'share history', takes user to page of history of all shares, message and result. 
+
+    **3. Add link to 'share history', takes user to page of history of all shares, message and result. 
         Adjust current message to include a # of #. 
             ex: Successfully shared to # of # accounts. more >>
-        
+    (1 vote gregory80)        
 
 
 

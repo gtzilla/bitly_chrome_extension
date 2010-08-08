@@ -82,12 +82,13 @@
 }
 #message_box {
     position:absolute;
-    min-width:430px;  
+    width:400px;  
     left:0;
+    padding:0 15px;
     top:35px; 
     text-align:center;
     color:#888;
-    font-size:18px;     
+    font-size:15px;     
 }
 #share_loading_graphic {
     position:absolute;
