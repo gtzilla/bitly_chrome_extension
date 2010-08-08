@@ -101,7 +101,13 @@ function brainResponse(jo) {
                 close_container();
                 return false;
             }
-        })
+            
+            if(e.target.className === "bitly_home_promo") {
+                e.preventDefault()
+                chrome.extension.sendRequest({'action' : 'open_options' }, open_options_callback );
+            }
+        });
+        
     }
 
 
@@ -137,7 +143,7 @@ function brainResponse(jo) {
                     html += '<p><a href="'+ lUrl+'" class="bit_long_link_preview">'+ lUrl +'</a></p>'
                 html += '</div>'
                 html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>';
-                html += '<a title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="http://bit.ly/">bit.ly</a>';                
+                html += '<a title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="#">bit.ly</a>';                
                 html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'
             
@@ -263,11 +269,14 @@ function callBrain( final_matches ) {
     
     return;
 }
+function open_options_callback() {
+    
+}
 
 
 function init() {
     console.log("running the expander script")
-    var matches = find_short_links();    
+    var matches = find_short_links();   
     queried_matches = queried_matches.concat( matches );
     callBrain( matches );
 

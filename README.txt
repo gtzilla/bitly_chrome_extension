@@ -24,8 +24,14 @@ Features / Description
 - Shares to any of your linked social accounts, such as Twitter and Facebook
 - Expands all bit.ly links, including white-label domains, such as 4sq.com. Can be easily disabled.
 - Easy and safe direct login to bit.ly
+- Captures selected page text, which can be quickly shared.
 - Supports both bit.ly and j.mp APIs
 - Works with HTTPS / SSL websites
 - Uses new bit.ly SSL oAuth for authentication. You're credentials are never sent as clear text.
 
 Source Code: http://github.com/bitly/bitly_chrome_extension
+
+
+Known Issues
+===========
+- Short Url expansion and page selection text do not work on Google Extension Gallery, https://chrome.google.com/extensions/

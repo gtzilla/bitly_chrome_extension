@@ -23,6 +23,7 @@ The version number is automatically incremented by build.sh
   },
   "permissions": [
     "http://*/*", 
+    "https://*/*", 
     "http://api.bit.ly/",
     "https://*.bit.ly/",
     "tabs", 

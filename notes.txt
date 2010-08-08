@@ -1,4 +1,20 @@
 
+=== Error Handling / Post Share Experience ====
+Currently, raw, returns success or failure. Does not check for minor errors, like not sending to one account if multiple accounts are specified
+
+Improvement Ideas:
+    1. Replace textarea with links and account used, make area scrollable to it over fits box exactly (no-redrawn)
+        Add a close button, returns to text area with original 'shared' message
+    
+    2. display a series of 'messages' to user, in order of response (ticker-like style. Similar to bit.ly error handling)
+    
+    3. Add link to 'share history', takes user to page of history of all shares, message and result. 
+        Adjust current message to include a # of #. 
+            ex: Successfully shared to # of # accounts. more >>
+        
+
+
+
 
 === Handling Images / Screen Captures ===
 
@@ -6,4 +22,7 @@ it might be possible to port an image lib to JS and have an ext worker resize, c
 
 The worker should be able to make a local ajax connection and load the library (if it hasn't already) then process any results and return a string.
 
-If this was possible, it would mean the server aspect could be removed and data could be uploaded directly to twitpic or facebook etc etc
+If this was possible, it would mean the server aspect could be removed and data could be uploaded directly to twitpic or Facebook etc etc
+
+1. Build Test Case to capture visible tab area, return string
+2. attempt to decode string from base64, examine if 'editing' is possible (aka removing duplicate values in order to downsize etc, other BASIC operations)

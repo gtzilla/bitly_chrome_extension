@@ -51,6 +51,9 @@
     vertical-align:bottom;
     cursor:pointer;
 }
+.account_icon:hover {
+
+}
 
 .bitly_shorten_box_meta_links .options_page {
     position:absolute;

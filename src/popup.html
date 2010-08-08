@@ -69,11 +69,15 @@
             function actions_listeners( request, sender, sendResponse) {
                 if(!request.action || request.action !== "page_selection") return;
                 console.log("pop says", request)
+                txtarea.innerText += request.selection || ""
             }
 
             function shorten_complete_callback( jo ) {
                 _id("loading_short_url").style.display="none";
-                txtarea.innerText = current_title + " " + (jo.url || "");
+                var message = "", sUrl = jo && jo.url || "";
+                if(txtarea.value === "")  { message = current_title + " " + sUrl; }
+                else { message = txtarea.value + " " + sUrl; }
+                txtarea.innerText = message;
             }
             function _id( name ) {
                 return document.getElementById( name )
@@ -141,19 +145,19 @@
                 active_account_list = [], b = _id("options_page"), 
                 bg = chrome.extension.getBackgroundPage();            
             
+            // Shorten the current tab
             chrome.tabs.getSelected(null, function( curr_tab) {
                
                console.log( curr_tab );
                
                var message = {
-                   'action' : 'shorten',
+                   'action' : 'shorten_and_select',
                    'long_url' : curr_tab.url,
                    'tab_id' : curr_tab.id,
                    'title' : curr_tab.title
                }
                current_title = curr_tab.title
                chrome.extension.sendRequest( message, shorten_complete_callback );
-               // send request to inject getSelected.js
                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )               
                
                 
