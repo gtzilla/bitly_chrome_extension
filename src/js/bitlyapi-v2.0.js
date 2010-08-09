@@ -136,12 +136,14 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         this.count+=1;
         // todo
         // not working
-        var request_count = 2;
+        var request_count = 2, lookup_urls, lookup_url, i=0;
         function sticher( jo ) {
             request_count -= 1;
             
             if(jo.lookup) {
-                
+                for( ; lookup_url=jo.lookup[i]; i++) {
+                    console.log(lookup_url.url, "implement clicks call, make only one clicks call...")
+                }
             }
         }
         

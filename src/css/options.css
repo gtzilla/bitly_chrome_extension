@@ -227,4 +227,23 @@
     padding-bottom:5px;
 }
 
+#signInContainer {
+    position:relative;
+    width:72px;    
+    height:35px;
+}
+#signInButtonContainer {
+    position:absolute;
+    top:0;
+    left:0;
+}
+#sign_in_loader {
+    position:absolute;
+    top:0;
+    left:0;
+    width:72px; 
+    text-align:center;
+    height:30px;   
+}
+
 /* EOF */

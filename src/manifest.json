@@ -1,16 +1,8 @@
-/*
-The version number is automatically incremented by build.sh
-    Note:
-        In order to deploy this to google extension gallery, must remove all comments and the update url
-        Consider altering 'deploy' script to handle this
-*/
-
 {
   "name": "bit.ly | a simple URL Shortner",
-  "version": "0.1.3.10",
+  "version": "1.1.0.1",
   "options_page": "options.html",
-  "description": "Shorten, share and track your urls",
-  //"default_locale": "en",
+  "description": "Shorten and Share, right from your browser, instantly",
   "background_page": "background.html",
   "browser_action": {
     "default_title": "bit.ly",  
@@ -29,7 +21,6 @@ The version number is automatically incremented by build.sh
     "tabs", 
     "unlimited_storage"     
   ],
-  
   "content_scripts": [
     {
      "matches": ["http://*/*"],

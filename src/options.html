@@ -105,12 +105,18 @@
                             <input type="password" name="password" value="" id="password">                            
                         </div>
 
-                        <div>
-                            <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Sign In" id="some_name">
+                        <div id="signInContainer">
+                            <div id="signInButtonContainer">
+                                <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Sign In" id="some_name">
+                            </div>                            
+                            <div style="display:none;" id="sign_in_loader">
+                                <img src="s/graphics/loader_signin_30_30.gif" height="30" width="30" border="0" alt="" />
+                            </div>
                         </div>
+
                         
                         <div class="meta_graph">
-                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_in">Get an account</a></p>                            
+                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_up">Get an account</a></p>                            
                         </div>
 
                     </form>                    
@@ -136,6 +142,8 @@
                 var bg = chrome.extension.getBackgroundPage(), 
                     user_data = bg.localfetch("user_data"),
                     errors_box_elem = _id("errors_box"),
+                    signInButtonContainer_elem = _id("signInButtonContainer"),
+                    sign_in_loader_elem = _id("sign_in_loader"),
                     logging_box_elem = _id("logging_box"),
                     elem, header = _id("bitly_options"), 
                     shares_elem = _id("share_accounts"),
@@ -283,7 +291,8 @@
                         errors_box_elem.style.display="block";                        
                         return;
                     }
-                    
+                    sign_in_loader_elem.style.display="block";
+                    signInButtonContainer_elem.style.display="none";
                     errors_box_elem.style.display="none";
                     bg.sign_in( username.value, pass.value, function(jo) {
                         console.log("logging in...")
@@ -297,6 +306,8 @@
                         } else {
                             error_message_text = "An error occurred trying to sign in"
                         }
+                        sign_in_loader_elem.style.display="none";
+                        signInButtonContainer_elem.style.display="block";                        
                         errors_box_elem.innerHTML = error_message_text;
                         errors_box_elem.style.display="block";                        
                         console.log("Failed sign in")                        
