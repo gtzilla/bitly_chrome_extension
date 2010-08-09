@@ -14,6 +14,11 @@
     margin:0;
     padding:0;
 }
+#bitly_expanded_container a {
+    text-decoration:none;
+    display:inline;
+    background:transparent;
+}
 #bitly_expanded_container ul, #bitly_expanded_container li, #bitly_expanded_container ul li {
     list-style-type:none;
 }
@@ -95,4 +100,14 @@
 }
 #bitly_expanded_container .bit_user_clicks_box {
     font-size:13px;
+}
+#always_for_this_domain {
+    position:absolute;
+    right:6px;
+    top:15px;
+    padding:4px;
+    border:1px solid #ccc;
+    z-index:5001;
+    background:white;
+    border-radius:4px;
 }

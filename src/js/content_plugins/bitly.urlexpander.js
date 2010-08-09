@@ -39,6 +39,10 @@ function escaper( string ) {
                  .replace('>', "&gt;").replace('<', "&lt;")
 }
 
+function _id( name ) {
+    return document.getElementById( name );
+}
+
 function find_short_links() {
     var links = document.getElementsByTagName("a"), 
         href, matches, final_matches=[], 
@@ -94,15 +98,30 @@ function brainResponse(jo) {
         });
         container.addEventListener('mouseout', closeBitlyUrlExpanderBox);
         container.addEventListener('click', function(e) {
-
-            if(e.target.className === "bitly_url_expander_box_close") {
+            var clss = e.target.className, link_box = _id("always_for_this_domain"), params = {};
+            if(e.target.parentNode === link_box) {
+                //bg.add_no_expand_domain( document.location.host );
+                e.preventDefault();                
+                params = {'action' : 'add_no_expand_domain_and_reload', 'domain_host' : document.location.host }
+                chrome.extension.sendRequest(params, function(){} );                
+                return;
+            }
+            if(clss === "bitly_url_expander_box_close") {
                 //console.log("close it.");
                 e.preventDefault();
-                close_container();
+                // show box here
+                
+                var setting = link_box.style.display;
+                if(setting==="none") {
+                    link_box.style.display="block";
+                } else {
+                    close_container();                    
+                }
+
                 return false;
             }
             
-            if(e.target.className === "bitly_home_promo") {
+            if(clss === "bitly_home_promo") {
                 e.preventDefault()
                 chrome.extension.sendRequest({'action' : 'open_options' }, open_options_callback );
             }
@@ -143,7 +162,8 @@ function brainResponse(jo) {
                     html += '<p><a href="'+ lUrl+'" class="bit_long_link_preview">'+ lUrl +'</a></p>'
                 html += '</div>'
                 html += '<a title="Close" class="bitly_url_expander_box_close" href="#">X</a>';
-                html += '<a title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="#">bit.ly</a>';                
+                html += '<a title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="#">bit.ly</a>';  
+                html += '<div style="display:none;" id="always_for_this_domain"><a href="">Hide for this domain.</a></div>'              
                 html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'
             
