@@ -20,8 +20,11 @@ var host = "http://api.bit.ly",
         'domains' : '/v3/all_domains',
         'share' : '/v3/user/share',
         'clicks' : '/v3/clicks',
-        'lookup' : '/v3/lookup'
+        'lookup' : '/v3/lookup',
+        'realtime' : '/v3/user/realtime_links'
     }, errors = [];
+    
+    ///user/(clicks|country|referrers), /user/realtime_links
 
 
 var BitlyAPI = function(  user, APIKey, settings  ) {
@@ -62,6 +65,11 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         return this;
     },
     
+    realtime : function( callback ) {
+        var params = { 'access_token' : this.bit_request.access_token }
+        bitlyRequest( ssl_host + urls.realtime, params, callback);           
+    },
+    
     shorten : function( long_url, callback ) {
 
         var shorten_params = copy_obj( this.bit_request );
@@ -73,7 +81,13 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     expand : function(  short_urls, callback ) {
 
         this.count+=1;
-        internal_multiget( urls.expand, 'shortUrl', short_urls, this.bit_request, callback);        
+        var params = extend({}, this.bit_request, { 'shortUrl' : short_urls } );        
+        params.login = params.x_login;
+        params.apiKey = params.x_apiKey;
+        delete params.x_apiKey;
+        delete params.x_login;
+        delete params.access_token        
+        internal_multiget( host + urls.expand, 'shortUrl', params, callback);        
     },
     
     expand_and_meta : function( short_urls, callback ) {
@@ -101,6 +115,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                 } else {
                     // merge in new values
                     // if I was using jQuery, I would just call $.extend({}, obj1, obj2)
+                    // TODO
+                    // see if extend will work here...
                     store = final_results[ item_hash ]
                     for(var k in items[i]) {
                         if( store[k] ) continue;
@@ -129,7 +145,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     clicks : function(short_urls, callback) {
         // yet another one that needs stitching...
         this.count+=1;        
-        internal_multiget( urls.clicks, 'shortUrl', short_urls, this.bit_request, callback );          
+        var params = extend({}, this.bit_request, { 'shortUrl' : short_urls } );
+        internal_multiget( host + urls.clicks, 'shortUrl', params, callback );          
     },
     
     clicks_by_url : function( long_urls, callback ) {
@@ -152,13 +169,20 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         
 
     info : function( short_urls, callback ) {
-        this.count+=1;        
-        internal_multiget( urls.info, 'shortUrl', short_urls, this.bit_request, callback );        
+        this.count+=1;    
+        var params = extend({}, this.bit_request, { 'shortUrl' : short_urls } );
+        params.login = params.x_login;
+        params.apiKey = params.x_apiKey;
+        delete params.x_apiKey;
+        delete params.x_login;
+        delete params.access_token;
+        internal_multiget( host + urls.info, 'shortUrl', params, callback );        
     },
     
     lookup : function(long_urls, callback) {
         this.count+=1;        
-        internal_multiget( urls.lookup, 'url', long_urls, this.bit_request, callback );
+        var params = extend({}, this.bit_request, { 'url' : long_urls } );
+        internal_multiget( host + urls.lookup, 'url', params, callback );
     }, 
     
     share_accounts : function( callback ) {
@@ -265,6 +289,23 @@ function copy_obj( obj ) {
     return copy;
 }
 
+function extend() {
+    var target = arguments[0] || {}, length = arguments.length, i=0, options, name, src, copy;
+    for( ; i<length; i++) {
+        if( (options = arguments[i] ) !== null) {
+            for(name in options) {
+                copy = options[ name ];
+                if( target === copy ) { continue; }
+                if(copy !== undefined ) {
+                    target[name] = copy;
+                }
+            }
+        }
+    }
+
+    return target;
+}
+
 function parse_oauth_response( url_string ) {
     //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
     var items = ( url_string && typeof url_string === "string" ) && url_string.split("&"), 
@@ -290,10 +331,10 @@ function is_large_arrary( array ) {
     return false;
 }
 
-function internal_multiget( path, param_key, urls_list, params, callback ) {
+function internal_multiget( api_url, param_key, bit_params, callback ) {
     // props to @jehiah for the above naming convention.
-    var collection = [], request_count=0, chunks = [],
-        bit_params = copy_obj( params ), key_name = "expand";
+    var collection = [], request_count=0, chunks = [], key_name = "expand";
+    
     function stitch( response ) {
         request_count-=1;
         for(var k in response) {
@@ -306,18 +347,19 @@ function internal_multiget( path, param_key, urls_list, params, callback ) {
             if(callback) callback( final_respone )
         }
     }
-     
-    if( is_large_arrary( urls_list )  ) {
-        chunks = chunk( urls_list, 15  );
+    var urls = bit_params[param_key]
+    if( is_large_arrary( urls )  ) {
+        chunks = chunk( urls, 15  );
         for(var i=0; i<chunks.length; i++) {
             // break into arrays of length < 15 - bit.ly API has a limit on # per request
             request_count+=1;
-            bit_params[ param_key ] = chunks[i];                  
-            bitlyRequest( host + path,  bit_params, stitch);                      
+            bit_params[ param_key ] = chunks[i];      
+            // TODO
+            // error handle here            
+            bitlyRequest( api_url,  bit_params, stitch);                      
         }
     } else {
-        bit_params[ param_key ] = urls_list;  
-        bitlyRequest( host + path,  bit_params, callback);                
+        bitlyRequest( api_url,  bit_params, callback);                
     }
 }
 

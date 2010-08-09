@@ -28,6 +28,7 @@
         <script type="text/javascript" src="js/bitlyapi-v2.0.js"></script>
         <script type="text/javascript" src="js/bitlydb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
+        
         <script type="text/javascript" charset="utf-8">
         
         // these are common helper funcs
@@ -293,6 +294,10 @@
                 logger("User credentials found in cache");
                 bitly.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});
+                
+                // test
+
+                test_realtime();                 // remove later
             
             } else {
                 bit_db.find("user_data", function( sql_user_data ) {
@@ -333,7 +338,7 @@
         function set_api_domain_from_cache() {
             bit_db.find("domain", function(domain_string) {
                 bitly.set_domain( domain_string )
-            })
+            });
         }
         
         function set_domain_list_from_cache() {
@@ -392,6 +397,18 @@
             }  );
             
             //console.log(response)
+        }
+        
+        
+        function test_realtime() {
+            bitly.realtime(function(jo) {
+                console.log("happy times", jo)
+                
+                var i=0, realtime, realtime_links = jo.realtime_links;
+                for( ; realtime=realtime_links[i]; i++) {
+                    console.log(realtime.clicks, realtime.user_hash, "realtime")
+                }
+            })
         }
 
         
