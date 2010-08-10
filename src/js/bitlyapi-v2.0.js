@@ -21,16 +21,18 @@ var host = "http://api.bit.ly",
         'share' : '/v3/user/share',
         'clicks' : '/v3/clicks',
         'lookup' : '/v3/lookup',
-        'realtime' : '/v3/user/realtime_links'
+        'realtime' : '/v3/user/realtime_links',
+        'metrics_base' : '/v3/user/'
     }, errors = [];
     
     ///user/(clicks|country|referrers), /user/realtime_links
+var BitlyAPI = function( client_id, client_secret, settings  ) {
 
-
-var BitlyAPI = function( settings  ) {
-    // this should be an object
-    if(settings && settings.host ) host = settings.host;
-    return new BitlyAPI.fn.init()
+    host = (settings && settings.host) || host;
+    // setting.url = {} will override the 'urls={ ... }' 
+    urls = extend({}, urls, (settings && settings.url) );
+    console.log(urls)
+    return new BitlyAPI.fn.init( client_id, client_secret )
 } 
 
 // TODO
@@ -40,11 +42,11 @@ window.BitlyAPI = BitlyAPI;
 BitlyAPI.fn = BitlyAPI.prototype = {
     
     bit_request : {
-        login : "",
-        apiKey : "",
         format : 'json',
         domain : 'bit.ly',
-        access_token : null
+        access_token : null,
+        login : null,
+        apiKey : null
     },
     
     oauth_client : {
@@ -57,8 +59,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     version : "2.0",
     count : 0, // internal request counter, this is the number of times certain methods are called
     
-    init : function() {
-        // setup defaults an handle overrides
+    init : function(  client_id, client_secret ) {
+        this.set_oauth_credentials( client_id, client_secret );
         return this;
     },
     
@@ -178,14 +180,32 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         internal_multiget( host + urls.lookup, 'url', params, callback );
     }, 
     
+    
+    /*
+        SSL Hosts
+    */
+    realtime : function( callback ) {
+        var params = { 'access_token' : this.bit_request.access_token }
+        bitlyRequest( ssl_host + urls.realtime, params, callback );     
+              
+    },
+    
+    metrics : function(type, callback) {
+        var possible_tpes = ["clicks","countries","referrers"], 
+            url = (ssl_host + urls.metrics_base + type), params = { 'access_token' : this.bit_request.access_token };
+        if(possible_tpes.indexOf( type ) === -1 ) return;
+        
+        bitlyRequest( url, params, callback );
+        
+        
+    },
+        
     share_accounts : function( callback ) {
         if(!callback) callback = function(){ console.log(arguments); }
         // this is an oauth endpoint -- /v3/user/share_accounts
-        
-        var share_params = { 'access_token' : this.bit_request.access_token }
-
+        var params = { 'access_token' : this.bit_request.access_token }
         this.count+=1;
-        bitlyRequest( ssl_host + urls.accounts, share_params, callback);        
+        bitlyRequest( ssl_host + urls.accounts, params, callback);        
     },
     
     bitly_domains : function( callback )  {
@@ -196,23 +216,20 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     },
     
     share : function( params, callback ) {
-        var share_params = copy_obj(params);
-        share_params.access_token = this.bit_request.access_token;
-        
+        var params = extend({}, params, { 'access_token' : this.bit_request.access_token });        
         this.count+=1;
-        bitlyRequest( ssl_host + urls.share, share_params, callback);        
+        bitlyRequest( ssl_host + urls.share, params, callback);        
     },
     
     auth : function( username, password, callback ) {
         // call the set credentials  when this is run
-        var self = this, auth_params = copy_obj( this.oauth_client );
+        var self = this, 
+            params = extend( {}, this.oauth_client, {'x_auth_username': username, 'x_auth_password': password } );
 
-        auth_params.x_auth_username = username;
-        auth_params.x_auth_password = password;        
         ajaxRequest({
             'url' : ssl_host + urls.oauth,
             'type' : "POST",
-            'data' : buildparams( auth_params ),
+            'data' : params,
             'success' : function( url_param_string ) {
                 var oauth_info = parse_oauth_response( url_param_string );
                 if(!oauth_info) {
@@ -220,6 +237,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
                     errors.push({'error' : 'auth', 'data' : url_param_string })
                     oauth_info = { 'error' : 'unknown issue with auth' }
                 } else {
+                    //
                     self.set_credentials( oauth_info.login, oauth_info.apiKey, oauth_info.access_token );
                 }
 
@@ -258,10 +276,14 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         this.bit_request.access_token = access_token;                
     },
     
+    is_authenticated : function() {
+        return (!!(this.bit_request.login && this.bit_request.apiKey && this.bit_request.access_token)) || false;
+    },
+    
     remove_credentials : function() {
-        this.bit_request.login = null;
-        this.bit_request.apiKey = null;
-        this.bit_request.access_token = null;
+        delete this.bit_request.login;
+        delete this.bit_request.apiKey;
+        delete this.bit_request.access_token;
     }
     
 }  
@@ -274,12 +296,29 @@ BitlyAPI.fn.init.prototype = BitlyAPI.fn;
     Utilities
         Namespace contained by outter closure function
 */
-function copy_obj( obj ) {
-    var copy = {};
-    for(var k in obj) {
-        copy[k] = obj[k];
+// function copy_obj( obj ) {
+//     var copy = {};
+//     for(var k in obj) {
+//         copy[k] = obj[k];
+//     }
+//     return copy;
+// }
+
+function extend() {
+    var target = arguments[0] || {}, length = arguments.length, i=0, options, name, src, copy;
+    for( ; i<length; i++) {
+        if( (options = arguments[i] ) !== null) {
+            for(name in options) {
+                copy = options[ name ];
+                if( target === copy ) { continue; }
+                if(copy !== undefined ) {
+                    target[name] = copy;
+                }
+            }
+        }
     }
-    return copy;
+
+    return target;
 }
 
 function extend() {
@@ -346,13 +385,11 @@ function internal_multiget( api_url, param_key, bit_params, callback ) {
         for(var i=0; i<chunks.length; i++) {
             // break into arrays of length < 15 - bit.ly API has a limit on # per request
             request_count+=1;
-            bit_params[ param_key ] = chunks[i];      
-            // TODO
-            // error handle here            
+            bit_params[ param_key ] = chunks[i];                
             bitlyRequest( api_url,  bit_params, stitch);                      
         }
     } else {
-        bitlyRequest( api_url,  bit_params, callback);                
+        bitlyRequest( api_url, bit_params, callback);                
     }
 }
 
@@ -386,7 +423,8 @@ function buildparams( obj ) {
 
 function bitlyRequest( api_url, params, callback, error_callback ) {
     ajaxRequest({
-        'url' : api_url + "?" + buildparams( params ),
+        'url' : api_url,
+        'data' : params,
         'success' : function(jo) {
             if(callback) callback( jo );
         },
@@ -397,11 +435,22 @@ function bitlyRequest( api_url, params, callback, error_callback ) {
 function ajaxRequest( obj ) {
     // outside of the ext, this lib needs JSONP
     // 7/25/2010 - for google chrome ext
-    var xhr = new XMLHttpRequest(), message;
-    xhr.open(obj.type || "GET", obj.url, true);  
-    if(obj.data) {
+    var xhr = new XMLHttpRequest(), 
+        message, ajax_url, post_data=null;
+        
+        
+    if(obj.type === "POST")  {
+        ajax_url = obj.url;
+        console.log(obj.data)
+        post_data = buildparams( obj.data );
+        xhr.open("POST", ajax_url, true);  
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-    }         
+    } else {
+        ajax_url = obj.url + "?" + buildparams( obj.data );
+        xhr.open("GET", ajax_url, true);          
+    }  
+    
+ 
     xhr.onreadystatechange = function() {
          if (xhr.readyState == 4) {
              // do success
@@ -411,15 +460,15 @@ function ajaxRequest( obj ) {
                       if(message.status_code === 200) {
                           message = message.data;
                       } else {
-                          // throw error back
-
+                          // throw error back?
                       }
                   } catch(e) {
                       // NOT JSON
                       //console.log("not json")
                       message = xhr.responseXML || xhr.responseText
                   }
-                  obj.success( message )          
+                  
+                  obj.success( message );
              } else {
                  
                  // TODO
@@ -435,7 +484,7 @@ function ajaxRequest( obj ) {
              
          }
     }
-    xhr.send( obj.data || null );
+    xhr.send( post_data || null );
     
     return xhr;    
     
@@ -449,7 +498,7 @@ function ajaxRequest( obj ) {
     Usage
     
     
-    var bitly = bitlyAPI()
+    var bitly = bitlyAPI(client_id, client_secret)
     bitly.shorten( "http://some.com/url/whatever", func_callback  )
 */
 

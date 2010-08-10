@@ -179,6 +179,33 @@
         
         }
         
+        function share_message( message, callback) {
+            var a = localfetch("share_accounts"),
+                accounts = a && a.share_accounts || [],
+                i=0, account, share_ids = [], params = {};
+            
+            for( ; account=accounts[i]; i++) {
+                if(account.active) {
+                    share_ids.push( account.account_id );
+                }
+            }
+            if(message.trim() === "" || share_ids.length <= 0 ) {
+                callback({'error' : 'no active accounts'})
+                return;
+            }
+
+            params.account_id = share_ids;
+            params.share_text = message;
+            bitly.share( params, function(jo) {
+                if (jo.status_code === 403) {
+                    // issue #8, explicitly sign out!
+                    sign_out();
+                    jo.error = true;
+                }
+                callback(jo);
+            } );            
+        }        
+        
         
         function delete_sql_handler() {
             // this is just a callback for deletes, check for success / failure
@@ -262,7 +289,15 @@
             var account, accounts, i=0;
             logger("resync linked accounts from bit.ly")
             bitly.share_accounts( function(response) {
-                // no cache
+                // no SQL cache, don't keep it that long
+                if (response.status_code === 403) {
+                    // issue #8, explicitly sign out!
+                    sign_out();
+                    response.error = true;
+                    callback(response)
+                    return;
+                }                
+                
                 accounts = response && response.share_accounts;
                 if(accounts) {
                     
@@ -355,24 +390,27 @@
                     bitly.bitly_domains( function(jo) {
                         var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : now };
                         //console.log(bit_domains.length)
-                        bit_db.save( "domains_list", params, function() {
-                            console.log("storing domains to sql", bit_domains.length)
-                        })
-                        domains_list = bit_domains;
+                        
+                        if(jo.status_code === 403) {
+                            sign_out();
+                        } else {
+                            bit_db.save( "domains_list", params, function() {
+                                console.log("storing domains to sql", bit_domains.length)
+                            })
+                            domains_list = bit_domains;                            
+                        }
                     });
                 }
             
             });
         }
-        
+                
         function init_api() {
             // get from local storage?
             // pull this value from a settings file
             var client_id = "298b336871d6aa29e06b3033269f21ced9717625",
                 client_signature = "319b6d82931c7b92bc05d83e005c3f415a66e31b",
-                b = BitlyAPI();
-            
-            b.set_oauth_credentials(client_id, client_signature);
+                b = BitlyAPI( client_id, client_signature );
             return b;
         }
         function init_db( name ) {
@@ -408,9 +446,20 @@
                 }
             })
         }
-
-        
-        
+        function test_metrics() {
+            // clicks|country|referrers
+            bitly.metrics("clicks", function(jo) {
+                console.log("clicks", jo)
+            });
+            
+            bitly.metrics("countries", function(jo) {
+                console.log("country", jo)
+            });
+            
+            bitly.metrics("referrers", function(jo) {
+                console.log("referrers", jo)
+            });            
+        }
         
         // the bit.ly API worker
         logger("Initialize bit.ly extension");
@@ -418,13 +467,14 @@
             domains_list, auto_expand_urls = true,
             // for google tracking, when that's ready
             _gaq = _gaq || [];
+        
+        // Initialize Cache Items
         set_current_bitly_user_from_cache();
         set_domain_list_from_cache();
         set_auto_expand_from_cache();
         set_api_domain_from_cache();
         set_no_expand_domains_from_cache();
-        // testing
-        //testdb();
+
         
         
         /*
@@ -442,7 +492,7 @@
             switch( act ) {
                 
                 case "page_loaded":
-                    if(!auto_expand_urls) return;
+                    if(!bitly.is_authenticated() || !auto_expand_urls) return;
                     var injectTabs = sender.tab && sender.tab.url,
                         no_expand_list = get_no_expand_domains();
                     
@@ -460,29 +510,7 @@
                 */
                 case "share":
                     //share_text
-                    var user_share_accounts = localfetch("share_accounts"),
-                        accounts = user_share_accounts && user_share_accounts.share_accounts,
-                        i=0, account, share_ids = [], params = {};
-                    
-                    for( ; account=accounts[i]; i++) {
-                        if(account.active) {
-                            share_ids.push( account.account_id );
-                        }
-                    }
-                    if(share_ids.length <= 0 ) {
-                        sendResponse({'error' : 'no active accounts'})
-                        return;
-                    }
-
-                    params.account_id = share_ids;
-                    params.share_text = request.share_text;
-                    bitly.share( params, function(jo) {
-                        // do something with results
-                        console.log(jo)
-                        logger("Success. Shared a message on " + share_ids.length + " accounts");                        
-                        sendResponse(jo);
-                    } );
-                
+                    share_message( (request.share_text || ""),  sendResponse );                
                 break;
                 
                 case "share_accounts":
