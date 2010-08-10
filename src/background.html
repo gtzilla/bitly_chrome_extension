@@ -329,12 +329,6 @@
                 logger("User credentials found in cache");
                 bitly.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});
-                
-                // test
-
-                test_realtime();                 // remove later
-                test_metrics();
-                
             
             } else {
                 bit_db.find("user_data", function( sql_user_data ) {
