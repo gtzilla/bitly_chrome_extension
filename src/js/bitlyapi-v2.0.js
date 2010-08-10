@@ -68,7 +68,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     },
     
     shorten : function( long_url, callback ) {
-        extend({}, this.bit_request, { 'longUrl' : long_url } );        
+        var params = extend({}, this.bit_request, { 'longUrl' : long_url } );
         delete params.access_token
         this.count+=1;
         bitlyRequest( host + urls.shorten, params, callback);        
