@@ -368,11 +368,9 @@
         function init_api() {
             // get from local storage?
             // pull this value from a settings file
-            var login = 'chromext',
-                apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
-                client_id = "298b336871d6aa29e06b3033269f21ced9717625",
+            var client_id = "298b336871d6aa29e06b3033269f21ced9717625",
                 client_signature = "319b6d82931c7b92bc05d83e005c3f415a66e31b",
-                b = BitlyAPI(login, apiKey);
+                b = BitlyAPI();
             
             b.set_oauth_credentials(client_id, client_signature);
             return b;

@@ -7,12 +7,8 @@ function init_api() {
     // get from local storage?
     // use the 
     
-    var login = 'chromext',
-        apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
-        b = BitlyAPI(login, apiKey);
+    var b = BitlyAPI();
         b.auth("exttestaccount", "whatever", function() {
-            
-            
             test_realtime();
             
             

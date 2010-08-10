@@ -27,10 +27,10 @@ var host = "http://api.bit.ly",
     ///user/(clicks|country|referrers), /user/realtime_links
 
 
-var BitlyAPI = function(  user, APIKey, settings  ) {
+var BitlyAPI = function( settings  ) {
     // this should be an object
     if(settings && settings.host ) host = settings.host;
-    return new BitlyAPI.fn.init( user, APIKey )
+    return new BitlyAPI.fn.init()
 } 
 
 // TODO
@@ -44,8 +44,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         apiKey : "",
         format : 'json',
         domain : 'bit.ly',
-        access_token : null,
-        x_login : null, x_apiKey : null
+        access_token : null
     },
     
     oauth_client : {
@@ -58,10 +57,8 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     version : "2.0",
     count : 0, // internal request counter, this is the number of times certain methods are called
     
-    init : function( user, APIKey ) {
+    init : function() {
         // setup defaults an handle overrides
-        this.bit_request.login = user;
-        this.bit_request.apiKey = APIKey;
         return this;
     },
     
@@ -71,22 +68,17 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     },
     
     shorten : function( long_url, callback ) {
-
-        var shorten_params = copy_obj( this.bit_request );
-        shorten_params.longUrl = long_url;        
+        extend({}, this.bit_request, { 'longUrl' : long_url } );        
+        delete params.access_token
         this.count+=1;
-        bitlyRequest( host + urls.shorten, shorten_params, callback);        
+        bitlyRequest( host + urls.shorten, params, callback);        
     },
     
     expand : function(  short_urls, callback ) {
-
         this.count+=1;
-        var params = extend({}, this.bit_request, { 'shortUrl' : short_urls } );        
-        params.login = params.x_login;
-        params.apiKey = params.x_apiKey;
-        delete params.x_apiKey;
-        delete params.x_login;
-        delete params.access_token        
+        var params = { 'login' : this.bit_request.login,
+                        'apiKey' : this.bit_request.apiKey,
+                        'shortUrl' : short_urls };
         internal_multiget( host + urls.expand, 'shortUrl', params, callback);        
     },
     
@@ -145,7 +137,9 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     clicks : function(short_urls, callback) {
         // yet another one that needs stitching...
         this.count+=1;        
-        var params = extend({}, this.bit_request, { 'shortUrl' : short_urls } );
+        var params = { 'login' : this.bit_request.login,
+                        'apiKey' : this.bit_request.apiKey,
+                        'shortUrl' : short_urls };
         internal_multiget( host + urls.clicks, 'shortUrl', params, callback );          
     },
     
@@ -170,18 +164,17 @@ BitlyAPI.fn = BitlyAPI.prototype = {
 
     info : function( short_urls, callback ) {
         this.count+=1;    
-        var params = extend({}, this.bit_request, { 'shortUrl' : short_urls } );
-        params.login = params.x_login;
-        params.apiKey = params.x_apiKey;
-        delete params.x_apiKey;
-        delete params.x_login;
-        delete params.access_token;
+        var params = { 'login' : this.bit_request.login,
+                        'apiKey' : this.bit_request.apiKey,
+                        'shortUrl' : short_urls };
         internal_multiget( host + urls.info, 'shortUrl', params, callback );        
     },
     
     lookup : function(long_urls, callback) {
         this.count+=1;        
-        var params = extend({}, this.bit_request, { 'url' : long_urls } );
+        var params = { 'login' : this.bit_request.login,
+                        'apiKey' : this.bit_request.apiKey,
+                        'url' : long_urls };
         internal_multiget( host + urls.lookup, 'url', params, callback );
     }, 
     
@@ -258,21 +251,21 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         this.oauth_client.client_secret = client_secret;
     },
     
-    set_credentials : function( x_login, x_apiKey, access_token) {
-        
+    set_credentials : function( login, apiKey, access_token) {
         // set as default
-        this.bit_request.x_login = x_login;
-        this.bit_request.x_apiKey = x_apiKey;   
+        this.bit_request.login = login;
+        this.bit_request.apiKey = apiKey;   
         this.bit_request.access_token = access_token;                
     },
     
     remove_credentials : function() {
-        delete this.bit_request.x_login;
-        delete this.bit_request.x_apiKey;        
+        this.bit_request.login = null;
+        this.bit_request.apiKey = null;
+        this.bit_request.access_token = null;
     }
     
 }  
-// make the magic happen, allows var b = BitlyAPI("whatever", "R_whatever")
+// make the magic happen, allows var b = BitlyAPI()
 //                                  b.shorten("http://google.com")
 BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
@@ -456,7 +449,7 @@ function ajaxRequest( obj ) {
     Usage
     
     
-    var bitly = bitlyAPI("user", "R_324234ASDF23232323")
-    bitly.shorten( http://some.com/url/whatever, func_callback  )
+    var bitly = bitlyAPI()
+    bitly.shorten( "http://some.com/url/whatever", func_callback  )
 */
 
