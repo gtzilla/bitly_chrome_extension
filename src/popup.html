@@ -81,14 +81,22 @@
             }
             function share_callback(jo) {
                 console.log(jo, "share");
-                if(jo.error || jo.share.length <=0 ) {
+                if(jo.status_code === 403 ) {
+                    var share_message = "Error, not signed in <a class='open_options_page' href='#'>Sign In</a> now"
+                    display_share_response_message(share_message);
+                    return;                    
+                } else if( jo.error ) {
                     bg.logger("Error during share" + JSON.stringify(jo) );
+                    var share_message = "Error, during share";
+                    display_share_response_message(share_message);
+                    return;
+                } else if(jo.share.length <=0) {
                     return;
                 }
 
-                txtarea.innerHTML = "";
-                var message = _id("message_box"), i=0, 
-                    accounts=jo && jo.share, account, success_messages = 0, share_message;
+                
+                var i=0, accounts=jo && jo.share, 
+                    account, success_messages = 0, share_message;
                 
                 for( ; account=accounts[i]; i++) {
                     if(account.error) {
@@ -102,14 +110,20 @@
                     share_message = "Success. Shared your message on " + success_messages;
                     share_message += " of " + accounts.length + " accounts";
                 } else {
-                    share_message = "Oops, something went wrong"
+                    share_message = "Oops, something went wrong. Didn't share to any accounts."
                 }
+                display_share_response_message( share_message )
+            }
+            
+            function display_share_response_message( share_message ) {
+                var message = _id("message_box");
+                txtarea.innerHTML = "";                
                 message.innerHTML = share_message;
                 message.style.display="block";
                 
                 _id("share_loading_graphic").style.display="none";
-                _id("sharing_buttons_box").style.display="block";
-                setTimeout(close_message_box, 4000);
+                _id("sharing_buttons_box").style.display="block";    
+                setTimeout(close_message_box, 4000);                            
             }
             function close_message_box() {
                 var message = _id("message_box");
@@ -150,7 +164,8 @@
             var txtarea = _id("bento_share"), share_form = _id("bitly_bento_submit"),
                 current_title = "", stash_text = "",
                 active_account_list = [], b = _id("options_page"),
-                bg = chrome.extension.getBackgroundPage();
+                bg = chrome.extension.getBackgroundPage(),
+                message_box_elem = _id("message_box");
             
             // Shorten the current tab
             chrome.tabs.getSelected(null, function( curr_tab) {
@@ -169,6 +184,14 @@
                 
             
             });
+            
+            message_box_elem.addEventListener('click', function(e) {
+                
+                if(e.target.className === "open_options_page") {
+                    e.preventDefault();
+                    bg.get_chrome_page("options.html");
+                }
+            })
             
             share_form.addEventListener('submit', function(e) {
                 e.preventDefault();

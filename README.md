@@ -25,6 +25,9 @@ Features / Description
 - Uses new [bit.ly](http://bit.ly/) SSL [oauth](http://oauth.net/) for authentication. You're credentials are never sent as clear text.
 
 
+Note to users experiencing problems directly after install: Chrome doesn't allow execution of content scripts on already open pages. If you try this immediately after install on existing tabs, it won't work, so we recommend to restarting Chrome after installing the extension.
+
+
 Contributing
 -----
 

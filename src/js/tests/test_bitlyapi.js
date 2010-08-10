@@ -10,7 +10,13 @@ function init_api() {
     var login = 'chromext',
         apiKey = 'R_042ce7bde03d756e0448b28b1f2c4aa3',
         b = BitlyAPI(login, apiKey);
-
+        b.auth("exttestaccount", "whatever", function() {
+            
+            
+            test_realtime();
+            
+            
+        })
     return b;                                
 }
 
@@ -18,6 +24,11 @@ function init_api() {
 
 var bitly = init_api();
 
+function test_realtime() {
+    bitly.realtime(function(jo) {
+        console.log("word", jo)
+    })
+}
 
 function test_shorten() {
     bitly.shorten("http://jehiah.cz", function(response) {

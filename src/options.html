@@ -248,7 +248,9 @@
                 
                 function list_accounts_callback(response) {
                     //console.log(response, "accounts list")
-                    
+                    if(response.error) {
+                        document.location.reload();
+                    }
                     var accounts = response && response.share_accounts, i=0, 
                         account, html = "", status;
                     
