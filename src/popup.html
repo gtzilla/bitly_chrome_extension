@@ -42,7 +42,7 @@
 
                                  </div>
                                  
-                                 <div class="copyContainerOuter">
+                                 <div class="copyContainerOuter" id="copy_elements_wrapper">
                                          <div id="hidden_sharing_box">
                                              <textarea id="bitly_short_url_area" name=""></textarea>
                                         </div>                                        
@@ -99,6 +99,12 @@
                 else { message = message + " " + sUrl; }
                 txtarea_short_url.value = sUrl;
                 txtarea.innerText = message;
+                
+                if(sUrl.trim() === "") {
+                    _id("copy_elements_wrapper").style.display="none";
+                } else {
+                    _id("copy_elements_wrapper").style.display="block";
+                }
             }
             function _id( name ) {
                 return document.getElementById( name )
