@@ -242,6 +242,19 @@
         
         }
         
+        function get_auto_copy() {
+            return localfetch("auto_copy");
+        }
+        
+        function set_auto_copy( copy_bool ) {
+            localstore("auto_copy", copy_bool);
+            bit_db.save("auto_copy", {'copy' : copy_bool }, function(){
+                // save was successful
+
+            });
+            
+        }
+         
         function get_no_expand_domains() {
             var domains_list = localfetch("no_expand_domains");
             if(!domains_list) {
@@ -280,10 +293,7 @@
                 console.log("saved auto expand urls", arguments)
             })
         }
-        
-        
-        
-        
+
         function resync_linked_account( callback ) {
             // get fresh from sever
             var account, accounts, i=0;
@@ -361,6 +371,17 @@
                     }
                 })
             }
+        }
+        
+        function set_auto_copy_from_cache() {
+            // bit_db.save("auto_copy", {'copy' : copy_bool }, function(){
+            //     // save was successful
+            //     localstore("auto_copy", copy_bool);
+            // });            
+            bit_db.find("auto_copy", function(jo) {
+                if(jo === undefined) return;
+                localstore("auto_copy", jo.copy );
+            })
         }
         
         function set_auto_expand_from_cache() {
@@ -474,6 +495,7 @@
         set_auto_expand_from_cache();
         set_api_domain_from_cache();
         set_no_expand_domains_from_cache();
+        set_auto_copy_from_cache();
 
         
         

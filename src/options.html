@@ -72,6 +72,17 @@
                         </div>                        
                     </div>                    
                     
+                    <div class="options_container">
+                        <h3>Auto Copy Short Urls</h3>
+                        <p>Automatically copy short urls to my clipboard when popup opens</p>
+                        <div>
+                            <input type="checkbox" name="auto_copy_short_urls" value="" id="auto_copy_short_urls">                            
+                            <label for="auto_copy_short_urls">Auto Copy Short Urls</label>
+                            
+                        </div>
+                    </div>                    
+                    
+                    
                     <div id="auto_expand_container" style="display:none;" class="options_container">
                         <h3>Auto Expand Links</h3>
                         <p>Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads.</p>
@@ -82,6 +93,7 @@
                         <div id="no_expand_domains_box"></div>
 
                     </div>                    
+                    
                     
 
                     
@@ -141,6 +153,7 @@
 
                 var bg = chrome.extension.getBackgroundPage(), 
                     user_data = bg.localfetch("user_data"),
+                    auto_copy_elem = _id("auto_copy_short_urls"),
                     errors_box_elem = _id("errors_box"),
                     signInButtonContainer_elem = _id("signInButtonContainer"),
                     sign_in_loader_elem = _id("sign_in_loader"),
@@ -341,6 +354,12 @@
                     } else {
                         url_expand_input.checked=false;
                     }
+                    
+                    if( bg.get_auto_copy() ) {
+                        auto_copy_elem.checked=true;
+                    } else {
+                        auto_copy_elem.checked=false;
+                    }
                     set_api_radio_button();
                 } else {
                     elem = _id("signedout_info_contents");
@@ -384,6 +403,9 @@
                         no_expand_domains_box_elem.innerHTML = "";                    
                     }
                     bg.set_url_expansion( e.target.checked )
+                });
+                auto_copy_elem.addEventListener("change", function(e) {
+                    bg.set_auto_copy(e.target.checked);
                 });
                 
                 no_expand_domains_box_elem.addEventListener('click', function(e) {

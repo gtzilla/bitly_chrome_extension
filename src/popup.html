@@ -105,6 +105,10 @@
                 } else {
                     _id("copy_elements_wrapper").style.display="block";
                 }
+                
+                if(bg.get_auto_copy()) {
+                    copy_to_clipboard();
+                }
             }
             function _id( name ) {
                 return document.getElementById( name )
@@ -159,6 +163,11 @@
                 var message = _id("message_box");
                 message.style.display="none";
                 txtarea.innerHTML = stash_text;
+            }
+            
+            function copy_to_clipboard() {
+                txtarea_short_url.select();
+                document.execCommand("copy", false, null);
             }
             function list_accounts_callback(jo) {
                 //console.log(jo)
@@ -257,10 +266,11 @@
             _id("copy_link_button").addEventListener('click', function(e) {
                 e.preventDefault();
                 
-                txtarea_short_url.select();
-                console.log("yey!")
-
-                document.execCommand("copy", false, null);                
+                // txtarea_short_url.select();
+                // console.log("yey!")
+                // 
+                // document.execCommand("copy", false, null);    
+                copy_to_clipboard();            
                 this.innerText = 'Copied';                
             })
 
