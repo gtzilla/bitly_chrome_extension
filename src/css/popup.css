@@ -60,13 +60,13 @@
 }
 #copy_link_button {
     color:white;
-    padding:6px;
+    padding:6px 6px 3px;
     display:block;
 
 }
 .copy_link_button_container {
     width:70px;
-    height:30px;
+    height:29px;
     text-align:center;    
     position:absolute;
     top:0;
@@ -132,6 +132,7 @@
 }
 #share_controls {
     float:right;
+    padding-left:6px;
     position:relative;
     width:72px;
     min-height:30px;
@@ -153,7 +154,7 @@
 #share_loading_graphic {
     position:absolute;
     top:0;
-    left:0;
+    left:5px;
     width:72px;
     min-height:30px;
     text-align:center;
@@ -161,11 +162,10 @@
 }
 
 #sharing_buttons_box {
-
     min-width:72px;
     position:absolute;
     top:0;
-    left:0;
+    left:5px;
     min-height:30px;
 }
 
@@ -184,5 +184,6 @@
 
 .copyContainerOuter {
     position:relative;
-    float:left;
+    float:right;
+    width:72px;
 }
