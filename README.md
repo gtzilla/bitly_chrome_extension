@@ -22,6 +22,7 @@ Features / Description
 - Captures selected page text, which can be quickly shared.
 - Supports both [bit.ly](http://bit.ly/) and [j.mp](http://j.mp/) APIs
 - Works with both HTTPS and HTTP sites
+- Quickly copy short links to your clipboard.
 - Uses new [bit.ly](http://bit.ly/) SSL [oauth](http://oauth.net/) for authentication. You're credentials are never sent as clear text.
 
 
