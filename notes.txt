@@ -8,6 +8,8 @@ The version number is automatically incremented by build.sh
 */
 ---- as noted, comments moved
 
+Support local in future rev
+
 
 
 === Error Handling / Post Share Experience ====

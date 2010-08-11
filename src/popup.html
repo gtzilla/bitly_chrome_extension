@@ -23,27 +23,50 @@
                           <div id="loading_short_url">
                               <img src="s/graphics/loader_58_58.gif" border="0" alt="0" />
                           </div>
+                          
                       </div>
                       <div id="sharing">
                           <div id="sharing_accounts_display"></div>
-                          <div id="share_controls" style="display:none;">
-                            
-                            <div id="sharing_buttons_box">
-                            <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button">
-                            </div>
-                            <div id="share_loading_graphic">
-                                <img src="s/graphics/loader_share_30_30.gif" height="30" width="30" border="0" alt="" />
-                            </div>
                           
+                          
+                          <div class="action_controls">
+                            
+                                <div id="share_controls" style="display:none;">
+
+                                        <div id="sharing_buttons_box">
+                                        <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button">
+                                        </div>
+                                        <div id="share_loading_graphic">
+                                            <img src="s/graphics/loader_share_30_30.gif" height="30" width="30" border="0" alt="" />
+                                        </div>
+
+                                 </div>
+                                 
+                                 <div class="copyContainerOuter">
+                                         <div id="hidden_sharing_box">
+                                             <textarea id="bitly_short_url_area" name=""></textarea>
+                                        </div>                                        
+                                       <div class="copyContainer">
+                                           <div class="copy_link_button_container">
+                                               <a href="#" id="copy_link_button">Copy Link</a>                                        
+                                           </div>
+                                     </div>
+                                 </div><!-- end .copyContainerOuter -->                                 
+                                  <div id="message_box" style="display:none;"></div>
+                                  <div class="hr"><hr /></div>
+                             </div>                            
+                            
+                            
+                         
+                            
+                              <div class="hr"><hr /></div>
                           </div>
-                          <div id="message_box" style="display:none;"></div>
-                          <div class="hr"><hr /></div>
-                      </div>
+                          
+                          
+                               
                 
                 </form>
 
-
-                
                 
                 <div class="bitly_shorten_box_meta_links">
                     <a class="options_page" id="options_page" href="options.html">options</a>
@@ -74,6 +97,7 @@
                 var message = txtarea.value, sUrl = jo && jo.url || "";
                 if( message === "")  { message = current_title + " " + sUrl; }
                 else { message = message + " " + sUrl; }
+                txtarea_short_url.value = sUrl;
                 txtarea.innerText = message;
             }
             function _id( name ) {
@@ -161,7 +185,8 @@
             // end definitions
             
             
-            var txtarea = _id("bento_share"), share_form = _id("bitly_bento_submit"),
+            var txtarea = _id("bento_share"), txtarea_short_url = _id("bitly_short_url_area"),
+                share_form = _id("bitly_bento_submit"),
                 current_title = "", stash_text = "",
                 active_account_list = [], b = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(),
@@ -223,7 +248,16 @@
                 }
             });
             
-            
+            _id("copy_link_button").addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                txtarea_short_url.select();
+                console.log("yey!")
+
+                document.execCommand("copy", false, null);                
+                this.innerText = 'Copied';                
+            })
+
             b.addEventListener('click', function(e) {
                 
                 e.preventDefault();
