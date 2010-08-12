@@ -243,7 +243,9 @@
                                 'text' : '',
                                 'timestamp' : (new Date().getTime()) };
                
-               
+               // stash is for 'storing' edited text that might otherwise be lost when popup closes..
+               // uses the unload event to capture value and store in localStorage
+               // see anon event listener at bottom of this page.
                var stash = bg.localfetch("stash") || {}, message = {
                    'action' : 'shorten_and_select',
                    'long_url' : curr_tab.url,
@@ -302,12 +304,7 @@
             });
             
             _id("copy_link_button").addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // txtarea_short_url.select();
-                // console.log("yey!")
-                // 
-                // document.execCommand("copy", false, null);    
+                e.preventDefault();  
                 copy_to_clipboard();            
                 this.innerText = 'Copied';                
             })
