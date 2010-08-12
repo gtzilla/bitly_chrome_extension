@@ -1,3 +1,13 @@
+--- remembering your edits in popup window..
+
+        could make it like a carosouel, as long as the tab id, tab url doesn't change it stays in one of the 5 spots (a fixed length array?)
+        
+        save everything (space limitaions, also concerns about space limits)
+        
+        pull the currtab id, lookup based on that, see that the 'url' matches and the timestamp is still good (less than 1 day old?)
+
+
+
 ==== Manifest.json ====
 
 /*
@@ -40,3 +50,8 @@ If this was possible, it would mean the server aspect could be removed and data 
 
 1. Build Test Case to capture visible tab area, return string
 2. attempt to decode string from base64, examine if 'editing' is possible (aka removing duplicate values in order to downsize etc, other BASIC operations)
+
+
+
+8/11/2010
+16,732 users - Weekly installs: 1,319
