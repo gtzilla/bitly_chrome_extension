@@ -599,6 +599,12 @@
                     bitly.lookup( request.long_url, sendResponse );
                 break;
                 
+                case "page_select":
+                    if(request.long_url.indexOf("http") === 0) {
+                        chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
+                    }                
+                break;
+                
                 
                 /*
                     Misc Actions

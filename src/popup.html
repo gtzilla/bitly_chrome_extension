@@ -88,31 +88,21 @@
             // get the current document location
             
             function actions_listeners( request, sender, sendResponse) {
+                // this is an extenion listener, not a DOM listener.
                 if(!request.action || request.action !== "page_selection") return;
-                txtarea.innerText = (txtarea.value + (request.selection || ""));
+                var selected_text = (request.selection || "").trim();
+                if(selected_text !== "") {
+                    txtarea.value = txtarea.value + " " + selected_text;
+                }
+                
             }
             
             function shorten_complete_callback( jo ) {
-
                 var message = txtarea.value, sUrl = jo && jo.url || "";
                 if( message === "")  { message = current_title + " " + sUrl; }
                 else { message = message + " " + sUrl; }
                 
                 update_share_box( message, sUrl );
-                // txtarea_short_url.value = sUrl;
-                // txtarea.innerText = message;
-                // 
-                // if(sUrl.trim() === "") {
-                //     _id("copy_elements_wrapper").style.display="none";
-                // } else {
-                //     // add more to the meta data for later...
-                //     current_meta.short_url = sUrl;
-                //     _id("copy_elements_wrapper").style.display="block";
-                // }
-                // 
-                // if(bg.get_auto_copy() && sUrl !== "" ) {
-                //     copy_to_clipboard();
-                // }
             }
             
             function update_share_box( message, short_url ) {
@@ -158,11 +148,7 @@
                     account, success_messages = 0, share_message;
                 
                 for( ; account=accounts[i]; i++) {
-                    if(account.error) {
-                        
-                    } else {
-                        success_messages +=1
-                    }
+                    if(!account.error) { success_messages +=1 } 
                 }
                 
                 if(success_messages>0) {
@@ -173,6 +159,7 @@
                 }
                 display_share_response_message( share_message )
             }
+            
             
             function display_share_response_message( share_message ) {
                 var message = _id("message_box");
@@ -221,8 +208,9 @@
                 
                 _id("sharing_accounts_display").innerHTML = html;            
             }
-            
+            ////////////////////////////////////////////////////////////////////////
             // end definitions
+            ////////////////////////////////////////////////////////////////////////
             
             
             var txtarea = _id("bento_share"), txtarea_short_url = _id("bitly_short_url_area"),
@@ -237,7 +225,7 @@
                
                console.log( curr_tab );
                
-               // we use this for short term memory...
+               // we use this for short term memory... - put in bg.localstore() (window.localStorage)
                current_meta = { 'tab_id' : curr_tab.id, 
                                 'long_url':  curr_tab.url, 
                                 'text' : '',
@@ -254,8 +242,11 @@
                }, stash_item = stash[ curr_tab.id ];
                current_title = curr_tab.title;
 
-               if( stash_item && stash_item.long_url === curr_tab.url && stash_item.short_url ) {
+               if( stash_item && stash_item.long_url === curr_tab.url && stash_item.short_url && stash_item.text !== "" ) {
                    update_share_box( stash_item.text, stash_item.short_url );
+                   message.action = 'page_select';
+                   delete message.title;
+                   chrome.extension.sendRequest(message, function(){});
                } else {
                    chrome.extension.sendRequest( message, shorten_complete_callback );                   
                }
@@ -264,6 +255,12 @@
                 
             
             });
+            
+            
+            ////////////////////////////////////////////////////////////////////////
+            // Liseners
+            ////////////////////////////////////////////////////////////////////////
+            
             
             message_box_elem.addEventListener('click', function(e) {
                 
@@ -318,7 +315,7 @@
             
             // this totally works, generally onbeforeunload is better, but not working in this ext.
             addEventListener("unload", function(e) {
-                current_meta.text = txtarea.value;
+                current_meta.text = (txtarea.value).trim();
                 var stash = bg.localfetch("stash") || {}, key = stash[ current_meta.tab_id ];
                 stash[ current_meta.tab_id ] = current_meta;
                 bg.localstore("stash", stash);
