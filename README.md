@@ -28,6 +28,14 @@ Features / Description
 
 Note to users experiencing problems directly after install: Chrome doesn't allow execution of content scripts on already open pages. If you try this immediately after install on existing tabs, it won't work, so we recommend to restarting Chrome after installing the extension.
 
+WishList
+-----
+
+* Custom Keywords
+* User Shorten History / Activity Feed
+* Realtime / Trending links for user X
+* User Metics, clicks, country, referrers
+
 
 Contributing
 -----
