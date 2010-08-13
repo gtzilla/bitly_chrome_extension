@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
 
 <!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
@@ -148,7 +148,8 @@
     
         
             <!-- <script type="text/javascript" src=""></script> -->
-            <script type="text/javascript" src="js/libs/logFormat.js"></script>      
+            <script type="text/javascript" src="js/libs/logFormat.js"></script>    
+            <script type="text/javascript" src="js/libs/common.js"></script>                  
             <script type="text/javascript" charset="utf-8">
 
                 var bg = chrome.extension.getBackgroundPage(), 
@@ -164,12 +165,10 @@
                     api_domains_elem = _id("api_domains"), 
                     no_expand_domains_box_elem = _id("no_expand_domains_box"),
                     url_expand_input = _id("show_link_preview"),
-                    bod = document.getElementsByTagName("body")[0]
+                    bod = document.body,
                     active_account_list = [];
                     
-                function _id( name ) {
-                    return document.getElementById( name )
-                }
+
                 
                 function set_api_radio_button() {
                     var api_domain = bg.get_api_domain(), 

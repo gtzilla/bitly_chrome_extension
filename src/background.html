@@ -28,7 +28,7 @@
         <script type="text/javascript" src="js/bitlyapi-v2.0.js"></script>
         <script type="text/javascript" src="js/bitlydb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
-        
+        <script type="text/javascript" src="js/libs/common.js"></script>                          
         <script type="text/javascript" charset="utf-8">
         
         // these are common helper funcs
@@ -62,7 +62,7 @@
         
         function logger( message ) {
             var logs = localfetch("logs") || [];
-            logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
+            logs.push({ timestamp : _now(), 'message' : message });
             // drop old messages
             if(logs.length > 100) { logs = logs.slice(50); }
             localstore("logs", logs);
@@ -400,7 +400,7 @@
         function set_domain_list_from_cache() {
             
             bit_db.find("domains_list", function(jo) {
-                var now =  (new Date()).getTime(), then = now - (24*60*60*1000)*5;
+                var now =  _now(), then = now - (24*60*60*1000)*5;
                 if(jo && jo.timestamp > then && jo.domains.length > 10) {
                     
                     //console.log("now and then", now, then)
@@ -597,6 +597,12 @@
                 
                 case "lookup":
                     bitly.lookup( request.long_url, sendResponse );
+                break;
+                
+                case "page_select":
+                    if(request.long_url.indexOf("http") === 0) {
+                        chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
+                    }                
                 break;
                 
                 

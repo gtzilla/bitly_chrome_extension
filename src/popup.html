@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
     
     <head>
         <title>bit.ly | Shorten, Share &amp; Track your links</title>
@@ -82,37 +82,50 @@
         </div> <!-- end #container -->
         
         
-        
+        <script type="text/javascript" src="js/libs/common.js"></script>                          
         <script type="text/javascript" charset="utf-8">
             
             // get the current document location
             
             function actions_listeners( request, sender, sendResponse) {
+                // this is an extenion listener, not a DOM listener.
                 if(!request.action || request.action !== "page_selection") return;
-                txtarea.innerText = (txtarea.value + (request.selection || ""));
+                var selected_text = (request.selection || "").trim();
+                if(selected_text !== "") {
+                    txtarea.value = txtarea.value + " " + selected_text;
+                }
+                
             }
             
             function shorten_complete_callback( jo ) {
-                _id("loading_short_url").style.display="none";
                 var message = txtarea.value, sUrl = jo && jo.url || "";
                 if( message === "")  { message = current_title + " " + sUrl; }
                 else { message = message + " " + sUrl; }
-                txtarea_short_url.value = sUrl;
+                
+                update_share_box( message, sUrl );
+            }
+            
+            function update_share_box( message, short_url ) {
+                _id("loading_short_url").style.display="none";                
+                var copy_elem_wrap = _id("copy_elements_wrapper");
+                
+                txtarea_short_url.value = short_url;
                 txtarea.innerText = message;
                 
-                if(sUrl.trim() === "") {
-                    _id("copy_elements_wrapper").style.display="none";
+                if(short_url.trim() === "") {
+                    copy_elem_wrap.style.display="none";
                 } else {
-                    _id("copy_elements_wrapper").style.display="block";
+                    // add more to the meta data for later...
+                    current_meta.short_url = short_url;
+                    copy_elem_wrap.style.display="block";
                 }
                 
-                if(bg.get_auto_copy() && sUrl !== "" ) {
+                if(bg.get_auto_copy() && short_url !== "" ) {
                     copy_to_clipboard();
-                }
+                    _id("copy_link_button").innerText = "Copied";
+                }                
             }
-            function _id( name ) {
-                return document.getElementById( name )
-            }
+            
             function share_callback(jo) {
                 console.log(jo, "share");
                 if(jo.status_code === 403 ) {
@@ -133,11 +146,7 @@
                     account, success_messages = 0, share_message;
                 
                 for( ; account=accounts[i]; i++) {
-                    if(account.error) {
-                        
-                    } else {
-                        success_messages +=1
-                    }
+                    if(!account.error) { success_messages +=1 } 
                 }
                 
                 if(success_messages>0) {
@@ -148,6 +157,7 @@
                 }
                 display_share_response_message( share_message )
             }
+            
             
             function display_share_response_message( share_message ) {
                 var message = _id("message_box");
@@ -196,15 +206,16 @@
                 
                 _id("sharing_accounts_display").innerHTML = html;            
             }
-            
+            ////////////////////////////////////////////////////////////////////////
             // end definitions
+            ////////////////////////////////////////////////////////////////////////
             
             
             var txtarea = _id("bento_share"), txtarea_short_url = _id("bitly_short_url_area"),
                 share_form = _id("bitly_bento_submit"),
                 current_title = "", stash_text = "",
                 active_account_list = [], b = _id("options_page"),
-                bg = chrome.extension.getBackgroundPage(),
+                bg = chrome.extension.getBackgroundPage(), current_meta = {},
                 message_box_elem = _id("message_box");
             
             // Shorten the current tab
@@ -212,18 +223,43 @@
                
                console.log( curr_tab );
                
-               var message = {
+               // we use this for short term memory... - put in bg.localstore() (window.localStorage)
+               current_meta = { 'tab_id' : curr_tab.id, 
+                                'long_url':  curr_tab.url, 
+                                'text' : '',
+                                'title' : curr_tab.title,
+                                'timestamp' : _now() };
+               
+               // stash is for 'storing' edited text that might otherwise be lost when popup closes..
+               // uses the unload event to capture value and store in localStorage
+               // see anon event listener at bottom of this page.
+               var stash = bg.localfetch("stash") || {}, message = {
                    'action' : 'shorten_and_select',
                    'long_url' : curr_tab.url,
                    'tab_id' : curr_tab.id,
                    'title' : curr_tab.title
+               }, stash_item = stash[ curr_tab.id ];
+               current_title = curr_tab.title;
+
+               if( stash_item && stash_item.long_url === curr_tab.url && stash_item.short_url && stash_item.text !== "" ) {
+                   update_share_box( stash_item.text, stash_item.short_url );
+                   message.action = 'page_select';
+                   delete message.title;
+                   chrome.extension.sendRequest(message, function(){});
+               } else {
+                   chrome.extension.sendRequest( message, shorten_complete_callback );                   
                }
-               current_title = curr_tab.title
-               chrome.extension.sendRequest( message, shorten_complete_callback );
+               
                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )
                 
             
             });
+            
+            
+            ////////////////////////////////////////////////////////////////////////
+            // Liseners
+            ////////////////////////////////////////////////////////////////////////
+            
             
             message_box_elem.addEventListener('click', function(e) {
                 
@@ -264,12 +300,7 @@
             });
             
             _id("copy_link_button").addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // txtarea_short_url.select();
-                // console.log("yey!")
-                // 
-                // document.execCommand("copy", false, null);    
+                e.preventDefault();  
                 copy_to_clipboard();            
                 this.innerText = 'Copied';                
             })
@@ -280,6 +311,15 @@
                 bg.get_chrome_page("options.html");
             
             });
+            
+            // this totally works, generally onbeforeunload is better, but not working in this ext.
+            addEventListener("unload", function(e) {
+                current_meta.text = (txtarea.value).trim();
+                var stash = bg.localfetch("stash") || {}, key = stash[ current_meta.tab_id ];
+                stash[ current_meta.tab_id ] = current_meta;
+                bg.localstore("stash", stash);
+
+            },false);            
             
 
 /*

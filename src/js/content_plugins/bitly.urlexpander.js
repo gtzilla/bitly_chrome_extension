@@ -1,6 +1,7 @@
 var page_links, queried_matches = [],
     timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
-    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[a-zA-Z0-9_]{2,20}))(?:[\\/ \\S]?)$", "gi"),
+    //[-_a-zA-Z0-9][.\?!]?
+    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[-_a-zA-Z0-9]{2,20}))(?:[.\?!]?)$", "gi"),
     // keep this basic list, to eliminate already known items and save some cyles later
     false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
                             "yfrog.com", "digg.com", "twitgoo.com", "ficly.com", "google.com", "paste.ly",
@@ -87,7 +88,7 @@ function brainResponse(jo) {
     var links =  document.getElementsByTagName("a"), 
         href, bit_key, user_hash, bit_result, 
         possible_keywords = [], matched_results = [],
-        body = document.getElementsByTagName("body")[0];
+        body = document.body;
     
     container = document.getElementById("bitly_expanded_container") || document.createElement("div");
     if(!container.id || container.id === "") {

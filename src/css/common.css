@@ -146,3 +146,9 @@
     background:#6BAFF0;
     -webkit-box-shadow:0 4px 4px #D9D9D9;    
 }
+
+#logo {
+/*    margin:18px 30px 0;*/
+    width:800px;
+    margin:30px auto 0;
+}
