@@ -88,7 +88,7 @@ function brainResponse(jo) {
     var links =  document.getElementsByTagName("a"), 
         href, bit_key, user_hash, bit_result, 
         possible_keywords = [], matched_results = [],
-        body = document.getElementsByTagName("body")[0];
+        body = document.body;
     
     container = document.getElementById("bitly_expanded_container") || document.createElement("div");
     if(!container.id || container.id === "") {

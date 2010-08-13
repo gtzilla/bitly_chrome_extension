@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
     
     <head>
         <title>bit.ly | Shorten, Share &amp; Track your links</title>
@@ -82,7 +82,7 @@
         </div> <!-- end #container -->
         
         
-        
+        <script type="text/javascript" src="js/libs/common.js"></script>                          
         <script type="text/javascript" charset="utf-8">
             
             // get the current document location
@@ -122,12 +122,10 @@
                 
                 if(bg.get_auto_copy() && short_url !== "" ) {
                     copy_to_clipboard();
+                    _id("copy_link_button").innerText = "Copied";
                 }                
             }
             
-            function _id( name ) {
-                return document.getElementById( name )
-            }
             function share_callback(jo) {
                 console.log(jo, "share");
                 if(jo.status_code === 403 ) {

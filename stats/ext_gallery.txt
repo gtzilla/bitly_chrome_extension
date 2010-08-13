@@ -1,0 +1,13 @@
+#### Key #####
+Date
+Ratings, Active 'users' - weekly installs is a moving window average
+
+
+8/11/2010
+(207) 16,732 users - Weekly installs: 1,319
+
+
+8/12/2010
+(210) - 16,854 users - Weekly installs: 1,364
+
+## todo, write a script / cron that runs between 1 and 1:50pm and gets this value.
