@@ -227,7 +227,8 @@
                current_meta = { 'tab_id' : curr_tab.id, 
                                 'long_url':  curr_tab.url, 
                                 'text' : '',
-                                'timestamp' : (new Date().getTime()) };
+                                'title' : curr_tab.title,
+                                'timestamp' : _now() };
                
                // stash is for 'storing' edited text that might otherwise be lost when popup closes..
                // uses the unload event to capture value and store in localStorage

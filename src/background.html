@@ -62,7 +62,7 @@
         
         function logger( message ) {
             var logs = localfetch("logs") || [];
-            logs.push({ timestamp : (new Date()).getTime(), 'message' : message });
+            logs.push({ timestamp : _now(), 'message' : message });
             // drop old messages
             if(logs.length > 100) { logs = logs.slice(50); }
             localstore("logs", logs);
@@ -400,7 +400,7 @@
         function set_domain_list_from_cache() {
             
             bit_db.find("domains_list", function(jo) {
-                var now =  (new Date()).getTime(), then = now - (24*60*60*1000)*5;
+                var now =  _now(), then = now - (24*60*60*1000)*5;
                 if(jo && jo.timestamp > then && jo.domains.length > 10) {
                     
                     //console.log("now and then", now, then)
