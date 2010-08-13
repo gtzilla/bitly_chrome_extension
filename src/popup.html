@@ -211,6 +211,7 @@
                 
                 _id("sharing_accounts_display").innerHTML = html;            
             }
+
             
             function realtime_metrics_callback( jo ) {
                 console.log("metrics", jo)
@@ -259,9 +260,11 @@
                } else {
                    chrome.extension.sendRequest( message, shorten_complete_callback );                   
                }
+
                
                chrome.extension.sendRequest({ 'action' : realtime_metrics}, realtime_metrics_callback );
                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+
                 
             
             });
