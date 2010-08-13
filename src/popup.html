@@ -11,10 +11,14 @@
         <div id="container">
             
             <div id="top">
-            
+                <div id="TopInner">
+                    
+                </div>
             </div> <!-- end #top -->
             
             <div id="middle">
+                
+
                 
                 <form action="#" id="bitly_bento_submit" method="get" accept-charset="utf-8">
                       
@@ -179,6 +183,7 @@
                 txtarea_short_url.select();
                 document.execCommand("copy", false, null);
             }
+            
             function list_accounts_callback(jo) {
                 //console.log(jo)
                 var i=0, account, accounts = jo && jo.share_accounts, html = "",
@@ -206,6 +211,11 @@
                 
                 _id("sharing_accounts_display").innerHTML = html;            
             }
+            
+            function realtime_metrics_callback( jo ) {
+                console.log("metrics", jo)
+            }
+            
             ////////////////////////////////////////////////////////////////////////
             // end definitions
             ////////////////////////////////////////////////////////////////////////
@@ -250,7 +260,8 @@
                    chrome.extension.sendRequest( message, shorten_complete_callback );                   
                }
                
-               chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )
+               chrome.extension.sendRequest({ 'action' : realtime_metrics}, realtime_metrics_callback );
+               chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
                 
             
             });

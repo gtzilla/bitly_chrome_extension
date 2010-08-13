@@ -5,7 +5,7 @@
 
 }
 #container {
-    padding:10px 10px 20px;
+    padding:10px 0 20px;
 /*    background:#ededed;*/
 
     background:-webkit-gradient(linear, right bottom, right top, 
@@ -187,4 +187,18 @@
     float:right;
     display:none;
     width:72px;
+}
+
+/*  popup top */
+#TopInner {
+    height:30px;
+    overflow:hidden;
+}
+#top {
+    border-bottom:1px solid #ccc;
+    margin-bottom:12px;
+    padding:0 10px;
+}
+#middle {
+    padding:0 10px;
 }

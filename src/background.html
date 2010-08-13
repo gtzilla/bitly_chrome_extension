@@ -591,6 +591,24 @@
                 break;
                 
                 
+                case "realtime_metrics":
+                    // check cache... 8 minutes old, is stale
+                    var realtime = localfetch("realtime"), now = _now(), then = now - (1000*60*8);
+                    console.log("realtime from cache is ", realtime)
+                    if(realtime && realtime.timestamp < then) {
+                        // data is too old, fetch from server
+                        bitly.realtime( function(jo) {
+                            jo.timestamp = now;
+                            console.log("realtime from server is ", jo)
+                            localstore("realtime", jo);
+                            sendResponse( jo )
+                        });
+                    } else {
+                        sendResponse( realtime )
+                    }
+                    // 
+                break;
+                
                 case "expand":
                     bitly.expand( request.short_url, sendResponse );
                 break;
