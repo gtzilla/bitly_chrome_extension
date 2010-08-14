@@ -68,7 +68,8 @@
     
         <script type="text/javascript" src="js/libs/common.js"></script>    
         <script type="text/javascript" src="js/libs/backtweet.js"></script> 
-        <script type="text/javascript" src="js/libs/timeFormat.js"></script>                                          
+        <script type="text/javascript" src="js/libs/timeFormat.js"></script>  
+        <script type="text/javascript" src="js/libs/emile.js"></script>                                                  
         <script type="text/javascript" charset="utf-8">
             // global variable definitions
             
@@ -106,6 +107,7 @@
             function latest_trends(jo) {
                 var i=0, realtime, realtimes = jo && jo.realtime_links, urls = [];
                 current_trend_list = realtimes;
+                realtimes_from_cache = jo;
                 for( ; realtime=realtimes[i]; i++) {
                     urls.push( "http://bit.ly/" + realtime.user_hash );
                 }
@@ -131,6 +133,18 @@
                 
             latest_trends( realtimes_from_cache  );
             trends_watcher();
+            
+            
+            
+            // addEventListener('blur', function(e) {
+            //     if(trends_internval) clearInterval(trends_internval);
+            // });
+            // 
+            // addEventListener('focus', function(e) {
+            //     trends_watcher();
+            // });            
+            
+            
             
 
 /*
@@ -177,6 +191,11 @@ If there was a checkbox on the popup back to track.
                                             Off Always (hide)
                                             Off
                                             Always On for new shortens
+
+
+ANIMATIOns
+    have the element slide to it's new position (if still active)
+    have it disappear into 'graveyard' below
 
 */
             
