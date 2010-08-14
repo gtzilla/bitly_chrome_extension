@@ -73,7 +73,8 @@
             
             function expand_callback( jo ) {
                 console.log("jo expanded: ", jo)
-                var i=0, urls = realtimes, url, links = jo && jo.expand_and_meta, item, html = "";
+                var i=0, urls = current_trend_list, url, links = jo && jo.expand_and_meta,
+                    item, html = "";
                 
                 html += '<ul>'
                 for( ; url=urls[i]; i++) {
@@ -91,15 +92,32 @@
                 trending_container.innerHTML = html;
             }
             
-            var bg = chrome.extension.getBackgroundPage(), short_urls = [],
-                realtimes_from_cache = bg.localfetch("realtime"), i=0, realtime, realtimes;
-                
-            realtimes = realtimes_from_cache && realtimes_from_cache.realtime_links;
-            for( ; realtime=realtimes[i]; i++) {
-                short_urls.push( "http://bit.ly/" + realtime.user_hash );
+            function latest_trends(jo) {
+                var i=0, realtime, realtimes = jo && jo.realtime_links, urls = [];
+                current_trend_list = realtimes;
+                for( ; realtime=realtimes[i]; i++) {
+                    urls.push( "http://bit.ly/" + realtime.user_hash );
+                }
+                if(urls.length<=0) { return; }
+                chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : urls },  expand_callback );                              
             }
             
-            chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : short_urls },  expand_callback );
+            function trends_watcher() {
+                if(trends_internval) clearInterval(trends_internval);
+                
+                trends_internval = setInterval(function() {
+                    ///bg.get_realtime_metrics(  );
+                    chrome.extension.sendRequest({'action' : 'realtime_metrics'}, latest_trends)
+                }, 30000)                
+            }
+            
+            var bg = chrome.extension.getBackgroundPage(),
+                realtimes_from_cache = bg.localfetch("realtime"), trends_internval, current_trend_list = [];
+                
+            latest_trends( realtimes_from_cache  );
+            trends_watcher();
+            
+
 
             
 

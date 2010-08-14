@@ -139,7 +139,7 @@
         
         
         function sign_in(username, password, callback) {
-            console.log("auth attempt for", username)
+            logger("auth attempt for", username)
             bitly.auth(username, password, function(response) {
                 
                 var auth = response;
@@ -280,7 +280,8 @@
         
         function get_realtime_metrics( callback ) {
             
-            var minues=1, realtime = localfetch("realtime"), now = _now(), then = now - (1000*60*minues);
+            var minues=1, realtime = localfetch("realtime"), now = _now(), 
+                then = now - (1000*60*minues), trends;
             if(realtime && realtime.timestamp > then) {
                 // use cache results when we can
                 console.log("cache is still valid", realtime )
@@ -293,6 +294,11 @@
                     // if only checking once per minute, just leave this alone
                     // otherwise people with zero links could really hammer this
                     localstore("realtime", jo);
+                    if(jo && jo.realtime_links && jo.realtime_links.length > 0 ) {
+                        trends = localfetch("trends") || [];
+                        trends.unshift( jo );
+                        localstore("trends", trends);
+                    }
                     //}
 
                     callback( jo )
