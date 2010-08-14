@@ -30,7 +30,7 @@ var bitlyAPI = function( client_id, client_secret, settings  ) {
 
     host = (settings && settings.host) || host;
     // setting.url = {} will override the 'urls={ ... }' 
-    urls = extend({}, urls, (settings && settings.url) );
+    urls = extend({}, urls, (settings && settings.urls) );
     console.log(urls)
     return new BitApi( client_id, client_secret )
 } 
@@ -195,11 +195,12 @@ BitApi.prototype = {
     metrics : function(type, callback) {
         var possible_tpes = ["clicks","countries","referrers"], 
             url = (ssl_host + urls.metrics_base + type), params = { 'access_token' : this.bit_request.access_token };
-        if(possible_tpes.indexOf( type ) === -1 ) return;
+        if(possible_tpes.indexOf( type ) === -1 ) { 
+            callback({'error' : 'unknown api, api call ignored'})
+            return;
+        }
         
         bitlyRequest( url, params, callback );
-        
-        
     },
         
     share_accounts : function( callback ) {
@@ -308,23 +309,6 @@ function extend() {
     return target;
 }
 
-function extend() {
-    var target = arguments[0] || {}, length = arguments.length, i=0, options, name, src, copy;
-    for( ; i<length; i++) {
-        if( (options = arguments[i] ) !== null) {
-            for(name in options) {
-                copy = options[ name ];
-                if( target === copy ) { continue; }
-                if(copy !== undefined ) {
-                    target[name] = copy;
-                }
-            }
-        }
-    }
-
-    return target;
-}
-
 function parse_oauth_response( url_string ) {
     //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
     var items = ( url_string && typeof url_string === "string" ) && url_string.split("&"), 
@@ -389,11 +373,11 @@ function chunk(array, chunkSize) {
 
 function buildparams( obj ) {
     // todo, handle errors / types better
-    var params = [], a, i;
+    var params = [], a, i, len;
     for(var k in obj ) {  
         if(obj[k] && obj[k].length > 0 && typeof obj[k] === "object") {
-            a = obj[k];
-            for(i=0; i<a.length; i++) { params[params.length] = k + "=" + encodeURIComponent(a[i]);  }
+            a = obj[k]; len = a.length;
+            for(i=0; i<len; i++) { params[params.length] = k + "=" + encodeURIComponent(a[i]);  }
         } else if( obj[k] ){
             params[params.length] = k + "=" +encodeURIComponent( obj[k] );
         }

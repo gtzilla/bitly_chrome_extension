@@ -67,7 +67,8 @@
         </div> <!-- end #container -->
     
         <script type="text/javascript" src="js/libs/common.js"></script>    
-        <script type="text/javascript" src="js/libs/backtweet.js"></script>                                  
+        <script type="text/javascript" src="js/libs/backtweet.js"></script> 
+        <script type="text/javascript" src="js/libs/timeFormat.js"></script>                                          
         <script type="text/javascript" charset="utf-8">
             // global variable definitions
             
@@ -75,11 +76,12 @@
                 console.log("jo expanded: ", jo)
                 var i=0, urls = current_trend_list, url, links = jo && jo.expand_and_meta,
                     item, html = "";
-                
+                html += timeFormat( realtimes_from_cache.timestamp );
                 html += '<ul>'
                 for( ; url=urls[i]; i++) {
                     item = links[ ("http://bit.ly/" + url.user_hash) ];
                     html += '<li>'
+                        
                         html += '<div>' + url.clicks + '</div>'
                         html += escaper( item.title || item.long_url )
                         html += '<div>Total: ' + commify( item.user_clicks )  + " of " + commify( item.global_clicks )  + '</div>';
@@ -112,7 +114,11 @@
             }
             
             var bg = chrome.extension.getBackgroundPage(),
-                realtimes_from_cache = bg.localfetch("realtime"), trends_internval, current_trend_list = [];
+                realtimes_from_cache = bg.localfetch("realtime"), 
+                trends_internval, current_trend_list = [],
+                link_trends = bg.localfetch("trends");
+                
+            console.log("link trends", link_trends)    
                 
             latest_trends( realtimes_from_cache  );
             trends_watcher();
@@ -144,6 +150,24 @@ I want to break up the display to show two things
 ... links that fell out
                 Loop over all trends, find all hashes that aren't 
 
+
+
+If there was a checkbox on the popup back to track.
+        It should start a timer, and get the trending links, if that link appears in trending, 
+            set off a desktop notification
+            
+        
+        Separate, but related is the 'threshold' marker,
+            this should be more lazy, it should look up metrics only for that url, every N minutes
+            Once the tolerance is reached, a notifitcation is set off, and the check is stopped for that link
+            
+        
+        
+        Put an Eyeball icon, with hover (watch this url), text watch next to the copy button
+            there is a setting in options to have this
+                                            Off Always (hide)
+                                            Off
+                                            Always On for new shortens
 
 */
             

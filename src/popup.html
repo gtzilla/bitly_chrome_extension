@@ -320,11 +320,11 @@
                 
 
             });
-            _id("top").addEventListener('click', function(e) {
-                if( e.target.className === "trending_links") {
-                    e.preventDefault();
-                    bg.get_chrome_page("trending.html");
-                }                
+            trending_box.addEventListener('click', function(e) {
+
+                e.preventDefault();
+                bg.get_chrome_page("trending.html");
+
             });            
             
             share_form.addEventListener('submit', function(e) {

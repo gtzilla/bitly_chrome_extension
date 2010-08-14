@@ -21,7 +21,7 @@
     font-size:18px;
     padding:10px;
     color:#444;
-    width:460px;
+    width:480px; /*20 diff*/
     height:105px;
     border:1px solid #ccc;
     background:#feffec;
@@ -211,6 +211,7 @@
     position:relative;    
 }
 #trending_box {
+    cursor:pointer;
     background:url(/s/graphics/chromext_chart_icon.png) no-repeat left 0px;
     text-indent:18px;
     color:#777;
