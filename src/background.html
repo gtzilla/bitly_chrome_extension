@@ -25,7 +25,7 @@
         </div> <!-- end #container -->
         
         
-        <script type="text/javascript" src="js/bitlyapi-v2.0.js"></script>
+        <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
         <script type="text/javascript" src="js/bitlydb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/common.js"></script>                          
@@ -276,6 +276,28 @@
                     console.log("setting api domain", arguments)
                 });
             }
+        }
+        
+        function get_realtime_metrics( callback ) {
+            
+            var minues=1, realtime = localfetch("realtime"), now = _now(), then = now - (1000*60*minues);
+            if(realtime && realtime.timestamp > then) {
+                // use cache results when we can
+                console.log("cache is still valid", realtime )
+                callback( realtime );
+            } else {
+                bitly.realtime( function(jo) {
+                    jo.timestamp = now;
+                    console.log("realtime from server is ", jo);
+                    //if(jo && jo.realtime_links && jo.realtime_links.length > 0 ) {
+                    // if only checking once per minute, just leave this alone
+                    // otherwise people with zero links could really hammer this
+                    localstore("realtime", jo);
+                    //}
+
+                    callback( jo )
+                });                        
+            }            
         }
         
         function get_api_domain() {
@@ -592,21 +614,8 @@
                 
                 
                 case "realtime_metrics":
-                    // check cache... 8 minutes old, is stale
-                    var realtime = localfetch("realtime"), now = _now(), then = now - (1000*60*8);
-                    console.log("realtime from cache is ", realtime)
-                    if(realtime && realtime.timestamp < then) {
-                        // data is too old, fetch from server
-                        bitly.realtime( function(jo) {
-                            jo.timestamp = now;
-                            console.log("realtime from server is ", jo)
-                            localstore("realtime", jo);
-                            sendResponse( jo )
-                        });
-                    } else {
-                        sendResponse( realtime )
-                    }
-                    // 
+                    
+                    get_realtime_metrics( sendResponse );
                 break;
                 
                 case "expand":
@@ -628,6 +637,7 @@
                     Misc Actions
                 */
                 case "open_options":
+                    // this is primary used for content scripts
                     get_chrome_page("options.html");
                 break;
                 

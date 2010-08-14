@@ -45,7 +45,11 @@ function _id( name ) {
 }
 
 function find_short_links() {
-    var links = document.getElementsByTagName("a"), 
+    
+    //querySelectorAll, document.querySelectorAll("a:not([href=''])")
+    // document.querySelectorAll("a:not([href=''])"), 
+    // document.getElementsByTagName("a")
+    var links = document.querySelectorAll("a:not([href=''])"), 
         href, matches, final_matches=[], 
         url, i=0, elem;
         

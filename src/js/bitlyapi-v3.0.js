@@ -56,7 +56,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
         x_auth_password : ''
     },
     
-    version : "2.0",
+    version : "3.0",
     count : 0, // internal request counter, this is the number of times certain methods are called
     
     init : function(  client_id, client_secret ) {
@@ -402,19 +402,13 @@ function chunk(array, chunkSize) {
 
 function buildparams( obj ) {
     // todo, handle errors / types better
-    var params = [], a;
-    for(var k in obj ) {
-        if(typeof obj[k] === "string") {
-            // check has own property
-            params[params.length] = k + "=" +encodeURIComponent( obj[k] );
-        } else if(obj[k] && obj[k].length > 0 && typeof obj[k] === "object") {
-            // could be an object or an array
+    var params = [], a, i;
+    for(var k in obj ) {  
+        if(obj[k] && obj[k].length > 0 && typeof obj[k] === "object") {
             a = obj[k];
-
-            for(var i=0; i<a.length; i++) {
-                params[params.length] = k + "=" + encodeURIComponent(a[i]);                    
-            }
-
+            for(i=0; i<a.length; i++) { params[params.length] = k + "=" + encodeURIComponent(a[i]);  }
+        } else if( obj[k] ){
+            params[params.length] = k + "=" +encodeURIComponent( obj[k] );
         }
 
     }

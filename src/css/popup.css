@@ -113,8 +113,14 @@
 
 .bitly_shorten_box_meta_links .options_page {
     position:absolute;
+    bottom:10px;    
+    right:5px; 
+}
+#char_count_box {
+    position:absolute;
     bottom:14px;    
-    left:14px; 
+    left:14px;  
+    color:#999;  
 }
 .share_account_header {
     font-size:13px;
@@ -191,8 +197,9 @@
 
 /*  popup top */
 #TopInner {
-    height:30px;
+    height:26px;
     overflow:hidden;
+    position:relative;
 }
 #top {
     border-bottom:1px solid #ccc;
@@ -201,4 +208,17 @@
 }
 #middle {
     padding:0 10px;
+    position:relative;    
+}
+#trending_box {
+    background:url(/s/graphics/chromext_chart_icon.png) no-repeat left 0px;
+    text-indent:18px;
+    color:#777;
+    position:absolute;
+    bottom:10px;
+    left:5px;
+    height:14px;
+}
+.trend_hed {
+    font-weight:bold;
 }

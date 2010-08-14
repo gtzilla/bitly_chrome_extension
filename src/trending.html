@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bit.ly Trending</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="bit.ly" />
+        <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" /> 
+        <link rel="stylesheet" href="css/trending.css" type="text/css" charset="utf-8" />           
+             
+    </head>
+    <body>
+        <div id="container">
+
+            <div id="top">
+
+             <div id="blueBanner">
+                  <ul class="ext_nav_list">
+                      <!-- <li><a class="openOptions" href="">Options</a></li> -->
+                  </ul>
+
+              </div>
+
+              <div id="logo">
+                  <a href="http://bit.ly/"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
+              </div>
+              <!-- <div id="ext_top_nav">
+                  <div id="ext_top_nav_inner">
+
+                  </div>
+                  <div class="hr"><hr /></div>
+              </div> -->
+
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+                
+                
+                <div>
+
+                    <div id="page_header_box">
+
+                        <ul>
+                            <li><a href="#">Last Hour</a></li>
+                            <!-- <li><a href=""></a></li>                             -->
+                        </ul>
+                        <h1 id="trending_links_hed">Trending Links</h1>
+                        
+                    </div>
+
+                    
+                    <div id="trending_container">
+
+                    </div>
+                    
+                </div>
+
+
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+
+            </div> <!-- end #bottom -->
+            
+        </div> <!-- end #container -->
+    
+        <script type="text/javascript" src="js/libs/common.js"></script>    
+        <script type="text/javascript" src="js/libs/backtweet.js"></script>                                  
+        <script type="text/javascript" charset="utf-8">
+            // global variable definitions
+            
+            function expand_callback( jo ) {
+                console.log("jo expanded: ", jo)
+                var i=0, urls = realtimes, url, links = jo && jo.expand_and_meta, item, html = "";
+                
+                html += '<ul>'
+                for( ; url=urls[i]; i++) {
+                    item = links[ ("http://bit.ly/" + url.user_hash) ];
+                    html += '<li>'
+                        html += '<div>' + url.clicks + '</div>'
+                        html += escaper( item.title || item.long_url )
+                        html += '<div>Total: ' + commify( item.user_clicks )  + " of " + commify( item.global_clicks )  + '</div>';
+                    html += '</li>'                    
+                }
+                
+                html += '</ul>'
+                
+                // you don't have to get elements by ID anymore?? They are just page vars?!
+                trending_container.innerHTML = html;
+            }
+            
+            var bg = chrome.extension.getBackgroundPage(), short_urls = [],
+                realtimes_from_cache = bg.localfetch("realtime"), i=0, realtime, realtimes;
+                
+            realtimes = realtimes_from_cache && realtimes_from_cache.realtime_links;
+            for( ; realtime=realtimes[i]; i++) {
+                short_urls.push( "http://bit.ly/" + realtime.user_hash );
+            }
+            
+            chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : short_urls },  expand_callback );
+
+            
+
+        </script>
+      
+    </body>
+</html>

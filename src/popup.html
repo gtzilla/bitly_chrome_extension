@@ -12,7 +12,14 @@
             
             <div id="top">
                 <div id="TopInner">
+                    <div id="trending_box">
+                        <img src="s/graphics/loader_trend_12_12.gif" border="0" alt="" height="12" width="12" />
+                    </div>
                     
+                    <div class="bitly_shorten_box_meta_links">
+                        <a class="options_page" id="options_page" href="options.html">options</a>
+
+                    </div>                    
                 </div>
             </div> <!-- end #top -->
             
@@ -72,14 +79,15 @@
                 </form>
 
                 
-                <div class="bitly_shorten_box_meta_links">
-                    <a class="options_page" id="options_page" href="options.html">options</a>
-                
-                </div>
+
             
             </div> <!-- END #middle -->
             
             <div id="bottom">
+
+                <div id="char_count_box">
+                    
+                </div>
             
             </div> <!-- end #bottom -->
         
@@ -127,7 +135,11 @@
                 if(bg.get_auto_copy() && short_url !== "" ) {
                     copy_to_clipboard();
                     _id("copy_link_button").innerText = "Copied";
-                }                
+                } 
+                
+                setTimeout(function() {
+                    update_char_count();
+                }, 10);               
             }
             
             function share_callback(jo) {
@@ -173,6 +185,12 @@
                 _id("sharing_buttons_box").style.display="block";    
                 setTimeout(close_message_box, 4000);                            
             }
+            
+            function update_char_count() {
+                var txt = txtarea.value;
+                
+                char_count_box_elem.innerText=txt.length + " characters";
+            }
             function close_message_box() {
                 var message = _id("message_box");
                 message.style.display="none";
@@ -215,6 +233,23 @@
             
             function realtime_metrics_callback( jo ) {
                 console.log("metrics", jo)
+                if(!jo || !jo.realtime_links || jo.error) {
+                    console.log("error")
+                    bg.logger("Error with realtime metrics" + JSON.stringify( jo ) );
+                }
+                
+                var realtimes = jo && jo.realtime_links, i=0, realtime, total_clicks=0, message;
+                for( ; realtime=realtimes[i]; i++) {
+                    total_clicks+=realtime.clicks;
+                }
+                if(total_clicks>0) {
+                    message = "<span class='trend_hed'>Trending</span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links</a>";
+                } else {
+                    message = "No trending links, have you shared any recently?";
+                }
+                
+                _id("trending_box").innerHTML = message;
+                
             }
             
             ////////////////////////////////////////////////////////////////////////
@@ -225,6 +260,7 @@
             var txtarea = _id("bento_share"), txtarea_short_url = _id("bitly_short_url_area"),
                 share_form = _id("bitly_bento_submit"),
                 current_title = "", stash_text = "",
+                char_count_box_elem = _id("char_count_box"),
                 active_account_list = [], b = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(), current_meta = {},
                 message_box_elem = _id("message_box");
@@ -262,7 +298,7 @@
                }
 
                
-               chrome.extension.sendRequest({ 'action' : realtime_metrics}, realtime_metrics_callback );
+               chrome.extension.sendRequest({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );
                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
 
                 
@@ -281,7 +317,15 @@
                     e.preventDefault();
                     bg.get_chrome_page("options.html");
                 }
-            })
+                
+
+            });
+            _id("top").addEventListener('click', function(e) {
+                if( e.target.className === "trending_links") {
+                    e.preventDefault();
+                    bg.get_chrome_page("trending.html");
+                }                
+            });            
             
             share_form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -300,6 +344,10 @@
                 }
                 console.log(txtarea.value)
             });
+            
+            txtarea.addEventListener('keyup', function(e) {
+                update_char_count();
+            })
             
             _id("sharing_accounts_display").addEventListener('click', function(e) {
                 if(e.target.nodeName.toLowerCase() === "img") {
