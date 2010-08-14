@@ -26,20 +26,22 @@ var host = "http://api.bit.ly",
     }, errors = [];
     
     ///user/(clicks|country|referrers), /user/realtime_links
-var BitlyAPI = function( client_id, client_secret, settings  ) {
+var bitlyAPI = function( client_id, client_secret, settings  ) {
 
     host = (settings && settings.host) || host;
     // setting.url = {} will override the 'urls={ ... }' 
     urls = extend({}, urls, (settings && settings.url) );
     console.log(urls)
-    return new BitlyAPI.fn.init( client_id, client_secret )
+    return new BitApi( client_id, client_secret )
 } 
-
+window.bitlyAPI = bitlyAPI;
 // TODO
 // check to make sure there is no NameSpace collision
-window.BitlyAPI = BitlyAPI;
+function BitApi( client_id, client_secret ) {
+    return this.init( client_id, client_secret  );
+}
 
-BitlyAPI.fn = BitlyAPI.prototype = {
+BitApi.prototype = {
     
     bit_request : {
         format : 'json',
@@ -287,22 +289,7 @@ BitlyAPI.fn = BitlyAPI.prototype = {
     }
     
 }  
-// make the magic happen, allows var b = BitlyAPI()
-//                                  b.shorten("http://google.com")
-BitlyAPI.fn.init.prototype = BitlyAPI.fn;
 
-
-/*
-    Utilities
-        Namespace contained by outter closure function
-*/
-// function copy_obj( obj ) {
-//     var copy = {};
-//     for(var k in obj) {
-//         copy[k] = obj[k];
-//     }
-//     return copy;
-// }
 
 function extend() {
     var target = arguments[0] || {}, length = arguments.length, i=0, options, name, src, copy;

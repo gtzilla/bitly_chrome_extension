@@ -118,7 +118,34 @@
             trends_watcher();
             
 
+/*
+so I have this trends list, bg.localfetch("trends") || [];
 
+the fist item, is always the 'latest' item
+
+I want to break up the display to show two things
+
+
+20 items per page
+
+.... still active links
+        For the link, it should be sorted in order of the current most popular
+        
+            ... for each current item (aka the trending link): 
+                                loop through and find:
+                                        it's position since the last query, plus time elapse
+                                        it's total change over time
+                                        
+                                call backTweet("api_key").fetch() and get social info
+                                
+                                do an expand and meta call        
+                    
+
+... links that fell out
+                Loop over all trends, find all hashes that aren't 
+
+
+*/
             
 
         </script>
