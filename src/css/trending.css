@@ -1,0 +1,10 @@
+.bitTrendsOuterContainer {
+    position:relative;
+}
+
+.bit_trend_item {
+    position:absolute;
+    left:0;
+    top:0;
+    height:75px;
+}

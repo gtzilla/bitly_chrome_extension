@@ -84,14 +84,21 @@
             */
             
             function expand_callback( jo ) {
+                // this gets called the first time... only....
                 console.log("jo expanded: ", jo)
-                var i=0, urls = current_trend_list, url, links = jo && jo.expand_and_meta,
-                    item, html = "";
+                var links = jo && jo.expand_and_meta;
                     
                 
                 bitly_trends.update_meta( links );
                 bitly_trends.draw();
             
+            }
+            
+            function watcher_callback( jo ) {
+                
+                var links =  links = jo && jo.expand_and_meta;
+                bitly_trends.update_meta( links );
+                bitly_trends.update_realtime( realtimes_from_cache );
             }
             
             function latest_trends(jo) {
@@ -103,7 +110,13 @@
                     urls.push( "http://bit.ly/" + realtime.user_hash );
                 }
                 if(urls.length<=0) { return; }
-                chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : urls },  expand_callback );
+
+                return urls;
+            }
+            
+            function trends_callback(jo) {
+                var urls = latest_trends(jo)
+                chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : urls },  watcher_callback );                
             }
             
             function trends_watcher() {
@@ -111,8 +124,8 @@
                 
                 trends_internval = setInterval(function() {
                     ///bg.get_realtime_metrics(  );
-                    chrome.extension.sendRequest({'action' : 'realtime_metrics'}, latest_trends)
-                }, 30000)
+                    chrome.extension.sendRequest({'action' : 'realtime_metrics'}, trends_callback)
+                }, 5000)
             }
             
             var bg = chrome.extension.getBackgroundPage(),
@@ -125,8 +138,10 @@
             var bitly_trends = bitTrends( trending_container, realtimes_from_cache );
             //bitly_trends.update_realtime( [] );
             bitly_trends.update_trends( link_trends );
-            latest_trends( realtimes_from_cache  );
-            //trends_watcher();
+            var short_urls =  latest_trends( realtimes_from_cache  );
+            chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : short_urls },  expand_callback );             
+            
+            trends_watcher();
             
             
             

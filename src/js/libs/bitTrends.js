@@ -68,7 +68,74 @@
         
         update_realtime : function( realtime_bits ) {
             if(!bitTrends) return;
-            var el_items = _q("div", bitTrends );
+            //var el_items = _q("div", bitTrends );
+            var el_items = bitTrendsBox.getElementsByTagName("item"), 
+                new_bit, i=0, j=0, item, new_bits = realtime_bits.realtime_links, 
+                position, exisiting_elem=false, old_bit, move_element=false,
+                old_bits = this.realtime_bits.realtime_links;
+
+            
+            var current_trend = dataStich( new_bits, this.cache.meta ),
+                trends = this.trends_list.slice(0), html, trend_change_elem;
+
+            // todo
+            // check the timestamp whether to 'shift' array or not, aka if they are the same, remove it.
+            trends.shift();
+            current_trend = addTrendingData( current_trend, trends );            
+            
+            
+            
+            /// I think I need to reverse this...
+            
+            for( ; new_bit = current_trend[i]; i++ ) {
+                //new_bit
+                position = 0;
+                old_bit = old_bits[i] && old_bits[i].user_hash;
+                console.log("new and old", new_bit.user_hash, old_bit )
+                if(new_bit.user_hash === old_bit) {
+                    console.log("same..")
+                    move_element=false;
+                    // just update;;; d
+                } else {
+                    move_element=true;
+                }
+                //console.log(new_bit)
+                
+                // if I don't need j, I could probably just use
+                // document.querySelector() and see if the element exists...
+                exisiting_elem=false;
+                for(j=0; item=el_items[j]; j++) {
+                    if(item.getAttribute("bit_hash") === new_bit.user_hash) {
+                        // j is the position of the element that needs to be moved, i is the position of where it needs to go.....
+                        // update with new data...
+                        trend_change_elem = item.getElementsByClassName("changed_trend")[0]
+                        trend_change_elem.innerHTML = _drawChanged( new_bit );
+                        console.log("interesting found it", new_bit)
+                        exisiting_elem = true;
+                        position = i;
+                        break;                        
+                    }
+
+                }
+                
+                if(!exisiting_elem) {
+                    // if is 0, then prepend
+                    // if length, then append
+                    // in anything else, insertbefore
+                    // make the element and insert into DOM
+                    // make an element
+                    // use the position, it's i... it's always i, that's the order of realtime
+                } else {
+                    // move the element
+                }
+                
+                // move the dom....
+                // unless I re-attach the DOM, this doesn't matter
+                // the element 'position' value will determine where it is -- i * height is where that element needs to go.
+                
+            }
+            // okay, I want to move these elements to the new position, and add any new elements I don't have yet
+            
             
             console.log(el_items);
             //this.realtime_bits = realtime_bits;
@@ -176,31 +243,46 @@
     function drawTrendElements( current_trend_list ) {
         
         var i=0, urls = current_trend_list, url,
-            item, html = "";
+            item, html = "", height=75;
         html += timeFormat( realtimes_from_cache.timestamp );
-        html += '<div class="bitTrendsOuterContainer" id="bitTrends">';
+        html += '<div class="bitTrendsOuterContainer" id="bitTrendsBox">';
         for( ; url=urls[i]; i++) {
             
-            html += '<div bit_hash="'+url.user_hash+'">';
-                
-                html += '<div class="bit_trend_clicks">' + url.clicks + '</div>';
-                html += escaper( url.title || url.long_url );
-                if(url.time_diff) {
-                    html += '<div>';
-                        html += 'Changed: ' + Math.round( url.percent_change ) +"%";
-                        html += url.time_diff;
-                        html += ' from ' + url.past_clicks + ' clicks';
-                    html += '</div>';
-                }
-
-                
-                html += '<div>Total: ' + commify( url.user_clicks )  + " of " + commify( url.global_clicks )  + '</div>';
-            html += '</div>';
+            html += '<item style="top:'+  i*height +'px;" class="bit_trend_item" bit_hash="'+url.user_hash+'">';            
+                html += _drawItem( url );
+                html += '</item>';                 
         }
         
         html += '</div>';
         // you don't have to get elements by ID anymore?? They are just page vars?!
         return html;
+    }
+    
+    function _drawItem( url, pos ) {
+        var html = "";
+                    
+        html += '<div class="bit_trend_clicks">' + url.clicks + '</div>';
+        html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
+        if(url.time_diff) {
+            html += '<div class="changed_trend">';                
+                html += _drawChanged( url );
+            html += '</div>';
+        }                        
+        
+        html += '<div>'+ url.user_hash +'</div>'
+        html += '<div>Total: ' + commify( url.user_clicks )  + " of " + commify( url.global_clicks )  + '</div>';
+        return html;
+    }
+    
+    function _drawChanged(url) {
+        var html = "";
+
+        html += 'Changed: ' + Math.round( url.percent_change ) +"%";
+        html += url.time_diff;
+        html += ' from ' + url.past_clicks + ' clicks';
+
+        return html;
+        
     }
     
     function extend() {
