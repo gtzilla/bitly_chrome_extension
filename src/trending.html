@@ -70,6 +70,7 @@
         <script type="text/javascript" src="js/libs/backtweet.js"></script> 
         <script type="text/javascript" src="js/libs/timeFormat.js"></script>  
         <script type="text/javascript" src="js/libs/emile.js"></script>                                                  
+        <script type="text/javascript" src="js/libs/bitTrends.js"></script>               
         <script type="text/javascript" charset="utf-8">
             // global variable definitions
             
@@ -86,22 +87,28 @@
                 console.log("jo expanded: ", jo)
                 var i=0, urls = current_trend_list, url, links = jo && jo.expand_and_meta,
                     item, html = "";
-                html += timeFormat( realtimes_from_cache.timestamp );
-                html += '<ul>'
-                for( ; url=urls[i]; i++) {
-                    item = links[ ("http://bit.ly/" + url.user_hash) ];
-                    html += '<li>'
-                        
-                        html += '<div>' + url.clicks + '</div>'
-                        html += escaper( item.title || item.long_url )
-                        html += '<div>Total: ' + commify( item.user_clicks )  + " of " + commify( item.global_clicks )  + '</div>';
-                    html += '</li>'                    
-                }
-                
-                html += '</ul>'
-                
-                // you don't have to get elements by ID anymore?? They are just page vars?!
-                trending_container.innerHTML = html;
+                    
+                    
+                bitly_trends.update_meta( links );    
+                bitly_trends.draw();
+                    
+                    
+                // html += timeFormat( realtimes_from_cache.timestamp );
+                // html += '<ul>'
+                // for( ; url=urls[i]; i++) {
+                //     item = links[ ("http://bit.ly/" + url.user_hash) ];
+                //     html += '<li>'
+                //         
+                //         html += '<div>' + url.clicks + '</div>'
+                //         html += escaper( item.title || item.long_url )
+                //         html += '<div>Total: ' + commify( item.user_clicks )  + " of " + commify( item.global_clicks )  + '</div>';
+                //     html += '</li>'                    
+                // }
+                // 
+                // html += '</ul>'
+                // 
+                // // you don't have to get elements by ID anymore?? They are just page vars?!
+                // trending_container.innerHTML = html;
             }
             
             function latest_trends(jo) {
@@ -131,8 +138,10 @@
                 
             console.log("link trends", link_trends)    
                 
+            var bitly_trends = bitTrends( trending_container, realtimes_from_cache );
+            //bitly_trends.update_realtime( [] );
             latest_trends( realtimes_from_cache  );
-            trends_watcher();
+            //trends_watcher();
             
             
             
