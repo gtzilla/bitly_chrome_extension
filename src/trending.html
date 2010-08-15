@@ -96,7 +96,7 @@
             
             function watcher_callback( jo ) {
                 
-                var links =  links = jo && jo.expand_and_meta;
+                var links = jo && jo.expand_and_meta || {};
                 bitly_trends.update_meta( links );
                 bitly_trends.update_realtime( realtimes_from_cache );
             }
@@ -115,8 +115,18 @@
             }
             
             function trends_callback(jo) {
-                var urls = latest_trends(jo)
-                chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : urls },  watcher_callback );                
+                var url, i=0, urls = latest_trends(jo), cached = bitly_trends.cache.meta, final_urls=[];
+                for( ; url=urls[i]; i++) {
+                    if( !cached[url] ) { final_urls.push(url); }
+                }
+                // check if I have these urls in cache already
+                console.log( "trend cache", bitly_trends.cache.meta, final_urls );
+                if(final_urls.length > 0) {
+                    chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : final_urls },  watcher_callback );                                    
+                } else {
+                    watcher_callback({});
+                }
+                
             }
             
             function trends_watcher() {
@@ -125,7 +135,7 @@
                 trends_internval = setInterval(function() {
                     ///bg.get_realtime_metrics(  );
                     chrome.extension.sendRequest({'action' : 'realtime_metrics'}, trends_callback)
-                }, 5000)
+                }, 15000)
             }
             
             var bg = chrome.extension.getBackgroundPage(),

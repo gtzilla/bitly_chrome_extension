@@ -35,7 +35,7 @@
         },
         
         draw : function() {
-            console.log(this.realtime_bits.realtime_links, this.cache.meta)
+            //console.log(this.realtime_bits.realtime_links, this.cache.meta)
             // ingore first
             
             //todo
@@ -53,7 +53,7 @@
             current_trend = addTrendingData( current_trend, trends );
             //
             html = drawTrendElements( current_trend )
-            console.log(trends.length, this.trends_list.length)
+            //console.log(trends.length, this.trends_list.length)
             this.el.innerHTML = html;
         
         },
@@ -70,9 +70,10 @@
             if(!bitTrends) return;
             //var el_items = _q("div", bitTrends );
             var el_items = bitTrendsBox.getElementsByTagName("item"), 
-                new_bit, i=0, j=0, item, new_bits = realtime_bits.realtime_links, 
+                new_bit, i=0, j=0, item, new_bits = realtime_bits.realtime_links || [], 
                 position, exisiting_elem=false, old_bit, move_element=false,
-                old_bits = this.realtime_bits.realtime_links;
+                old_bits = this.realtime_bits.realtime_links, href, missing_elements_list=[],
+                bit_hash_keys = [], old_bit_hash_keys = [];
 
             
             var current_trend = dataStich( new_bits, this.cache.meta ),
@@ -82,62 +83,84 @@
             // check the timestamp whether to 'shift' array or not, aka if they are the same, remove it.
             trends.shift();
             current_trend = addTrendingData( current_trend, trends );            
+            //console.log(new_bits)
+            for(i=0; i<old_bits.length; i++) { old_bit_hash_keys.push( (old_bits[i]).user_hash  ) }
             
-            
-            
-            /// I think I need to reverse this...
-            
-            for( ; new_bit = current_trend[i]; i++ ) {
-                //new_bit
-                position = 0;
-                old_bit = old_bits[i] && old_bits[i].user_hash;
-                console.log("new and old", new_bit.user_hash, old_bit )
-                if(new_bit.user_hash === old_bit) {
-                    console.log("same..")
-                    move_element=false;
-                    // just update;;; d
-                } else {
-                    move_element=true;
+            for(i=0; i<current_trend.length; i++) { 
+                bit_hash_keys.push( (current_trend[i]).user_hash  ); 
+                var t = current_trend[i];
+                console.log(old_bits)
+                 if( old_bit_hash_keys.indexOf( t.user_hash ) === -1 ) { 
+                        missing_elements_list.push( t ); 
                 }
-                //console.log(new_bit)
-                
-                // if I don't need j, I could probably just use
-                // document.querySelector() and see if the element exists...
-                exisiting_elem=false;
-                for(j=0; item=el_items[j]; j++) {
-                    if(item.getAttribute("bit_hash") === new_bit.user_hash) {
-                        // j is the position of the element that needs to be moved, i is the position of where it needs to go.....
-                        // update with new data...
-                        trend_change_elem = item.getElementsByClassName("changed_trend")[0]
-                        trend_change_elem.innerHTML = _drawChanged( new_bit );
-                        console.log("interesting found it", new_bit)
-                        exisiting_elem = true;
-                        position = i;
-                        break;                        
-                    }
-
-                }
-                
-                if(!exisiting_elem) {
-                    // if is 0, then prepend
-                    // if length, then append
-                    // in anything else, insertbefore
-                    // make the element and insert into DOM
-                    // make an element
-                    // use the position, it's i... it's always i, that's the order of realtime
-                } else {
-                    // move the element
-                }
-                
-                // move the dom....
-                // unless I re-attach the DOM, this doesn't matter
-                // the element 'position' value will determine where it is -- i * height is where that element needs to go.
-                
             }
-            // okay, I want to move these elements to the new position, and add any new elements I don't have yet
+            
+            for(i=0; i<old_bits.length; i++) {
+               
+            }
             
             
-            console.log(el_items);
+            
+            // you know what, I cannot move these until the end, b/c it's sequential, so I should just update it
+            
+            for(i=0; item=el_items[i]; i++) {
+                
+                old_bit = item.getAttribute("bit_hash")
+
+                
+                for( j=0; new_bit = current_trend[j]; j++ ) {
+                
+
+                    if( old_bit === new_bit.user_hash ) {
+                        // hash match
+                        
+                        // J is where the element needs to go...
+                        trend_change_elem = item.getElementsByClassName("changed_trend")[0]
+                        var t_elem = item.querySelector("[class~=bit_trend_clicks]");
+                        //console.log(t_elem)
+                        t_elem.innerHTML = new_bit.clicks;
+                        trend_change_elem.innerHTML = _drawChanged( new_bit );                        
+                        //console.log("i, j", i, j);
+                        //item.setAttribute("style", "top:"+ j*75  +"px")
+                        break;
+                    }
+                }
+                    
+            }            
+            
+            // now deal with missinng elements
+            
+
+            
+            // bail for now
+            
+            var counter = 0;
+            console.log("I think the missing elements are", missing_elements_list)
+            for(var k in missing_elements_list) {
+                var bit_trend_item = missing_elements_list[k]
+                var clone = document.querySelector("item").cloneNode(true);
+                clone.setAttribute("bit_hash", bit_trend_item.user_hash );
+                var t_elem = clone.querySelector("[class~=bit_trend_clicks]");
+                var t_elem_1 = clone.querySelector("[class~=changed_trend]");  
+                var t_elem_2 = clone.querySelector("[class~=bit_trend_title]");                  
+                var t_elem_3 = clone.querySelector("[class~=bit_hash_value]");                                  
+                              
+
+                //console.log(t_elem, "cool")
+                t_elem.innerHTML = bit_trend_item.clicks;  
+
+                t_elem_1.innerHTML = _drawChanged( bit_trend_item );
+                t_elem_2.innerHTML = _drawHead( bit_trend_item );
+                t_elem_3.innerHTML = bit_trend_item.user_hash;
+                // addend the element now to end of container...
+                clone.setAttribute("style", "top:"+( (el_items.length+counter)*75 )+"px")
+                this.el.appendChild( clone )
+                counter+=1;
+            }
+            
+            // now let's move / animate the elements
+            
+
             //this.realtime_bits = realtime_bits;
             
             // todo
@@ -146,7 +169,7 @@
         
         update_meta : function( expand_and_meta ) {
             extend(this.cache.meta, expand_and_meta);
-            console.log( this.cache.meta )
+            //console.log( this.cache.meta )
         },
         
         cache : {
@@ -169,7 +192,7 @@
     }
     
     function addTrendingData( current_trend, trends ) {
-        console.log(arguments)
+        //console.log(arguments)
         //trends = trends.slice(0,10)
         var i=0, trend, key, j=0, past_trend, past_realtime, past_realtimes, ii=0;
         
@@ -205,13 +228,13 @@
                     // if something
                     // should be about to break at least this loop.
                 }
-                console.log("---marker---")
+                //console.log("---marker---")
             }
                 
-                console.log("+++++++++---switch marker---")
+                //console.log("+++++++++---switch marker---")
         }
         
-        console.log(current_trend)
+        //console.log(current_trend)
         
         return current_trend;
     }
@@ -262,24 +285,37 @@
         var html = "";
                     
         html += '<div class="bit_trend_clicks">' + url.clicks + '</div>';
-        html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
-        if(url.time_diff) {
-            html += '<div class="changed_trend">';                
-                html += _drawChanged( url );
-            html += '</div>';
-        }                        
+        html += _drawHead( url );
+
+        html += '<div class="changed_trend">';                         
+            html += _drawChanged( url );
+        html += '</div>';
+      
         
-        html += '<div>'+ url.user_hash +'</div>'
-        html += '<div>Total: ' + commify( url.user_clicks )  + " of " + commify( url.global_clicks )  + '</div>';
+        html += '<div class="bit_hash_value">'+ url.user_hash +'</div>'
+        //html += '<div>Total: ' + commify( url.user_clicks )  + " of " + commify( url.global_clicks )  + '</div>';
         return html;
+    }
+    function _drawHead( url ) {
+        var html = "";
+        html += '<div class="bit_trend_title">'
+            html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
+        html += '</div>'
+        
+        return html;        
     }
     
     function _drawChanged(url) {
         var html = "";
+        
+        if(url.time_diff) {
+            html += 'Changed: ' + Math.ceil( url.percent_change ) +"%";
+            html += url.time_diff;
+            html += ' from ' + url.past_clicks + ' clicks';            
+        } else {
+            html += "No change"
+        }
 
-        html += 'Changed: ' + Math.round( url.percent_change ) +"%";
-        html += url.time_diff;
-        html += ' from ' + url.past_clicks + ' clicks';
 
         return html;
         
