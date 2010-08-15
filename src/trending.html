@@ -7,77 +7,77 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="bit.ly" />
         <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
-        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" /> 
-        <link rel="stylesheet" href="css/trending.css" type="text/css" charset="utf-8" />           
-             
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/trending.css" type="text/css" charset="utf-8" />
+    
     </head>
     <body>
         <div id="container">
-
+            
             <div id="top">
-
+             
              <div id="blueBanner">
                   <ul class="ext_nav_list">
                       <!-- <li><a class="openOptions" href="">Options</a></li> -->
                   </ul>
-
+              
               </div>
-
+              
               <div id="logo">
                   <a href="http://bit.ly/"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
               </div>
               <!-- <div id="ext_top_nav">
                   <div id="ext_top_nav_inner">
-
+                  
                   </div>
                   <div class="hr"><hr /></div>
               </div> -->
-
+            
             </div> <!-- end #top -->
             
             <div id="middle">
                 
                 
                 <div>
-
+                    
                     <div id="page_header_box">
-
+                        
                         <ul>
                             <li><a href="#">Last Hour</a></li>
                             <!-- <li><a href=""></a></li>                             -->
                         </ul>
                         <h1 id="trending_links_hed">Trending Links</h1>
-                        
+                    
                     </div>
-
+                    
                     
                     <div id="trending_container">
-
-                    </div>
                     
+                    </div>
+                
                 </div>
 
-
-            </div> <!-- END #middle -->
-        
-            <div id="bottom">
-
-            </div> <!-- end #bottom -->
             
+            </div> <!-- END #middle -->
+            
+            <div id="bottom">
+            
+            </div> <!-- end #bottom -->
+        
         </div> <!-- end #container -->
-    
-        <script type="text/javascript" src="js/libs/common.js"></script>    
-        <script type="text/javascript" src="js/libs/backtweet.js"></script> 
-        <script type="text/javascript" src="js/libs/timeFormat.js"></script>  
-        <script type="text/javascript" src="js/libs/emile.js"></script>                                                  
-        <script type="text/javascript" src="js/libs/bitTrends.js"></script>               
+        
+        <script type="text/javascript" src="js/libs/common.js"></script>
+        <script type="text/javascript" src="js/libs/backtweet.js"></script>
+        <script type="text/javascript" src="js/libs/timeFormat.js"></script>
+        <script type="text/javascript" src="js/libs/emile.js"></script>
+        <script type="text/javascript" src="js/libs/bitTrends.js"></script>
         <script type="text/javascript" charset="utf-8">
             // global variable definitions
             
             
             /*
                 var aa = document.getElementsByTagName("div")
-                aa[0].setAttribute("style", 'color:pink; background:red;' )            
+                aa[0].setAttribute("style", 'color:pink; background:red;' )
                 
                 
                 totally works..
@@ -88,30 +88,14 @@
                 var i=0, urls = current_trend_list, url, links = jo && jo.expand_and_meta,
                     item, html = "";
                     
-                    
-                bitly_trends.update_meta( links );    
+                
+                bitly_trends.update_meta( links );
                 bitly_trends.draw();
-                    
-                    
-                // html += timeFormat( realtimes_from_cache.timestamp );
-                // html += '<ul>'
-                // for( ; url=urls[i]; i++) {
-                //     item = links[ ("http://bit.ly/" + url.user_hash) ];
-                //     html += '<li>'
-                //         
-                //         html += '<div>' + url.clicks + '</div>'
-                //         html += escaper( item.title || item.long_url )
-                //         html += '<div>Total: ' + commify( item.user_clicks )  + " of " + commify( item.global_clicks )  + '</div>';
-                //     html += '</li>'                    
-                // }
-                // 
-                // html += '</ul>'
-                // 
-                // // you don't have to get elements by ID anymore?? They are just page vars?!
-                // trending_container.innerHTML = html;
+            
             }
             
             function latest_trends(jo) {
+                // I need to see if I know about these links already....
                 var i=0, realtime, realtimes = jo && jo.realtime_links, urls = [];
                 current_trend_list = realtimes;
                 realtimes_from_cache = jo;
@@ -119,7 +103,7 @@
                     urls.push( "http://bit.ly/" + realtime.user_hash );
                 }
                 if(urls.length<=0) { return; }
-                chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : urls },  expand_callback );                              
+                chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : urls },  expand_callback );
             }
             
             function trends_watcher() {
@@ -128,18 +112,19 @@
                 trends_internval = setInterval(function() {
                     ///bg.get_realtime_metrics(  );
                     chrome.extension.sendRequest({'action' : 'realtime_metrics'}, latest_trends)
-                }, 30000)                
+                }, 30000)
             }
             
             var bg = chrome.extension.getBackgroundPage(),
-                realtimes_from_cache = bg.localfetch("realtime"), 
+                realtimes_from_cache = bg.localfetch("realtime"),
                 trends_internval, current_trend_list = [],
                 link_trends = bg.localfetch("trends");
-                
-            console.log("link trends", link_trends)    
-                
+            
+            console.log("link trends", link_trends)
+            
             var bitly_trends = bitTrends( trending_container, realtimes_from_cache );
             //bitly_trends.update_realtime( [] );
+            bitly_trends.update_trends( link_trends );
             latest_trends( realtimes_from_cache  );
             //trends_watcher();
             
@@ -148,13 +133,13 @@
             // addEventListener('blur', function(e) {
             //     if(trends_internval) clearInterval(trends_internval);
             // });
-            // 
+            //
             // addEventListener('focus', function(e) {
             //     trends_watcher();
-            // });            
+            // });
             
             
-            
+
 
 /*
 so I have this trends list, bg.localfetch("trends") || [];
@@ -168,31 +153,31 @@ I want to break up the display to show two things
 
 .... still active links
         For the link, it should be sorted in order of the current most popular
-        
-            ... for each current item (aka the trending link): 
+            
+            ... for each current item (aka the trending link):
                                 loop through and find:
                                         it's position since the last query, plus time elapse
                                         it's total change over time
-                                        
+                                
                                 call backTweet("api_key").fetch() and get social info
                                 
-                                do an expand and meta call        
-                    
+                                do an expand and meta call
+
 
 ... links that fell out
-                Loop over all trends, find all hashes that aren't 
+                Loop over all trends, find all hashes that aren't
 
 
 
 If there was a checkbox on the popup back to track.
-        It should start a timer, and get the trending links, if that link appears in trending, 
+        It should start a timer, and get the trending links, if that link appears in trending,
             set off a desktop notification
-            
+        
         
         Separate, but related is the 'threshold' marker,
             this should be more lazy, it should look up metrics only for that url, every N minutes
             Once the tolerance is reached, a notifitcation is set off, and the check is stopped for that link
-            
+        
         
         
         Put an Eyeball icon, with hover (watch this url), text watch next to the copy button
@@ -207,9 +192,9 @@ ANIMATIOns
     have it disappear into 'graveyard' below
 
 */
-            
 
+        
         </script>
-      
+    
     </body>
 </html>
