@@ -180,6 +180,7 @@
         }
         
         function display_notification() {
+            if( get_latest_notifications().length <=0 ) return;
             // Or create an HTML notification:
             // check the viewm, make sure I don't have one open
             var notification = webkitNotifications.createHTMLNotification(
@@ -190,18 +191,36 @@
             //   'Bit Watch',  // notification title
             //   'Lorem ipsum...'  // notification body text
             // );        
-            notification.show();            
+            notification.show();  
+            
+            return true;          
         }
         
-        function get_latest_notification() {
+        function get_latest_notifications() {
             var notes = localfetch("notifications") || [];
+            return notes;
+        }
+        
+        function remove_notification() {
+            // var i=0, note, notes = get_latest_notifications, positions=[];
+            // for( ; note=notes[i]; i++) {
+            //     if(note.short_url === short_url) { positions.push(i); }
+            // }
+            // for(i=0;i<positions.length; i++) {
+            //     notes
+            // }
+            var notes = get_latest_notifications();
+            notes.shift();
+            
+            localstore("notifications", notes);
+            bit_db.save("notifications", notes, function() {
+                // save success...
+            });            
         }
         
         function set_notification( note ) {
             var notes = localfetch("notifications") || [];
-            
-            notes.push();
-            
+            notes.push(  note );
             localstore("notifications", notes);
             bit_db.save("notifications", notes, function() {
                 // save success...
@@ -209,30 +228,56 @@
         }
         
         function watch_and_alert() {
-            var bit_interval, i=0, list, item, short_urls = [], hash;
+            var i=0, w_list, item, short_urls = [], hash, j=0;
             bit_interval = setInterval(function() {
                 
                 // make bit.ly call now...
-                list = get_watch_list();
-                if(list.length<=0) {
+                w_list = get_watch_list();
+                if(w_list.length<=0) {
                     clearInterval( bit_interval );
                     return;
                 }
-                // short_urls = [];
-                // for(i=0;item=list[i]; i++) {
-                //     short_urls.push(item.short_url);
-                // }
-                // bitly.clicks(short_urls, function(jo) {
-                //     console.log("clicks watch list response", jo)
-                // })
-                bitly.realtime(function(jo) {
+
+                get_realtime_metrics(function(jo) {
                     // now check the threshold of the links, see if it's in here
                     // break down short url
+                    var link, links = jo && jo.realtime_links;
+                    short_urls=[];
+                    for(i=0; link=links[i]; i++) {
+                        for(j=0; item=w_list[j]; j++) {
+                            hash = (item.short_url.split("/")).reverse().shift()                            
+                            if( hash === link.user_hash && item.threshold <= link.clicks ) {
+                                short_urls.push( item.short_url );
+                                break;
+                            }
+                        }   
+                    }
                     
-                    for(i=0;item=list[i]; i++) {
-                        hash = (item.short_url.split("/")).reverse().shift()
-                        console.log(hash, jo)
-                    }                    
+                    if(short_urls.length<=0) return;
+                    
+                    bitly.expand_and_meta( short_urls, function(jo) {
+                        // add to the notifications, remove from the list...
+                        var bit_result;
+                        console.log("expanded watchlist urls", jo)
+                        for(var k in jo.expand_and_meta) {
+                            bit_result = jo.expand_and_meta[k];
+                            for(i=0;i<links.length;i++) { 
+                                if(links[i].user_hash === bit_result.user_hash) {
+                                    bit_result.trend_clicks = links[i].clicks;
+                                    break;
+                                }
+
+                            }
+                            console.log(bit_result.short_url)
+                            remove_watch_item( bit_result.short_url );
+                            set_notification(bit_result);
+                        }
+                        // 1. remove from 'list' remove_watch_item( short_url )
+                        // 2. set_notification( jo.something[i] )
+                        // 3. see if notifications length is great then zero
+                        // 4. callnotification, display_notification();
+                        display_notification();
+                    } );
                     
                 })
                 
@@ -252,28 +297,26 @@
             
             // I can send the entire watch list, the callback should just loop over the results....
         }
-        function set_watch_list( list ) {
+        function set_watch_list( watch_list ) {
             // careful, overwrites, doesn't append
-            localstore("watch_list", list)
-            bit_db.save("watch_list", list, function() {
+            console.log(watch_list)
+            localstore("watch_list", watch_list)
+            bit_db.save("watch_list", watch_list, function() {
                 // do something
+                console.log(arguments, "set watch list")
             });
         }
         
         function remove_watch_item( short_url ) {
-            var list = localfetch("watch_list") || [], i=0, item, position=null;
-            for( ; item=list[i]; i++) {
-                if(item.short_url === short_url) {
-                    position = i;
-                    break;
+            console.log(short_url, "remove this url")
+            var w_list = get_watch_list(), i=0, watch_item, clean_list=[];
+            for( var i=0, watch_item; watch_item=w_list[i]; i++) {
+                if(watch_item.short_url !== short_url) {
+                    clean_list.push( watch_item );
                 }
             }
-            
-            if(position !== null) {
-                list.splice(position,1);
-                set_watch_list( list );
-            }
-            
+            console.log("clean list is ", clean_list)
+            set_watch_list( clean_list );           
         }
         
         function share_message( message, callback) {
@@ -618,7 +661,7 @@
         // the bit.ly API worker
         logger("Initialize bit.ly extension");
         var bitly=init_api(), bit_db=init_db(),
-            domains_list, auto_expand_urls = true,
+            domains_list, auto_expand_urls = true, bit_interval, // bit_interval is the timer for watch list
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         

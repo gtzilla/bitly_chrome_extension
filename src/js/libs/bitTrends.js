@@ -232,10 +232,16 @@
     // ((current_value/old_value) - 1)*100 ... if oldvalue is 0, it's gonna throw an error
     // Take the new, "current value" and divide it by the old, obsolete value. Subtract 1.00 (or 100%) from the result.
     function _q( query, context ) {
-        // returns list, not a live collection...
-        var d_context = context || document;
-        return d_context.querySelectorAll( query )
+        // returns single element
+        // cotentext is optional, expects DOM element
+        context = context || document;
+        return context.querySelector( query )
     }
+    function _qAll( query, context ) {
+        // returns list, not a live collection...
+        context = context || document;
+        return context.querySelectorAll( query );
+    }    
     
     function addTrendingData( current_trend, trends ) {
         //console.log(arguments)
@@ -247,9 +253,6 @@
             key = trend.user_hash;
             
             for(j=0; past_trend = trends[j]; j++) {
-                // console.log( past_trend );
-                // console.log(past_trend.realtime_links)
-                // console.log(past_trend.realtime_links)
                 past_realtimes = past_trend.realtime_links;
                 for(ii=0; past_realtime=past_realtimes[ii]; ii++) {
                     //console.log(past_realtime)
@@ -261,8 +264,6 @@
                         trend.depth=j;
                         if(past_realtime.clicks !== 0) {
                             trend.percent_change = ((trend.clicks/past_realtime.clicks-1)*100);
-                            
-                            
                             trend.time_diff = timeFormat( past_trend.timestamp );
                         } else {
                             trend.percent_change=100
@@ -270,17 +271,10 @@
                         
                         continue outerLoop;
                     }
-                    // change in last 5 minutes....
-                    // if something
-                    // should be about to break at least this loop.
                 }
-                //console.log("---marker---")
             }
                 
-                //console.log("+++++++++---switch marker---")
         }
-        
-        //console.log(current_trend)
         
         return current_trend;
     }
@@ -299,6 +293,8 @@
         
         return final_results;
         /*
+        
+        notes:
             this method dates the { user_hash : '', clicks : '' } object from the realtime respond
                 and add the data from the expand_and_meta call, created one, massive object
             
@@ -324,7 +320,6 @@
         }
         
         html += '</div>';
-        // you don't have to get elements by ID anymore?? They are just page vars?!
         return html;
     }
     
@@ -379,7 +374,7 @@
             html += ' from ' + url.past_clicks + ' clicks';
             html += ' <a href="http://bit.ly/'+url.user_hash+'+" target="new">more info +</a>';            
         } else {
-            html += "No change"
+            html += "No change 1 min ago";  
         }
 
 

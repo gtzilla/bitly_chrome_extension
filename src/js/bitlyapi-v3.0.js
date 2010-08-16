@@ -128,8 +128,8 @@ BitApi.prototype = {
             }
         }
         this.expand( short_urls, sticher );
-        this.clicks( short_urls, sticher);
         this.info( short_urls, sticher );
+        this.clicks( short_urls, sticher);
     },
     
     
