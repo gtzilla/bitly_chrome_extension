@@ -236,7 +236,7 @@
                     
                 })
                 
-            }, 45000);
+            }, 5000);
         }
         
         function get_watch_list() {
@@ -245,7 +245,7 @@
         
         function set_watch_item( short_url, threshold ) {
             var list = localfetch("watch_list") || [];
-            list.push( {'short_url': short_url, 'threshold': threshold } );
+            list.push( {'short_url': short_url, 'threshold': threshold, 'timestamp' : _now() } );
             set_watch_list( list );
             
             // set timeout or set interval?????
