@@ -19,7 +19,7 @@
         return new bTrend( el, realtime_bits );
     }
     window.bitTrends = bitTrends;
-
+    var trend_heigt = 75;
 // all the real work, this was all a $.fn.whatever really is anyway, except it inherited the jQuery info
     function bTrend( el, realtime_bits ) {
         
@@ -81,7 +81,7 @@
 
             // todo
             // check the timestamp whether to 'shift' array or not, aka if they are the same, remove it.
-            trends.shift();
+            //trends.shift();
             current_trend = addTrendingData( current_trend, trends );            
             //console.log(new_bits)
             for(i=0; i<old_bits.length; i++) { old_bit_hash_keys.push( (old_bits[i]).user_hash  ) }
@@ -118,10 +118,8 @@
                         trend_change_elem = item.getElementsByClassName("changed_trend")[0]
                         var t_elem = item.querySelector("[class~=bit_trend_clicks]");
                         //console.log(t_elem)
-                        t_elem.innerHTML = new_bit.clicks;
+                        t_elem.innerHTML = _drawClicks( new_bit );
                         trend_change_elem.innerHTML = _drawChanged( new_bit );                        
-                        //console.log("i, j", i, j);
-                        //item.setAttribute("style", "top:"+ j*75  +"px")
                         break;
                     }
                 }
@@ -132,7 +130,19 @@
             
 
             
-            // bail for now
+            // TODO
+            // refactor and cleanup, yuck
+            
+            for(i=0;i<el_items.length; i++ ) {
+                var b_hash = el_items[i].getAttribute("bit_hash");
+                if(bit_hash_keys.indexOf( b_hash ) === -1 ) {
+                    el_items[i].parentNode.removeChild( el_items[i] );
+                    // todo
+                    // todo: serious
+                    // todo: now move everything from here - down, up
+                    // 2-length, move by 75  pixels up (top)
+                }
+            }            
             
             var counter = 0;
             console.log("I think the missing elements are", missing_elements_list)
@@ -147,24 +157,60 @@
                               
 
                 //console.log(t_elem, "cool")
-                t_elem.innerHTML = bit_trend_item.clicks;  
+                t_elem.innerHTML = _drawClicks( bit_trend_item );  
 
                 t_elem_1.innerHTML = _drawChanged( bit_trend_item );
                 t_elem_2.innerHTML = _drawHead( bit_trend_item );
                 t_elem_3.innerHTML = bit_trend_item.user_hash;
                 // addend the element now to end of container...
-                clone.setAttribute("style", "top:"+( (el_items.length+counter)*75 )+"px")
-                this.el.appendChild( clone )
+                var el_position =  (el_items.length+counter)*trend_heigt;
+                clone.setAttribute("style", "top:"+el_position+"px")
+                clone.setAttribute("bit_position", el_position)
+                bitTrendsBox.appendChild( clone )
                 counter+=1;
             }
             
-            // now let's move / animate the elements
             
+            
+            /// remove 'old elements'
+            // this is stuff that fell out.
 
-            //this.realtime_bits = realtime_bits;
             
-            // todo
-            // redraw, fancy style...
+            // important
+            // update for later, otherwise elements get dupped
+            this.realtime_bits = realtime_bits;
+            
+            
+            
+            
+            // now let's move / animate the elements
+            // so if I loop over the el_items, I should be able to move to their location in the new_bits array
+            
+            for(i=0; i<current_trend.length; i++) {
+                // alright, now find this elements position...
+                var trend_el, b_pos;
+                //console.log(bitTrendsBox.getElementsByTagName("item"))
+                try{
+                    trend_el= bitTrendsBox.querySelector("[bit_hash~='"+ current_trend[i].user_hash +"']");
+                } catch(e){
+                    // take this node out??
+                }
+                b_pos = trend_el.getAttribute("bit_position")*1
+                if( i*trend_heigt === b_pos ) {
+                    console.log("position is the same")
+                } else {
+                    console.log("move this element from", b_pos, "to", i*trend_heigt, "px")
+                    trend_el.setAttribute("bit_position", (i*trend_heigt) )
+                    //trend_el.setAttribute("style", "top:"+ (i*trend_heigt)  +"px")  
+                    
+                    
+                    emile(trend_el, "top:"+ (i*trend_heigt)  +"px;", { 
+                            duration: 1700
+                          });                    
+                                      
+                }
+
+            }
         },
         
         update_meta : function( expand_and_meta ) {
@@ -266,12 +312,13 @@
     function drawTrendElements( current_trend_list ) {
         
         var i=0, urls = current_trend_list, url,
-            item, html = "", height=75;
-        html += timeFormat( realtimes_from_cache.timestamp );
+            item, html = "", height=trend_heigt;
+        //html += timeFormat( realtimes_from_cache.timestamp );
+        console.log(realtimes_from_cache.timestamp)
         html += '<div class="bitTrendsOuterContainer" id="bitTrendsBox">';
         for( ; url=urls[i]; i++) {
             
-            html += '<item style="top:'+  i*height +'px;" class="bit_trend_item" bit_hash="'+url.user_hash+'">';            
+            html += '<item bit_position="'+i*height+'" style="top:'+  i*height +'px;" class="bit_trend_item" bit_hash="'+url.user_hash+'">';            
                 html += _drawItem( url );
                 html += '</item>';                 
         }
@@ -284,32 +331,47 @@
     function _drawItem( url, pos ) {
         var html = "";
                     
-        html += '<div class="bit_trend_clicks">' + url.clicks + '</div>';
-        html += _drawHead( url );
+        html += '<div class="bit_trend_clicks">';
+            html += _drawClicks( url );
+        html += '</div>'
 
-        html += '<div class="changed_trend">';                         
-            html += _drawChanged( url );
-        html += '</div>';
-      
-        
-        html += '<div class="bit_hash_value">'+ url.user_hash +'</div>'
+
+        html += '<div class="bit_trends_meta">'
+            html += _drawHead( url );        
+            html += '<div class="changed_trend">';                         
+                html += _drawChanged( url );
+            html += '</div>';
+            html += '<div class="bit_hash_value" style="display:none;">'+ url.user_hash +'</div>'
+        html += '</div>'
+        html += '<div class="hr"><hr /></div>'
         //html += '<div>Total: ' + commify( url.user_clicks )  + " of " + commify( url.global_clicks )  + '</div>';
+        return html;
+    }
+    
+    function _drawClicks( url ) {
+        var html = "";
+            html += '<div class="click_number">' + commify( url.clicks ) + '</div>';
+            html += '<div class="smallText">clicks</div>'        
         return html;
     }
     function _drawHead( url ) {
         var html = "";
         html += '<div class="bit_trend_title">'
+            html += '<h3>'
             html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
+            html += '</h3>'
         html += '</div>'
         
         return html;        
     }
     
     function _drawChanged(url) {
-        var html = "";
+        var html = "", dir = "up";
         
         if(url.time_diff) {
-            html += 'Changed: ' + Math.ceil( url.percent_change ) +"%";
+            dir = (url.percent_change > 0) ? "up" : "down";
+            html += '<img src="s/graphics/'+dir+'_arrow.png" alt="0" border="0" width="9" height="9" />'
+            html += ' ' + Math.ceil( url.percent_change ) +"%";
             html += url.time_diff;
             html += ' from ' + url.past_clicks + ' clicks';            
         } else {

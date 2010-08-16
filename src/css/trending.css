@@ -8,3 +8,51 @@
     top:0;
     height:75px;
 }
+
+
+.bit_trend_clicks {
+    float:left;
+    width:60px;
+    min-height:30px;
+    text-align:left;
+}
+.click_number {
+    font-size:18px;   
+    color:#777; 
+}
+.bit_trend_title h3 {
+    font-size:15px;       
+    font-weight:normal;
+    overflow: hidden;
+    text-overflow: ellipsis;    
+    white-space: nowrap;
+}
+.bit_trends_meta {
+    width:700px;
+    float:left;
+}
+#trending_links_hed {
+    font-size:28px;
+    color:#999;
+    padding:0 0 8px;
+    
+}
+
+#page_header_box {
+    border-bottom:1px solid #ccc;
+    margin-bottom:20px;    
+    padding:10px 0 0;
+    position:relative;
+}
+.controls_list {
+    position:absolute;
+    right:0px;
+    bottom:12px;
+}
+.controls_list a {
+    color:#999;
+}
+.smallText {
+    font-size:13px;
+    color:#999;
+}

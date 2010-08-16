@@ -42,12 +42,12 @@
                     
                     <div id="page_header_box">
                         
-                        <ul>
-                            <li><a href="#">Last Hour</a></li>
+                        <ul class="controls_list">
+                            <li><a href="#">Past hour</a></li>
                             <!-- <li><a href=""></a></li>                             -->
                         </ul>
-                        <h1 id="trending_links_hed">Trending Links</h1>
-                    
+                        <h1 id="trending_links_hed">Trending Bits</h1>
+                        <div class="hr"><hr /></div>
                     </div>
                     
                     
@@ -96,8 +96,11 @@
             
             function watcher_callback( jo ) {
                 
-                var links = jo && jo.expand_and_meta || {};
+                var links = jo && jo.expand_and_meta || {},
+                    link_trends = bg.localfetch("trends")                
                 bitly_trends.update_meta( links );
+                
+                bitly_trends.update_trends( link_trends );                
                 bitly_trends.update_realtime( realtimes_from_cache );
             }
             
