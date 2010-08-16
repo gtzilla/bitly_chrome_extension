@@ -179,6 +179,103 @@
         
         }
         
+        function display_notification() {
+            // Or create an HTML notification:
+            // check the viewm, make sure I don't have one open
+            var notification = webkitNotifications.createHTMLNotification(
+              'notification.html'  // html url - can be relative
+            );
+            // var notification = webkitNotifications.createNotification(
+            //   's/graphics/bitly_fish_48.png',  // icon url - can be relative
+            //   'Bit Watch',  // notification title
+            //   'Lorem ipsum...'  // notification body text
+            // );        
+            notification.show();            
+        }
+        
+        function get_latest_notification() {
+            var notes = localfetch("notifications") || [];
+        }
+        
+        function set_notification( note ) {
+            var notes = localfetch("notifications") || [];
+            
+            notes.push();
+            
+            localstore("notifications", notes);
+            bit_db.save("notifications", notes, function() {
+                // save success...
+            });
+        }
+        
+        function watch_and_alert() {
+            var bit_interval, i=0, list, item, short_urls = [], hash;
+            bit_interval = setInterval(function() {
+                
+                // make bit.ly call now...
+                list = get_watch_list();
+                if(list.length<=0) {
+                    clearInterval( bit_interval );
+                    return;
+                }
+                // short_urls = [];
+                // for(i=0;item=list[i]; i++) {
+                //     short_urls.push(item.short_url);
+                // }
+                // bitly.clicks(short_urls, function(jo) {
+                //     console.log("clicks watch list response", jo)
+                // })
+                bitly.realtime(function(jo) {
+                    // now check the threshold of the links, see if it's in here
+                    // break down short url
+                    
+                    for(i=0;item=list[i]; i++) {
+                        hash = (item.short_url.split("/")).reverse().shift()
+                        console.log(hash, jo)
+                    }                    
+                    
+                })
+                
+            }, 45000);
+        }
+        
+        function get_watch_list() {
+            return localfetch("watch_list") || [];
+        }
+        
+        function set_watch_item( short_url, threshold ) {
+            var list = localfetch("watch_list") || [];
+            list.push( {'short_url': short_url, 'threshold': threshold } );
+            set_watch_list( list );
+            
+            // set timeout or set interval?????
+            
+            // I can send the entire watch list, the callback should just loop over the results....
+        }
+        function set_watch_list( list ) {
+            // careful, overwrites, doesn't append
+            localstore("watch_list", list)
+            bit_db.save("watch_list", list, function() {
+                // do something
+            });
+        }
+        
+        function remove_watch_item( short_url ) {
+            var list = localfetch("watch_list") || [], i=0, item, position=null;
+            for( ; item=list[i]; i++) {
+                if(item.short_url === short_url) {
+                    position = i;
+                    break;
+                }
+            }
+            
+            if(position !== null) {
+                list.splice(position,1);
+                set_watch_list( list );
+            }
+            
+        }
+        
         function share_message( message, callback) {
             var a = localfetch("share_accounts"),
                 accounts = a && a.share_accounts || [],
@@ -411,6 +508,14 @@
                 localstore("auto_copy", jo.copy );
             })
         }
+
+        function set_notifications_from_cache() {
+            bit_db.find("notifications", function(jo) {
+                if(jo === undefined) return;
+                localstore("notifications", jo );
+            })
+        }
+
         
         function set_auto_expand_from_cache() {
             bit_db.find("auto_expand_urls", function(jo) {
@@ -524,8 +629,9 @@
         set_api_domain_from_cache();
         set_no_expand_domains_from_cache();
         set_auto_copy_from_cache();
+        set_notifications_from_cache();
 
-        
+       
         
         /*
             Listen for requests from content scripts, popups and other pages etc

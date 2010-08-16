@@ -65,12 +65,7 @@ BitApi.prototype = {
         this.set_oauth_credentials( client_id, client_secret );
         return this;
     },
-    
-    realtime : function( callback ) {
-        var params = { 'access_token' : this.bit_request.access_token }
-        bitlyRequest( ssl_host + urls.realtime, params, callback);
-    },
-    
+        
     shorten : function( long_url, callback ) {
         var params = extend({}, this.bit_request, { 'longUrl' : long_url } );
         delete params.access_token

@@ -357,9 +357,12 @@
     function _drawHead( url ) {
         var html = "";
         html += '<div class="bit_trend_title">'
-            html += '<h3>'
-            html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
-            html += '</h3>'
+            html += '<div class="treadHeader">'
+                html += '<h3>'
+                html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
+                html += '</h3>'
+            html += '</div>';
+            html += '<div class="longlink"><a href="'+escaper(url.long_url)+'">'+escaper(url.long_url)+'</a></div>'
         html += '</div>'
         
         return html;        
@@ -372,8 +375,9 @@
             dir = (url.percent_change > 0) ? "up" : "down";
             html += '<img src="s/graphics/'+dir+'_arrow.png" alt="0" border="0" width="9" height="9" />'
             html += ' ' + Math.ceil( url.percent_change ) +"%";
-            html += url.time_diff;
-            html += ' from ' + url.past_clicks + ' clicks';            
+            html += url.time_diff.toLowerCase();
+            html += ' from ' + url.past_clicks + ' clicks';
+            html += ' <a href="http://bit.ly/'+url.user_hash+'+" target="new">more info +</a>';            
         } else {
             html += "No change"
         }
