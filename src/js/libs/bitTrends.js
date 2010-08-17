@@ -361,12 +361,12 @@
             html += ' ' + Math.ceil( url.percent_change ) +"%";
             html += url.time_diff.toLowerCase();
             html += ' from ' + url.past_clicks + ' clicks';
-            html += ' <a href="http://bit.ly/'+url.user_hash+'+" target="new">more info +</a>';            
+
         } else {
-            html += "No change 1 min ago";  
+            html += "No change 1 min ago ";  
         }
 
-
+        html += ' <a href="http://bit.ly/'+url.user_hash+'+" target="new">more info +</a>';            
         return html;
         
     }
