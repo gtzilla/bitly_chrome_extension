@@ -1,6 +1,6 @@
 {
   "name": "bit.ly | a simple URL shortener",
-  "version": "1.1.0.14",
+  "version": "1.2.0.1",
   "options_page": "options.html",
   "description": "Shorten and Share, right from your browser, instantly",
   "background_page": "background.html",

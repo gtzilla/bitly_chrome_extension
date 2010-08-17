@@ -86,19 +86,22 @@
                         <h3>Trend Notifications</h3>
                         <p>Automatically notify me when a link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour.</p>
                         <div>
-                            <input type="checkbox" name="auto_copy_short_urls" checked value="" id="auto_copy_short_urls">
-                            <label for="auto_copy_short_urls">Allow link watching</label>
+                            <input type="checkbox" name="auto_copy_short_urls" checked value="" id="watch_urls">
+                            <label for="watch_urls">Allow link watching</label>
                             
-                            <div class="inputContainer">
+                            <div class="smallInputContainer notificationInnerContainer" style="display:none;">
+                            <form id="notifications_form" action="#" method="get" accept-charset="utf-8">
+                                
+                                <label for="click_threshold">Click Threshold</label>
+                                <input type="text" name="click_threshold" value="20" id="click_threshold">
+                                <input type="submit" class="activeButtons mediumSizeButton" id="submitClickThreshold" value="Update" id="some_name">
 
-                               <label for="click_threshold">Click Threshold</label>
-                               <input type="text" name="click_threshold" value="20" id="click_threshold">
-                                <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Update" id="some_name">
+                            </form>
+
+                                
+                                <p class="no_domains_note">Note: Changes to threshold only apply to newly watched links. Threshold can be any integer from 10-400</p>
                             </div>
-                            
-                            <div>
-                                <p>Note: Changes to threshold only apply to newly watched links</p>
-                            </div>
+
                         
                         </div>
                     </div>                    
@@ -174,6 +177,7 @@
             <script type="text/javascript" charset="utf-8">
                 
                 var bg = chrome.extension.getBackgroundPage(),
+                    note_prefs = bg.get_note_preferences(),
                     user_data = bg.localfetch("user_data"),
                     auto_copy_elem = _id("auto_copy_short_urls"),
                     errors_box_elem = _id("errors_box"),
@@ -381,6 +385,17 @@
                         auto_copy_elem.checked=false;
                     }
                     set_api_radio_button();
+                    
+                    if( note_prefs ) {
+                        watch_urls.checked=note_prefs.enabled;
+                        var show_watch_check = (note_prefs.enabled) ? "block" : "none";
+                        
+                        _q('.notificationInnerContainer').style.display=show_watch_check;
+                        _q('[type=text]', notifications_form).value = note_prefs.threshold || 20;                        
+                    } 
+
+                    
+                    
                 } else {
                     elem = _id("signedout_info_contents");
                     elem.style.display="block";
@@ -471,7 +486,29 @@
                     
                     }
                 
+                });
+                
+                
+                notifications_form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var thres = _q("[type=text]", this), safe_value;
+                    console.log(thres.value);
+                    safe_value = Math.max(thres.value, 10);
+                    safe_value = Math.ceil( Math.min(safe_value, 500) );
+                    // todo
+                    // error handle, more than 0 clicks
+                    bg.set_note_preferences( { 'enabled': true, 'threshold' : safe_value } );                    
+
                 })
+                
+                watch_urls.addEventListener('change', function(e) {
+                    bg.set_note_preferences( { 'enabled': e.target.checked } );
+                    var shown = "none"
+                    if(e.target.checked) {
+                        shown="block";
+                    }
+                    _q('.notificationInnerContainer').style.display=shown;                    
+                });
                 
                 api_form_elem.addEventListener('change', function(e) {
                     //e.target,

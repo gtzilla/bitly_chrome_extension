@@ -127,7 +127,8 @@
             
             function update_share_box( message, short_url ) {
                 _id("loading_short_url").style.display="none";                
-                var copy_elem_wrap = _id("copy_elements_wrapper");
+                var copy_elem_wrap = _id("copy_elements_wrapper"), 
+                    watched = bg.get_watch_list(), i=0, watch;
                 
                 txtarea_short_url.value = short_url;
                 txtarea.innerText = message;
@@ -145,6 +146,12 @@
                     copy_to_clipboard();
                     _id("copy_link_button").innerText = "Copied";
                 } 
+                
+                for( ; watch=watched[i]; i++) {
+                    if(watch.short_url === short_url) {
+                        _q('.watchLinkButton').innerText="Watched";
+                    }
+                }
                 
                 setTimeout(function() {
                     update_char_count();
@@ -273,9 +280,14 @@
                 char_count_box_elem = _id("char_count_box"),
                 active_account_list = [], b = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(), current_meta = {},
-                message_box_elem = _id("message_box");
+                message_box_elem = _id("message_box"),
+                watch_preferences = bg.get_note_preferences();
             
             // Shorten the current tab
+            if(!watch_preferences.enabled) {
+                _q('.watchContainerOuter').style.display="none";
+            }
+                
             chrome.tabs.getSelected(null, function( curr_tab) {
                
                console.log( curr_tab );
@@ -387,8 +399,8 @@
             _q(".watchLinkButton").addEventListener('click', function(e) {
                 e.preventDefault();
                 // get a real value...
-                
-                bg.set_watch_item(current_short_url, 20);
+                var note_prefs = bg.get_note_preferences();
+                bg.set_watch_item(current_short_url, note_prefs.threshold || 20);
                 e.target.innerHTML = "Watched"
                 bg.watch_and_alert();
             })

@@ -63,19 +63,36 @@
 
 /* sign up form */ 
 
-.inputContainer {
+.inputContainer, .smallInputContainer {
     margin-bottom:10px;
+}
+.smallInputContainer label {
+    display:block;
+    font-size:15px;
+    margin-bottom:3px;
+    color:#666;
 }
 .inputContainer label { 
     display:block;
-    font-size:16px;
+    font-size:15px;
     color:#666;
     margin-bottom:3px;
 }
-
+.smallInputContainer input[type=text] {
+    margin-right:5px;
+    border-radius:6px;
+    padding:5px 8px;
+    border:1px solid #ccc;        
+    font-size:15px; 
+    width:100px; 
+    color:#454545;    
+}
+.notificationInnerContainer {
+    padding:10px 0 0 16px;
+}
 .inputContainer input[type=text], .inputContainer input[type=password], .mediumSizeInputField { 
     width:220px;
-    font-size:16px;
+    font-size:15px;
     color:#454545;
     border:1px solid #ccc;
     margin-right:5px;
