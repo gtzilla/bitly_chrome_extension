@@ -5,6 +5,12 @@ to fix the open issue with calls to all_domains that aren't logged in, required 
     ... then if I am get signed in, it should call all_domains then....
     
     
+===========
+Consider moving 'watch and alert' into a worker, where the timer and processing is done via the worker, which 'reaches' out/up to the background to get 'data' as it needs it.
+
+With this adjustment, allow for display of 'watch list' and un-watching links via the UI
+
+This UI change could also add 'timeout' value, which would be the amount of time to stop looking for this link. 2 hours 1 day, 5 days etc
 
 
 
