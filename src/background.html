@@ -102,6 +102,8 @@
             bitly.remove_credentials();
             auto_expand_urls = true;
             
+            if(bit_interval) { clearInterval( bit_interval ); }            
+            
             localdelete("trends");
             localdelete("realtime");
             localdelete("watch_list");
@@ -125,6 +127,9 @@
             bit_db.remove("domain", delete_sql_handler );
             bit_db.remove("auto_expand_urls", delete_sql_handler );
             bitly.set_domain("bit.ly");
+            
+
+            
             chrome.browserAction.setPopup({ "popup" : ""});
             return;
         

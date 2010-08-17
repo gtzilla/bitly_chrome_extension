@@ -285,7 +285,7 @@
                 current_title = "", stash_text = "",
                 current_short_url = "",
                 char_count_box_elem = _id("char_count_box"),
-                active_account_list = [], b = _id("options_page"),
+                active_account_list = [], open_options_elem = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(), current_meta = {},
                 message_box_elem = _id("message_box"),
                 watch_preferences = bg.get_note_preferences();
@@ -396,7 +396,7 @@
                 this.innerText = 'Copied';                
             })
 
-            b.addEventListener('click', function(e) {
+            open_options_elem.addEventListener('click', function(e) {
                 
                 e.preventDefault();
                 bg.get_chrome_page("options.html");

@@ -46,14 +46,11 @@
             
             var current_trend = dataStich( this.realtime_bits.realtime_links, this.cache.meta ),
                 trends = this.trends_list.slice(0), html;
-            
-            // todo
-            // check the timestamp whether to 'shift' array or not, aka if they are the same, remove it.
+
             trends.shift();
             current_trend = addTrendingData( current_trend, trends );
             //
-            html = drawTrendElements( current_trend )
-            //console.log(trends.length, this.trends_list.length)
+            html = drawTrendElements( current_trend );
             this.el.innerHTML = html;
         
         },
@@ -141,48 +138,37 @@
                     // todo: serious
                     // todo: now move everything from here - down, up
                     // 2-length, move by 75  pixels up (top)
+                    // this case is hard to fall into.. creating a solution is difficult
                 }
             }            
             
             var counter = 0;
-            console.log("I think the missing elements are", missing_elements_list)
+            console.log("The missing elements are", missing_elements_list);
             for(var k in missing_elements_list) {
-                var bit_trend_item = missing_elements_list[k]
-                var clone = _q("item").cloneNode(true);
-                clone.setAttribute("bit_hash", bit_trend_item.user_hash );
-                var t_elem = _q(".bit_trend_clicks", clone);
-                var t_elem_1 = _q(".changed_trend", clone);  
-                var t_elem_2 = _q(".bit_trend_title", clone);                  
-                var t_elem_3 = _q(".bit_hash_value", clone);                                  
+                var bit_trend_item = missing_elements_list[k],
+                    clone = _q("item").cloneNode(true), el_position,
+                    t_elem = _q(".bit_trend_clicks", clone),
+                    t_elem_1 = _q(".changed_trend", clone),
+                    t_elem_2 = _q(".bit_trend_title", clone),
+                    t_elem_3 = _q(".bit_hash_value", clone);                                  
                               
 
-                //console.log(t_elem, "cool")
                 t_elem.innerHTML = _drawClicks( bit_trend_item );  
-
                 t_elem_1.innerHTML = _drawChanged( bit_trend_item );
                 t_elem_2.innerHTML = _drawHead( bit_trend_item );
                 t_elem_3.innerHTML = bit_trend_item.user_hash;
                 // addend the element now to end of container...
-                var el_position =  (el_items.length+counter)*trend_heigt;
+                el_position =  (el_items.length+counter)*trend_heigt;
+                clone.setAttribute("bit_hash", bit_trend_item.user_hash );                
                 clone.setAttribute("style", "top:"+el_position+"px")
                 clone.setAttribute("bit_position", el_position)
                 bitTrendsBox.appendChild( clone )
                 counter+=1;
             }
             
-            
-            
-            /// remove 'old elements'
-            // this is stuff that fell out.
-
-            
-            // important
-            // update for later, otherwise elements get dupped
+            // update 'current'
             this.realtime_bits = realtime_bits;
-            
-            
-            
-            
+
             // now let's move / animate the elements
             // so if I loop over the el_items, I should be able to move to their location in the new_bits array
             
