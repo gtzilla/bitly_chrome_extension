@@ -11,10 +11,21 @@
         <div id="container">
             
             <div id="top">
-            
+                <div id="TopInner">
+                    <div id="trending_box">
+                        <img src="s/graphics/loader_trend_12_12.gif" border="0" alt="" height="12" width="12" />
+                    </div>
+                    
+                    <div class="bitly_shorten_box_meta_links">
+                        <a class="options_page" id="options_page" href="options.html">options</a>
+
+                    </div>                    
+                </div>
             </div> <!-- end #top -->
             
             <div id="middle">
+                
+
                 
                 <form action="#" id="bitly_bento_submit" method="get" accept-charset="utf-8">
                       
@@ -42,6 +53,11 @@
 
                                  </div>
                                  
+                                 <div class="watchContainerOuter">
+                                    <a href="#" class="watchLinkButton">Watch</a>
+                                    <!-- <img src="s/graphics/watch_eye.png" width="50" height="19" border="0" alt="" /> -->
+                                 </div>                                 
+                                 
                                  <div class="copyContainerOuter" id="copy_elements_wrapper">
                                          <div id="hidden_sharing_box">
                                              <textarea id="bitly_short_url_area" name=""></textarea>
@@ -51,7 +67,10 @@
                                                <a href="#" id="copy_link_button">Copy Link</a>                                        
                                            </div>
                                      </div>
-                                 </div><!-- end .copyContainerOuter -->                                 
+                                 </div><!-- end .copyContainerOuter -->    
+                                 
+                                 
+                            
                                   <div id="message_box" style="display:none;"></div>
                                   <div class="hr"><hr /></div>
                              </div>                            
@@ -68,14 +87,15 @@
                 </form>
 
                 
-                <div class="bitly_shorten_box_meta_links">
-                    <a class="options_page" id="options_page" href="options.html">options</a>
-                
-                </div>
+
             
             </div> <!-- END #middle -->
             
             <div id="bottom">
+
+                <div id="char_count_box">
+                    
+                </div>
             
             </div> <!-- end #bottom -->
         
@@ -107,10 +127,12 @@
             
             function update_share_box( message, short_url ) {
                 _id("loading_short_url").style.display="none";                
-                var copy_elem_wrap = _id("copy_elements_wrapper");
+                var copy_elem_wrap = _id("copy_elements_wrapper"), 
+                    watched = bg.get_watch_list(), i=0, watch;
                 
                 txtarea_short_url.value = short_url;
                 txtarea.innerText = message;
+                current_short_url = short_url;
                 
                 if(short_url.trim() === "") {
                     copy_elem_wrap.style.display="none";
@@ -123,7 +145,24 @@
                 if(bg.get_auto_copy() && short_url !== "" ) {
                     copy_to_clipboard();
                     _id("copy_link_button").innerText = "Copied";
-                }                
+                } 
+                
+                
+                if(short_url === "") {
+                    _q('.watchContainerOuter').style.display="none";
+                } else {
+                    for( ; watch=watched[i]; i++) {
+                        if(watch.short_url === short_url) {
+                            _q('.watchLinkButton').innerText="Watched";
+                        }
+                    }                    
+                }
+                
+
+                
+                setTimeout(function() {
+                    update_char_count();
+                }, 10);               
             }
             
             function share_callback(jo) {
@@ -169,6 +208,12 @@
                 _id("sharing_buttons_box").style.display="block";    
                 setTimeout(close_message_box, 4000);                            
             }
+            
+            function update_char_count() {
+                var txt = txtarea.value;
+                
+                char_count_box_elem.innerText=txt.length + " characters";
+            }
             function close_message_box() {
                 var message = _id("message_box");
                 message.style.display="none";
@@ -179,6 +224,7 @@
                 txtarea_short_url.select();
                 document.execCommand("copy", false, null);
             }
+            
             function list_accounts_callback(jo) {
                 //console.log(jo)
                 var i=0, account, accounts = jo && jo.share_accounts, html = "",
@@ -206,6 +252,29 @@
                 
                 _id("sharing_accounts_display").innerHTML = html;            
             }
+
+            
+            function realtime_metrics_callback( jo ) {
+                console.log("metrics", jo)
+                if(!jo || !jo.realtime_links || jo.error) {
+                    console.log("error")
+                    bg.logger("Error with realtime metrics" + JSON.stringify( jo ) );
+                }
+                
+                var realtimes = jo && jo.realtime_links, i=0, realtime, total_clicks=0, message;
+                for( ; realtime=realtimes[i]; i++) {
+                    total_clicks+=realtime.clicks;
+                }
+                if(total_clicks>0) {
+                    message = "<span class='trend_hed'>Trending</span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links</a>";
+                } else {
+                    message = "No trending links, have you shared any recently?";
+                }
+                
+                _id("trending_box").innerHTML = message;
+                
+            }
+            
             ////////////////////////////////////////////////////////////////////////
             // end definitions
             ////////////////////////////////////////////////////////////////////////
@@ -214,11 +283,18 @@
             var txtarea = _id("bento_share"), txtarea_short_url = _id("bitly_short_url_area"),
                 share_form = _id("bitly_bento_submit"),
                 current_title = "", stash_text = "",
+                current_short_url = "",
+                char_count_box_elem = _id("char_count_box"),
                 active_account_list = [], b = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(), current_meta = {},
-                message_box_elem = _id("message_box");
+                message_box_elem = _id("message_box"),
+                watch_preferences = bg.get_note_preferences();
             
             // Shorten the current tab
+            if(!watch_preferences.enabled) {
+                _q('.watchContainerOuter').style.display="none";
+            }
+                
             chrome.tabs.getSelected(null, function( curr_tab) {
                
                console.log( curr_tab );
@@ -249,8 +325,11 @@
                } else {
                    chrome.extension.sendRequest( message, shorten_complete_callback );                   
                }
+
                
-               chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback )
+               chrome.extension.sendRequest({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );
+               chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+
                 
             
             });
@@ -267,7 +346,15 @@
                     e.preventDefault();
                     bg.get_chrome_page("options.html");
                 }
-            })
+                
+
+            });
+            trending_box.addEventListener('click', function(e) {
+
+                e.preventDefault();
+                bg.get_chrome_page("trending.html");
+
+            });            
             
             share_form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -286,6 +373,10 @@
                 }
                 console.log(txtarea.value)
             });
+            
+            txtarea.addEventListener('keyup', function(e) {
+                update_char_count();
+            })
             
             _id("sharing_accounts_display").addEventListener('click', function(e) {
                 if(e.target.nodeName.toLowerCase() === "img") {
@@ -311,6 +402,15 @@
                 bg.get_chrome_page("options.html");
             
             });
+            
+            _q(".watchLinkButton").addEventListener('click', function(e) {
+                e.preventDefault();
+                // get a real value...
+                var note_prefs = bg.get_note_preferences();
+                bg.set_watch_item(current_short_url, note_prefs.threshold || 20);
+                e.target.innerHTML = "Watched"
+                bg.watch_and_alert();
+            })
             
             // this totally works, generally onbeforeunload is better, but not working in this ext.
             addEventListener("unload", function(e) {

@@ -1,0 +1,42 @@
+#container {
+    width:290px;
+    height:110px;
+    position:relative;
+    overflow:hidden;
+    color:#888;
+
+}
+#containerInner {
+    padding:10px;        
+}
+#note_contents_box {
+
+}
+
+#bit_fish {
+    position:absolute;
+    bottom:5px;
+    right:5px;
+}
+#footer {
+
+}
+/*so so so bad... whatver*/
+h4 {
+    font-weight:normal;
+    font-size:13px;
+}
+#footer h1 {
+    font-size:18px;
+    color:#888;
+    font-weight:normal;
+}
+
+.note_headline {
+    overflow: hidden;
+    width:260px;
+    text-overflow: ellipsis;    
+    white-space: nowrap;
+    font-size:11px;
+    padding-bottom:2px;
+}

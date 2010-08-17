@@ -12,73 +12,97 @@
     </head>
     <body>
         <div id="container">
-
+             
              <div id="top">
-
+                    
                     <div id="blueBanner">
                         <ul class="ext_nav_list">
                             <!-- <li><a class="openOptions" href="">Options</a></li> -->
                         </ul>
-
+                    
                     </div>
-
+                    
                     <div id="logo">
-                        <a href="http://bit.ly/"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
+                        <a href="options.html"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
                     </div>
                     <!-- <div id="ext_top_nav">
                         <div id="ext_top_nav_inner">
-
+                        
                         </div>
                         <div class="hr"><hr /></div>
                     </div> -->
-
+                
                 </div> <!-- end #top -->
             
             <div id="middle">
                 
-                <h1 id="bitly_options">Settings</h1>                
+                <h1 id="bitly_options">Settings</h1>
                 
                 <div id="signedin_info_contents" style="display:none;">
                     
                     <div id="signOutButtonContainer">
                         <a class="signout" href="#">Sign Out</a>
-                    </div>                                        
+                    </div>
                     
                     <div id="share_accounts"></div>
                     
                     <div id="api_domains">
-
+                        
                         <div class="api_type_selector options_container">
                         <h3>API Domains</h3>
-
+                            
                             <p>You can choose either the bit.ly API or the j.mp API. Both work just the same way, but j.mp is just a little shorter. This change only applies to new shortens.</p>
-
+                            
                             <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
-
+                                
                                 <div class="bentoOptions">
-
+                                    
                                     <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
                                     <label for="jmp">Use bit.ly API</label>
                                 </div>
-
+                                
                                 <div class="bentoOptions">
                                     <input type="radio" name="api_choice" value="j.mp" id="bitly">
                                     <label for="bitly">Use j.mp API</label>
-
+                                
                                 </div>
 
-
+                            
                             </form>
-                        </div>                        
-                    </div>                    
+                        </div>
+                    </div>
                     
                     <div class="options_container">
                         <h3>Auto Copy Short Urls</h3>
                         <p>Automatically copy short urls to my clipboard when popup opens</p>
                         <div>
-                            <input type="checkbox" name="auto_copy_short_urls" value="" id="auto_copy_short_urls">                            
+                            <input type="checkbox" name="auto_copy_short_urls" value="" id="auto_copy_short_urls">
                             <label for="auto_copy_short_urls">Auto Copy Short Urls</label>
+                        
+                        </div>
+                    </div>
+                    
+                    <div class="options_container">
+                        <h3>Trend Notifications</h3>
+                        <p>Automatically notify me when a link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour.</p>
+                        <div>
+                            <input type="checkbox" name="auto_copy_short_urls" checked value="" id="watch_urls">
+                            <label for="watch_urls">Allow link watching</label>
                             
+                            <div class="smallInputContainer notificationInnerContainer" style="display:none;">
+                            <form id="notifications_form" action="#" method="get" accept-charset="utf-8">
+                                
+                                <label for="click_threshold">Click Threshold</label>
+                                <input type="text" name="click_threshold" value="20" id="click_threshold">
+                                <input type="submit" class="activeButtons mediumSizeButton" id="submitClickThreshold" value="Update" id="some_name">
+
+                            </form>
+
+                                
+                                <p class="no_domains_note">Note: Changes to threshold only apply to newly watched links. Threshold can be any integer from 10-400</p>
+                            </div>
+
+                        
                         </div>
                     </div>                    
                     
@@ -88,93 +112,94 @@
                         <p>Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads.</p>
                         <div>
                             <input type="checkbox" checked name="show_link_preview" value="" id="show_link_preview">
-                            <label for="show_link_preview">Show Link Preview</label>                            
+                            <label for="show_link_preview">Show Link Preview</label>
                         </div>
                         <div id="no_expand_domains_box"></div>
-
-                    </div>                    
                     
-                    
-
+                    </div>
                     
 
                     
+
+                    
+                
                 </div>
                 <div id="signedout_info_contents" style="display:none;">
                     <form id="signin_form" action="#" method="get" accept-charset="utf-8">
                         
                         <div id="errors_box" class="chrome_page_errors_box" style="display:none;"></div>
-
+                        
                         <div class="inputContainer">
                             <label for="username">Username</label>
-                            <input type="text" name="username" value="" id="username">                            
+                            <input type="text" name="username" value="" id="username">
                         </div>
 
 
-
+                        
                         <div class="inputContainer">
                             <label for="password">Password</label>
-                            <input type="password" name="password" value="" id="password">                            
+                            <input type="password" name="password" value="" id="password">
                         </div>
-
+                        
                         <div id="signInContainer">
                             <div id="signInButtonContainer">
                                 <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Sign In" id="some_name">
-                            </div>                            
+                            </div>
                             <div style="display:none;" id="sign_in_loader">
                                 <img src="s/graphics/loader_signin_30_30.gif" height="30" width="30" border="0" alt="" />
                             </div>
                         </div>
-
+                        
                         
                         <div class="meta_graph">
-                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_up">Get an account</a></p>                            
+                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_up">Get an account</a></p>
                         </div>
-
-                    </form>                    
-                </div>    
+                    
+                    </form>
+                </div>
                 
                 <div id="logging_box" style="display:none;">
                     <a id="logs_show_link" href="#">Logs</a>
                 </div>
-
-            </div> <!-- END #middle -->
-        
-            <div id="bottom">
-
-            </div> <!-- end #bottom -->
             
-        </div> <!-- end #container -->
-    
+            </div> <!-- END #middle -->
+            
+            <div id="bottom">
+            
+            </div> <!-- end #bottom -->
         
+        </div> <!-- end #container -->
+        
+            
             <!-- <script type="text/javascript" src=""></script> -->
-            <script type="text/javascript" src="js/libs/logFormat.js"></script>    
-            <script type="text/javascript" src="js/libs/common.js"></script>                  
+            <script type="text/javascript" src="js/libs/logFormat.js"></script>
+            <script type="text/javascript" src="js/libs/common.js"></script>
             <script type="text/javascript" charset="utf-8">
-
-                var bg = chrome.extension.getBackgroundPage(), 
+                
+                var bg = chrome.extension.getBackgroundPage(),
+                    note_prefs = bg.get_note_preferences(),
                     user_data = bg.localfetch("user_data"),
                     auto_copy_elem = _id("auto_copy_short_urls"),
                     errors_box_elem = _id("errors_box"),
                     signInButtonContainer_elem = _id("signInButtonContainer"),
                     sign_in_loader_elem = _id("sign_in_loader"),
                     logging_box_elem = _id("logging_box"),
-                    elem, header = _id("bitly_options"), 
+                    elem, header = _id("bitly_options"),
                     shares_elem = _id("share_accounts"),
                     api_form_elem = _id("api_choice_form"),
-                    api_domains_elem = _id("api_domains"), 
+                    api_domains_elem = _id("api_domains"),
                     no_expand_domains_box_elem = _id("no_expand_domains_box"),
                     url_expand_input = _id("show_link_preview"),
                     bod = document.body,
                     active_account_list = [];
-                    
 
                 
+                
                 function set_api_radio_button() {
-                    var api_domain = bg.get_api_domain(), 
+                    var api_domain = bg.get_api_domain(),
                         radios = api_form_elem.getElementsByTagName("input"),
                         i=0, radio;
-                        
+                    
                     for(; radio=radios[i]; i++) {
                         if( radio.type !== "radio" ) continue;
                         
@@ -197,7 +222,7 @@
                 }
                 
                 function display_no_expand_domains() {
-                    var d_list = bg.get_no_expand_domains(), i=0, 
+                    var d_list = bg.get_no_expand_domains(), i=0,
                         domain, html="", disble_box="disabled";
                     html += '<h4>Except These Domains:</h4>'
                     html += '<ul class="no_expand_domains_list">';
@@ -224,16 +249,16 @@
                     html += '</div>'
                     //div.innerHTML = html;
                     no_expand_domains_box_elem.innerHTML = html;
-                    
+                
                 }
-                                
+                
                 function display_logs() {
-
-                    var logs = bg.get_logs(), html = "", i=0, 
-                        log, div, time, 
+                    
+                    var logs = bg.get_logs(), html = "", i=0,
+                        log, div, time,
                         ul = logging_box_elem.getElementsByTagName("ul"),
                         display_time, hour, am_or_pm;
-                        
+                    
                     if(ul.length>0)  {
                         console.log(ul)
                         logging_box_elem.removeChild( _id("logs_list_box") )
@@ -253,7 +278,7 @@
                     }
                     html += '</ul>';
                     div.innerHTML = html;
-                    console.log("insert logs")                    
+                    console.log("insert logs")
                     logging_box_elem.appendChild( div );
                 
                 }
@@ -263,7 +288,7 @@
                     if(response.error) {
                         document.location.reload();
                     }
-                    var accounts = response && response.share_accounts, i=0, 
+                    var accounts = response && response.share_accounts, i=0,
                         account, html = "", status;
                     
                     
@@ -286,23 +311,23 @@
                             html += ' accounts on bit.ly | <a class="resync" href="#">Refresh account list</a>'
                         html += '</p>'
                     html += '</div>'
-                    
 
+                    
                     shares_elem.innerHTML = html;
-                } 
+                }
                 
-                // events 
+                // events
                 
                 function signin_form_event( e ){
-                    e.preventDefault();                    
+                    e.preventDefault();
                     // validate form
-                    var username = _id("username"), 
+                    var username = _id("username"),
                         pass = _id("password"),
                         error_message_text = "Sorry, your username and password don't match";
                     if(username.value === "" ||  pass.value === "") {
                         console.log("all fields required")
                         errors_box_elem.innerHTML = "All fields required"
-                        errors_box_elem.style.display="block";                        
+                        errors_box_elem.style.display="block";
                         return;
                     }
                     sign_in_loader_elem.style.display="block";
@@ -321,20 +346,20 @@
                             error_message_text = "An error occurred trying to sign in"
                         }
                         sign_in_loader_elem.style.display="none";
-                        signInButtonContainer_elem.style.display="block";                        
+                        signInButtonContainer_elem.style.display="block";
                         errors_box_elem.innerHTML = error_message_text;
-                        errors_box_elem.style.display="block";                        
-                        console.log("Failed sign in")                        
+                        errors_box_elem.style.display="block";
+                        console.log("Failed sign in")
                         bg.logger("Failed sign in attempt: " + JSON.stringify( jo ) );
-                            
-                    })                    
                     
+                    })
+                
                 }
                 
                 /*
                      Determine which 'display' to show user. Signed In || Sign In
                 */
-                    
+                
                 if(user_data && user_data.x_login) {
                     elem = _id("signedin_info_contents");
                     elem.style.display="block";
@@ -360,19 +385,30 @@
                         auto_copy_elem.checked=false;
                     }
                     set_api_radio_button();
+                    
+                    if( note_prefs ) {
+                        watch_urls.checked=note_prefs.enabled;
+                        var show_watch_check = (note_prefs.enabled) ? "block" : "none";
+                        
+                        _q('.notificationInnerContainer').style.display=show_watch_check;
+                        _q('[type=text]', notifications_form).value = note_prefs.threshold || 20;                        
+                    } 
+
+                    
+                    
                 } else {
                     elem = _id("signedout_info_contents");
                     elem.style.display="block";
-                    header.innerText = "Sign in via bit.ly";    
+                    header.innerText = "Sign in via bit.ly";
                 }
                 
                 _id("logs_show_link").addEventListener("click", function(e) {
                     e.preventDefault();
                     display_logs();
-
+                
                 })
                 
-                _id("signin_form").addEventListener('submit', signin_form_event)                
+                _id("signin_form").addEventListener('submit', signin_form_event)
                 
                 shares_elem.addEventListener('click', function(e) {
                     var params={ 'action' : 'activate_account' }, img, status, parent;
@@ -389,7 +425,7 @@
                         e.preventDefault();
                         chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback )
                     }
-                    
+                
                 });
                 
                 url_expand_input.addEventListener('change', function(e) {
@@ -399,7 +435,7 @@
                         display_no_expand_domains();
                     } else {
                         url_expand_input.checked=false;
-                        no_expand_domains_box_elem.innerHTML = "";                    
+                        no_expand_domains_box_elem.innerHTML = "";
                     }
                     bg.set_url_expansion( e.target.checked )
                 });
@@ -415,7 +451,7 @@
                         case "add_no_expand_domain_form":
                             e.preventDefault();
                             // add form input
-                            display_add_domain_no_expand_input( _id("new_no_expand_domain") )                        
+                            display_add_domain_no_expand_input( _id("new_no_expand_domain") )
                         break;
                         
                         case "remove_no_expand_domains":
@@ -429,10 +465,10 @@
                                 }
                             }
                         
-                        
+                            
                             if(removed_count > 0) {
                                 display_no_expand_domains();
-                            }                            
+                            }
                         break;
                         
                         case "add_new_no_expand_domain":
@@ -447,10 +483,32 @@
                                 display_no_expand_domains();
                             }
                         break;
-                        
-                    }
                     
+                    }
+                
+                });
+                
+                
+                notifications_form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var thres = _q("[type=text]", this), safe_value;
+                    console.log(thres.value);
+                    safe_value = Math.max(thres.value, 10);
+                    safe_value = Math.ceil( Math.min(safe_value, 500) );
+                    // todo
+                    // error handle, more than 0 clicks
+                    bg.set_note_preferences( { 'enabled': true, 'threshold' : safe_value } );                    
+
                 })
+                
+                watch_urls.addEventListener('change', function(e) {
+                    bg.set_note_preferences( { 'enabled': e.target.checked } );
+                    var shown = "none"
+                    if(e.target.checked) {
+                        shown="block";
+                    }
+                    _q('.notificationInnerContainer').style.display=shown;                    
+                });
                 
                 api_form_elem.addEventListener('change', function(e) {
                     //e.target,
@@ -466,10 +524,10 @@
                         bg.sign_out();
                         document.location.reload();
                     }
-                    
-                })
                 
+                })
+            
             </script>
-      
+    
     </body>
 </html>

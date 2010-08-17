@@ -45,7 +45,11 @@ function _id( name ) {
 }
 
 function find_short_links() {
-    var links = document.getElementsByTagName("a"), 
+    
+    //querySelectorAll, document.querySelectorAll("a:not([href=''])")
+    // document.querySelectorAll("a:not([href=''])"), 
+    // document.getElementsByTagName("a")
+    var links = document.querySelectorAll("a:not([href=''])"), 
         href, matches, final_matches=[], 
         url, i=0, elem;
         
@@ -173,12 +177,13 @@ function brainResponse(jo) {
                 //console.log(e, positions);
                 clearTimeout(timeout_link);                
                 positions = findPos( el );
-                var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0];
+                var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0],
+                    top_pos = ( positions[1] + e.target.offsetHeight );
+
                 // TODO
-                // animate this?
-                container.style.display="block";                
-                container.style.top = ( positions[1] + e.target.offsetHeight ) + "px";
-                container.style.left = left_pos + "px";                
+                // add simple opacity animation
+                container.setAttribute("style", 'display:block; left:'+ left_pos +'px; top:'+ top_pos +'px;'); 
+                // set opacity to 0, then stair step it over a period of time?                                             
                 container.innerHTML = html;
                 
             })

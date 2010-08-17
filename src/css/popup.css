@@ -5,7 +5,7 @@
 
 }
 #container {
-    padding:10px 10px 20px;
+    padding:10px 0 20px;
 /*    background:#ededed;*/
 
     background:-webkit-gradient(linear, right bottom, right top, 
@@ -21,7 +21,8 @@
     font-size:18px;
     padding:10px;
     color:#444;
-    width:460px;
+    width:480px; /*20 diff*/
+    margin-right:1px;
     height:105px;
     border:1px solid #ccc;
     background:#feffec;
@@ -82,8 +83,30 @@
 /*    -webkit-box-shadow:0px 2px 4px #ccc; */
     cursor:pointer;
 }
-.copy_link_button_container:hover {
+.copy_link_button_container:hover, .watchContainerOuter:hover {
    -webkit-box-shadow:inset 2px 1px 8px #666;     
+}
+.watchContainerOuter {
+    display:block;
+    width:65px;
+    height:28px;
+    vertical-align:middle;
+    text-align:center;
+    border-radius:4px;    
+    color:white;
+    border:1px solid #ccc;    
+    background:-webkit-gradient(linear, right bottom, right top, 
+                                 from(#6BAFF0), to(#9EC8F5), 
+                                 color-stop(0.5, #7EB8F2));   
+    cursor:pointer;  
+    margin-left:10px;                                
+}
+
+.watchContainerOuter a {
+    font-size:13px;
+    color:white;
+    padding:6px 6px 3px;
+    display:block;    
 }
 
 
@@ -94,7 +117,7 @@
     left:20px;
 }
 #sharing {
-    padding:0 0 0 4px;
+    padding:0;
 }
 
 #share_accounts, #share_accounts li {
@@ -113,8 +136,14 @@
 
 .bitly_shorten_box_meta_links .options_page {
     position:absolute;
+    bottom:10px;    
+    right:5px; 
+}
+#char_count_box {
+    position:absolute;
     bottom:14px;    
-    left:14px; 
+    left:10px;  
+    color:#999;  
 }
 .share_account_header {
     font-size:13px;
@@ -132,14 +161,14 @@
 }
 #share_controls {
     float:right;
-    padding-left:6px;
+    padding-left:4px;
     position:relative;
     width:72px;
-    min-height:30px;
+    height:28px;
 }
 .action_controls {
     float:right;
-    width:155px;
+    width:230px;
 }
 #message_box {
     position:absolute;
@@ -155,18 +184,19 @@
     position:absolute;
     top:0;
     left:10px;
-    width:72px;
-    min-height:30px;
+    width:70px;
+    height:28px;
     text-align:center;
     display:none;
 }
 
 #sharing_buttons_box {
-    min-width:72px;
+    width:70px;
     position:absolute;
     top:0;
-    left:10px;
-    min-height:30px;
+    right:0px;
+/*    left:10px;*/
+    height:28px;
 }
 
 #loading_short_url {
@@ -187,4 +217,36 @@
     float:right;
     display:none;
     width:72px;
+}
+
+/*  popup top */
+#TopInner {
+    height:30px;
+    overflow:hidden;
+    position:relative;
+}
+#top {
+    border-bottom:1px solid #ccc;
+    margin-bottom:12px;
+    padding:0 10px;
+}
+#middle {
+    padding:0 10px;
+    position:relative;    
+}
+#trending_box {
+    cursor:pointer;
+    background:url(/s/graphics/chromext_chart_icon.png) no-repeat left 0px;
+    text-indent:18px;
+    color:#777;
+    position:absolute;
+    bottom:10px;
+    left:5px;
+    height:14px;
+}
+.trend_hed {
+    font-weight:bold;
+}
+.watchContainerOuter {
+    float:right;
 }

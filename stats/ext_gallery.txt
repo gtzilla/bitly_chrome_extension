@@ -4,7 +4,7 @@ Ratings, Active 'users' - weekly installs is a moving window average
 
 
 8/11/2010
-(207) 16,732 users - Weekly installs: 1,319
+(207) - 16,732 users - Weekly installs: 1,319
 
 8/12/2010
 (210) - 16,854 users - Weekly installs: 1,364
@@ -12,4 +12,30 @@ Ratings, Active 'users' - weekly installs is a moving window average
 8/13/2010
 (216) - 16,921 users - Weekly installs: 1,422
 
-## todo, write a script / cron that runs between 1 and 1:50pm and gets this value.
+##
+## Everything below this point can be populated by running sh fetch_stats.sh (will work fine from cron)
+
+Sat Aug 14 14:43:00 EDT 2010
+Daily Stats: 
+- 16,931 users
+- 1,470 weekly installs
+::end::
+
+Sun Aug 15 14:43:01 EDT 2010
+Daily Stats:
+- 16,979 users
+- 1,499 weekly installs
+::end::
+
+Mon Aug 16 17:31:40 EDT 2010
+Daily Stats:
+- 17,034 users
+- 1,550 weekly installs
+::end::
+
+Tue Aug 17 14:43:01 EDT 2010
+Daily Stats:
+- 17,051 users
+- 1,585 weekly installs
+::end::
+

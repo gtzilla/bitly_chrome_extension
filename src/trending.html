@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bit.ly Trending</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="bit.ly" />
+        <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/trending.css" type="text/css" charset="utf-8" />
+    
+    </head>
+    <body>
+        <div id="container">
+            
+            <div id="top">
+             
+             <div id="blueBanner">
+                  <ul class="ext_nav_list">
+                      <!-- <li><a class="openOptions" href="">Options</a></li> -->
+                  </ul>
+              
+              </div>
+              
+              <div id="logo">
+                  <a href="options.html"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
+              </div>
+              <!-- <div id="ext_top_nav">
+                  <div id="ext_top_nav_inner">
+                  
+                  </div>
+                  <div class="hr"><hr /></div>
+              </div> -->
+            
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+                
+                
+                <div>
+                    
+                    <div id="page_header_box">
+                        
+                        <ul class="controls_list">
+                            <li><a href="#">Past hour</a></li>
+                            <!-- <li><a href=""></a></li>                             -->
+                        </ul>
+                        <h1 id="trending_links_hed">Trending Bits</h1>
+                        <div class="hr"><hr /></div>
+                    </div>
+                    
+                    
+                    <div id="trending_container">
+                    
+                    </div>
+                
+                </div>
+
+            
+            </div> <!-- END #middle -->
+            
+            <div id="bottom">
+            
+            </div> <!-- end #bottom -->
+        
+        </div> <!-- end #container -->
+        
+        <script type="text/javascript" src="js/libs/common.js"></script>
+        <script type="text/javascript" src="js/libs/backtweet.js"></script>
+        <script type="text/javascript" src="js/libs/timeFormat.js"></script>
+        <script type="text/javascript" src="js/libs/emile.js"></script>
+        <script type="text/javascript" src="js/libs/bitTrends.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            // global variable definitions
+            
+            
+            /*
+                var aa = document.getElementsByTagName("div")
+                aa[0].setAttribute("style", 'color:pink; background:red;' )
+                
+                
+                totally works..
+            */
+            
+            function expand_callback( jo ) {
+                // this gets called the first time... only....
+                console.log("jo expanded: ", jo)
+                var links = jo && jo.expand_and_meta;
+                    
+                
+                bitly_trends.update_meta( links );
+                bitly_trends.draw();
+            
+            }
+            
+            function watcher_callback( jo ) {
+                
+                var links = jo && jo.expand_and_meta || {},
+                    link_trends = bg.localfetch("trends")                
+                bitly_trends.update_meta( links );
+                
+                bitly_trends.update_trends( link_trends );                
+                bitly_trends.update_realtime( realtimes_from_cache );
+            }
+            
+            function latest_trends(jo) {
+                // I need to see if I know about these links already....
+                var i=0, realtime, realtimes = jo && jo.realtime_links, urls = [];
+                current_trend_list = realtimes;
+                realtimes_from_cache = jo;
+                for( ; realtime=realtimes[i]; i++) {
+                    urls.push( "http://bit.ly/" + realtime.user_hash );
+                }
+                if(urls.length<=0) { return; }
+
+                return urls;
+            }
+            
+            function trends_callback(jo) {
+                var url, i=0, urls = latest_trends(jo), cached = bitly_trends.cache.meta, final_urls=[];
+                for( ; url=urls[i]; i++) {
+                    if( !cached[url] ) { final_urls.push(url); }
+                }
+                // check if I have these urls in cache already
+                console.log( "trend cache", bitly_trends.cache.meta, final_urls );
+                if(final_urls.length > 0) {
+                    chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : final_urls },  watcher_callback );                                    
+                } else {
+                    watcher_callback({});
+                }
+                
+            }
+            
+            function trends_watcher() {
+                if(trends_internval) clearInterval(trends_internval);
+                
+                trends_internval = setInterval(function() {
+                    ///bg.get_realtime_metrics(  );
+                    chrome.extension.sendRequest({'action' : 'realtime_metrics'}, trends_callback)
+                }, 15000)
+            }
+            
+            var bg = chrome.extension.getBackgroundPage(),
+                realtimes_from_cache = bg.localfetch("realtime"),
+                trends_internval, current_trend_list = [],
+                link_trends = bg.localfetch("trends");
+            
+            console.log("link trends", link_trends)
+            
+            var bitly_trends = bitTrends( trending_container, realtimes_from_cache );
+            //bitly_trends.update_realtime( [] );
+            bitly_trends.update_trends( link_trends );
+            var short_urls =  latest_trends( realtimes_from_cache  );
+            chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : short_urls },  expand_callback );             
+            
+            trends_watcher();
+            
+            
+            
+            // addEventListener('blur', function(e) {
+            //     if(trends_internval) clearInterval(trends_internval);
+            // });
+            //
+            // addEventListener('focus', function(e) {
+            //     trends_watcher();
+            // });
+            
+            
+
+
+/*
+so I have this trends list, bg.localfetch("trends") || [];
+
+the fist item, is always the 'latest' item
+
+I want to break up the display to show two things
+
+
+20 items per page
+
+.... still active links
+        For the link, it should be sorted in order of the current most popular
+            
+            ... for each current item (aka the trending link):
+                                loop through and find:
+                                        it's position since the last query, plus time elapse
+                                        it's total change over time
+                                
+                                call backTweet("api_key").fetch() and get social info
+                                
+                                do an expand and meta call
+
+
+... links that fell out
+                Loop over all trends, find all hashes that aren't
+
+
+
+If there was a checkbox on the popup back to track.
+        It should start a timer, and get the trending links, if that link appears in trending,
+            set off a desktop notification
+        
+        
+        Separate, but related is the 'threshold' marker,
+            this should be more lazy, it should look up metrics only for that url, every N minutes
+            Once the tolerance is reached, a notifitcation is set off, and the check is stopped for that link
+        
+        
+        
+        Put an Eyeball icon, with hover (watch this url), text watch next to the copy button
+            there is a setting in options to have this
+                                            Off Always (hide)
+                                            Off
+                                            Always On for new shortens
+
+
+ANIMATIOns
+    have the element slide to it's new position (if still active)
+    have it disappear into 'graveyard' below
+
+*/
+
+        
+        </script>
+    
+    </body>
+</html>

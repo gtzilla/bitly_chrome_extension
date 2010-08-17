@@ -8,12 +8,16 @@
         bitlyDB = function( name, options ) {
             if(!options) options = {};
         
-            return new bitlyDB.fn.init( name, options );
+            return new BitDatabase( name, options );
             
         }
     
+    function BitDatabase( name, options ) {
+        return this.init( name, options )
+    }
+    
     window.bitlyDB = bitlyDB;
-    bitlyDB.fn = bitlyDB.prototype = {
+    BitDatabase.prototype = {
         // hmmm,right now, you can make different objects and interect with diff tables, but will always be same db
         init : function( name, options ) {
             this.db = window.openDatabase( name, options.version || default_version, 
@@ -162,9 +166,5 @@
         }
         
     }
-
-    // magic
-    bitlyDB.fn.init.prototype = bitlyDB.fn;
-    
     
 })();
