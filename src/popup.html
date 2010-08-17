@@ -53,6 +53,11 @@
 
                                  </div>
                                  
+                                 <div class="watchContainerOuter">
+                                    <a href="#" class="watchLinkButton">Watch</a>
+                                    <!-- <img src="s/graphics/watch_eye.png" width="50" height="19" border="0" alt="" /> -->
+                                 </div>                                 
+                                 
                                  <div class="copyContainerOuter" id="copy_elements_wrapper">
                                          <div id="hidden_sharing_box">
                                              <textarea id="bitly_short_url_area" name=""></textarea>
@@ -65,9 +70,7 @@
                                  </div><!-- end .copyContainerOuter -->    
                                  
                                  
-                                 <div class="watchContainerOunter">
-                                    <a href="#" class="watchLinkButton">Watch</a>
-                                 </div>                             
+                            
                                   <div id="message_box" style="display:none;"></div>
                                   <div class="hr"><hr /></div>
                              </div>                            
@@ -381,9 +384,12 @@
             
             });
             
-            document.querySelector(".watchLinkButton").addEventListener('click', function(e) {
+            _q(".watchLinkButton").addEventListener('click', function(e) {
                 e.preventDefault();
+                // get a real value...
+                
                 bg.set_watch_item(current_short_url, 20);
+                e.target.innerHTML = "Watched"
                 bg.watch_and_alert();
             })
             

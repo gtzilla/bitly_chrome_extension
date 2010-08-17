@@ -19,3 +19,14 @@ function commify( num ) {
     }
     return num_string_array.reverse().join("");    
 }
+function _q( query, context ) {
+    // returns single element
+    // cotentext is optional, expects DOM element
+    context = context || document;
+    return context.querySelector( query )
+}
+function _qAll( query, context ) {
+    // returns list, not a live collection..., context is optional
+    context = context || document;
+    return context.querySelectorAll( query );
+}

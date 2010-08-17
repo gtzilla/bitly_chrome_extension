@@ -116,7 +116,7 @@
                         
                         // J is where the element needs to go...
                         trend_change_elem = item.getElementsByClassName("changed_trend")[0]
-                        var t_elem = item.querySelector("[class~=bit_trend_clicks]");
+                        var t_elem = _q(".bit_trend_clicks", item);
                         //console.log(t_elem)
                         t_elem.innerHTML = _drawClicks( new_bit );
                         trend_change_elem.innerHTML = _drawChanged( new_bit );                        
@@ -148,12 +148,12 @@
             console.log("I think the missing elements are", missing_elements_list)
             for(var k in missing_elements_list) {
                 var bit_trend_item = missing_elements_list[k]
-                var clone = document.querySelector("item").cloneNode(true);
+                var clone = _q("item").cloneNode(true);
                 clone.setAttribute("bit_hash", bit_trend_item.user_hash );
-                var t_elem = clone.querySelector("[class~=bit_trend_clicks]");
-                var t_elem_1 = clone.querySelector("[class~=changed_trend]");  
-                var t_elem_2 = clone.querySelector("[class~=bit_trend_title]");                  
-                var t_elem_3 = clone.querySelector("[class~=bit_hash_value]");                                  
+                var t_elem = _q(".bit_trend_clicks", clone);
+                var t_elem_1 = _q(".changed_trend", clone);  
+                var t_elem_2 = _q(".bit_trend_title", clone);                  
+                var t_elem_3 = _q(".bit_hash_value", clone);                                  
                               
 
                 //console.log(t_elem, "cool")
@@ -191,7 +191,7 @@
                 var trend_el, b_pos;
                 //console.log(bitTrendsBox.getElementsByTagName("item"))
                 try{
-                    trend_el= bitTrendsBox.querySelector("[bit_hash~='"+ current_trend[i].user_hash +"']");
+                    trend_el= _q("[bit_hash~='"+ current_trend[i].user_hash +"']", bitTrendsBox);
                 } catch(e){
                     // take this node out??
                 }
@@ -231,18 +231,7 @@
     // find percent change formular
     // ((current_value/old_value) - 1)*100 ... if oldvalue is 0, it's gonna throw an error
     // Take the new, "current value" and divide it by the old, obsolete value. Subtract 1.00 (or 100%) from the result.
-    function _q( query, context ) {
-        // returns single element
-        // cotentext is optional, expects DOM element
-        context = context || document;
-        return context.querySelector( query )
-    }
-    function _qAll( query, context ) {
-        // returns list, not a live collection...
-        context = context || document;
-        return context.querySelectorAll( query );
-    }    
-    
+        
     function addTrendingData( current_trend, trends ) {
         //console.log(arguments)
         //trends = trends.slice(0,10)

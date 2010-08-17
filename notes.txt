@@ -1,3 +1,10 @@
+----
+to fix the open issue with calls to all_domains that aren't logged in, required a restructuring of the startup process
+    .. set from cache should do only that...
+    ... I need some methods to manage this
+    ... then if I am get signed in, it should call all_domains then....
+
+
 --- remembering your edits in popup window..
 
         could make it like a carosouel, as long as the tab id, tab url doesn't change it stays in one of the 5 spots (a fixed length array?)

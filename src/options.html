@@ -83,18 +83,21 @@
                     </div>
                     
                     <div class="options_container">
-                        <h3>Notifications</h3>
-                        <p>Automatically notify me when a link that I specify reaches a predetermined threshold.</p>
+                        <h3>Trend Notifications</h3>
+                        <p>Automatically notify me when a link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour.</p>
                         <div>
                             <input type="checkbox" name="auto_copy_short_urls" checked value="" id="auto_copy_short_urls">
-                            <label for="auto_copy_short_urls">Allow Link watching</label>
+                            <label for="auto_copy_short_urls">Allow link watching</label>
+                            
+                            <div class="inputContainer">
+
+                               <label for="click_threshold">Click Threshold</label>
+                               <input type="text" name="click_threshold" value="20" id="click_threshold">
+                                <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Update" id="some_name">
+                            </div>
                             
                             <div>
-                                <p>presets</p>
-                                <ul>
-                                    <li>30 clicks</li>
-                                    <li>in 6 hours</li>
-                                </ul>
+                                <p>Note: Changes to threshold only apply to newly watched links</p>
                             </div>
                         
                         </div>
