@@ -84,7 +84,7 @@ function findPos(obj) {
 }
 
 function brainResponse(jo) {
-    console.log(jo, "the expanded urls");
+    //console.log(jo, "the expanded urls");
     
     // start looking for more
     run_find_more_links();
@@ -112,7 +112,6 @@ function brainResponse(jo) {
                 return;
             }
             if(clss === "bitly_url_expander_box_close") {
-                //console.log("close it.");
                 e.preventDefault();
                 // show box here
                 
@@ -140,7 +139,6 @@ function brainResponse(jo) {
     
     var matches_links = find_link_elements_by_response( jo );   
      
-    //console.log(matches_links)
     body.appendChild( container )
     
     for(var i=0; i<matches_links.length; i++) {
@@ -174,7 +172,6 @@ function brainResponse(jo) {
             
             
             el.addEventListener('mouseover', function(e) {
-                //console.log(e, positions);
                 clearTimeout(timeout_link);                
                 positions = findPos( el );
                 var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0],
@@ -223,7 +220,6 @@ function find_link_elements_by_response( jo ) {
         
     for ( ; elem=links[i];i++ ) {        
         href = elem.getAttribute("href")
-        //console.log(href)
         // TODO
             // careful with the continue statements
             // I could use lastindexof("/") and then check my value, 
@@ -283,11 +279,7 @@ function run_find_more_links() {
 }
 
 function callBrain( final_matches ) {
-    //var body = document.getElementsByTagName("body")[0];
-   
     if(final_matches.length > 0) {
-        //port.postMessage({ "short_links" : final_matches, "type" : "expand_urls"})
-        //console.log("expand found short links")
         chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : final_matches }, brainResponse)        
     } else {
         run_find_more_links();
@@ -301,7 +293,7 @@ function open_options_callback() {
 
 
 function init() {
-    console.log("running the expander script")
+    //console.log("searching for short links...")
     var matches = find_short_links();   
     queried_matches = queried_matches.concat( matches );
     callBrain( matches );

@@ -88,6 +88,7 @@
                     localstore("user_data", current_user);
                     bit_db.save( "user_data", current_user, function( tx, sql ) {
                         // do something with results?
+                        logger("Logged in user")
                     });
                     chrome.browserAction.setPopup({ "popup" : "popup.html"});
                     fetch_all_domains();
@@ -103,6 +104,8 @@
             
             localdelete("trends");
             localdelete("realtime");
+            localdelete("watch_list");
+            localdelete("notifications");
             
             // todo
             // remove notifications
@@ -112,6 +115,10 @@
             localdelete("share_accounts"); //  we don't store share accounts in SQL
             localdelete("no_expand_domains");
             
+
+            bit_db.remove("watch_list", delete_sql_handler );
+            bit_db.remove("notifications", delete_sql_handler );
+                        
             bit_db.remove("no_expand_domains", delete_sql_handler );
             bit_db.remove("user_data", delete_sql_handler );
             bit_db.remove("domain", delete_sql_handler );
@@ -166,6 +173,7 @@
                             hash = (item.short_url.split("/")).reverse().shift();
                             // todo
                             // drop out links after 1 day
+                            
                             if(item.timestamp < old_time) {
                                 dead_links.push(short_url);
                             } else if( hash === link.user_hash && item.threshold <= link.clicks ) {
@@ -316,6 +324,21 @@
             });
         }
         
+        function fetch_all_domains() {
+            bitly.bitly_domains( function(jo) {
+                var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : _now() };
+                
+                if(jo.status_code === 403) {
+                    sign_out();
+                } else {
+                    bit_db.save( "domains_list", params, function() {
+                        console.log("storing domains to sql", bit_domains.length)
+                    })
+                    domains_list = bit_domains;                            
+                }
+            });            
+        }        
+        
         /*
             Methods to fetch from 'cache'
                 Local cache involes either window.localStorage || window.db.openDatabase || 'global variable'
@@ -333,10 +356,7 @@
                 logger("User credentials found in cache");
                 bitly.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});
-                
-                // test
 
-                //test_realtime();                 // remove later
             
             } else {
                 bit_db.find("user_data", function( sql_user_data ) {
@@ -377,7 +397,18 @@
                 localstore("auto_copy", jo.copy );
             })
         }
+        
 
+        function set_watch_list_from_cache() {
+            bit_db.find("watch_list", function(jo) {
+                if(jo === undefined) return;
+                set_watch_list(jo);
+                if(jo.length > 0) {
+                    watch_and_alert();
+                }
+            })
+        }
+         
         function set_notifications_from_cache() {
             bit_db.find("notifications", function(jo) {
                 if(jo === undefined) return;
@@ -415,7 +446,7 @@
                     domains_list = jo.domains || jo;
                 } else {
                     curr_user = localfetch("user_data") || {};
-                    if(curr_user.access_token) {
+                    if( bitly.is_authenticated() ) {
                         fetch_all_domains();
                     } else {
                         domains_list=[];
@@ -425,21 +456,8 @@
             });
         }
         
-        function fetch_all_domains() {
-            bitly.bitly_domains( function(jo) {
-                var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : _now() };
-                
-                if(jo.status_code === 403) {
-                    sign_out();
-                } else {
-                    bit_db.save( "domains_list", params, function() {
-                        console.log("storing domains to sql", bit_domains.length)
-                    })
-                    domains_list = bit_domains;                            
-                }
-            });            
-        }
-                
+
+// Start the App controls                
         function init_api() {
             // get from local storage?
             // pull this value from a settings file
@@ -482,6 +500,7 @@
         set_no_expand_domains_from_cache();
         set_auto_copy_from_cache();
         set_notifications_from_cache();
+        set_watch_list_from_cache();
 
        
         
