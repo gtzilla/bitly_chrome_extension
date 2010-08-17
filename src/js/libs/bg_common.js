@@ -6,6 +6,17 @@
         access via chrome.extension.getBackgroundPage() 
         - OR -
         move the function to common.js
+        
+    Note:
+        This file relies on several background page specific global variables, it's messy, but it's happening
+        SO - don't include this file on any other page...
+        
+        - bit_db [current instance of the "bitly" SQL, running against a basic table with two columns,  itemKey, itemValue]
+        - bitly [current instance of bitly api, contains user credentials specific to the user]
+        - domains_list [in memory list of md5 domains]
+        
+        
+        File also contains references to chrome.* object
     
 */
 

@@ -83,3 +83,8 @@
 .changed_trend img {
 
 }
+#trend_load_box {
+    text-align:center;
+    width:600px;
+    margin:60px auto 0;
+}

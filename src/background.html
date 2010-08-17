@@ -158,17 +158,25 @@
                 get_realtime_metrics(function(jo) {
                     // now check the threshold of the links, see if it's in here
                     // break down short url
-                    var link, links = jo && jo.realtime_links;
+                    var link, links = jo && jo.realtime_links, curr_time = _now(), 
+                        old_time=curr_time - (1000*60*60*24), dead_links=[];
                     short_urls=[];
                     for(i=0; link=links[i]; i++) {
                         for(j=0; item=w_list[j]; j++) {
-                            hash = (item.short_url.split("/")).reverse().shift()                            
-                            if( hash === link.user_hash && item.threshold <= link.clicks ) {
+                            hash = (item.short_url.split("/")).reverse().shift();
+                            // todo
+                            // drop out links after 1 day
+                            if(item.timestamp < old_time) {
+                                dead_links.push(short_url);
+                            } else if( hash === link.user_hash && item.threshold <= link.clicks ) {
                                 short_urls.push( item.short_url );
                                 break;
                             }
                         }   
                     }
+                    
+                    // drop old links
+                    for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
                     
                     if(short_urls.length<=0) return;
                     
