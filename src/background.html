@@ -90,6 +90,7 @@
                         // do something with results?
                     });
                     chrome.browserAction.setPopup({ "popup" : "popup.html"});
+                    fetch_all_domains();
                 }
                 if(callback) callback(response)
             
@@ -400,28 +401,35 @@
         function set_domain_list_from_cache() {
             
             bit_db.find("domains_list", function(jo) {
-                var now =  _now(), then = now - (24*60*60*1000)*5;
+                var now =  _now(), then = now - (24*60*60*1000)*5, curr_user;
                 if(jo && jo.timestamp > then && jo.domains.length > 10) {
 
                     domains_list = jo.domains || jo;
                 } else {
-                    logger("Get latest domains list");
-                    // returns a list of md5 domains
-                    bitly.bitly_domains( function(jo) {
-                        var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : now };
-                        
-                        if(jo.status_code === 403) {
-                            sign_out();
-                        } else {
-                            bit_db.save( "domains_list", params, function() {
-                                console.log("storing domains to sql", bit_domains.length)
-                            })
-                            domains_list = bit_domains;                            
-                        }
-                    });
+                    curr_user = localfetch("user_data") || {};
+                    if(curr_user.access_token) {
+                        fetch_all_domains();
+                    } else {
+                        domains_list=[];
+                    }
                 }
             
             });
+        }
+        
+        function fetch_all_domains() {
+            bitly.bitly_domains( function(jo) {
+                var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : _now() };
+                
+                if(jo.status_code === 403) {
+                    sign_out();
+                } else {
+                    bit_db.save( "domains_list", params, function() {
+                        console.log("storing domains to sql", bit_domains.length)
+                    })
+                    domains_list = bit_domains;                            
+                }
+            });            
         }
                 
         function init_api() {

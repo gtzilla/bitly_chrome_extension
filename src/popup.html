@@ -147,11 +147,18 @@
                     _id("copy_link_button").innerText = "Copied";
                 } 
                 
-                for( ; watch=watched[i]; i++) {
-                    if(watch.short_url === short_url) {
-                        _q('.watchLinkButton').innerText="Watched";
-                    }
+                
+                if(short_url === "") {
+                    _q('.watchContainerOuter').style.display="none";
+                } else {
+                    for( ; watch=watched[i]; i++) {
+                        if(watch.short_url === short_url) {
+                            _q('.watchLinkButton').innerText="Watched";
+                        }
+                    }                    
                 }
+                
+
                 
                 setTimeout(function() {
                     update_char_count();
