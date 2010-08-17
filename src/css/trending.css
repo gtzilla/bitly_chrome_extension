@@ -34,7 +34,7 @@
     overflow: hidden;
     text-overflow: ellipsis;    
     white-space: nowrap;
-
+    width:700px;
     position:absolute;
     bottom:1px;
     

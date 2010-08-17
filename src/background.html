@@ -165,6 +165,13 @@
             bitly.remove_credentials();
             auto_expand_urls = true;
             
+            localdelete("trends");
+            localdelete("realtime");
+            
+            // todo
+            // remove notifications
+            // remove watch list...
+            
             localdelete("user_data");
             localdelete("share_accounts"); //  we don't store share accounts in SQL
             localdelete("no_expand_domains");
@@ -228,6 +235,8 @@
         }
         
         function watch_and_alert() {
+            console.log("interval checked started");
+            logger("Watch and Alert for a link has been enabled");
             var i=0, w_list, item, short_urls = [], hash, j=0;
             bit_interval = setInterval(function() {
                 

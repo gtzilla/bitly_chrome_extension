@@ -128,6 +128,7 @@
                 
                 txtarea_short_url.value = short_url;
                 txtarea.innerText = message;
+                current_short_url = short_url;
                 
                 if(short_url.trim() === "") {
                     copy_elem_wrap.style.display="none";
@@ -265,6 +266,7 @@
             var txtarea = _id("bento_share"), txtarea_short_url = _id("bitly_short_url_area"),
                 share_form = _id("bitly_bento_submit"),
                 current_title = "", stash_text = "",
+                current_short_url = "",
                 char_count_box_elem = _id("char_count_box"),
                 active_account_list = [], b = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(), current_meta = {},
@@ -378,6 +380,12 @@
                 bg.get_chrome_page("options.html");
             
             });
+            
+            document.querySelector(".watchLinkButton").addEventListener('click', function(e) {
+                e.preventDefault();
+                bg.set_watch_item(current_short_url, 20);
+                bg.watch_and_alert();
+            })
             
             // this totally works, generally onbeforeunload is better, but not working in this ext.
             addEventListener("unload", function(e) {
