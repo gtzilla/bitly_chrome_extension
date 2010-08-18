@@ -255,9 +255,10 @@
                 if(!jo || !jo.realtime_links || jo.error) {
                     console.log("error")
                     bg.logger("Error with realtime metrics" + JSON.stringify( jo ) );
+                    
                 }
                 
-                var realtimes = jo && jo.realtime_links, i=0, realtime, total_clicks=0, message;
+                var realtimes = jo && jo.realtime_links || [], i=0, realtime, total_clicks=0, message;
                 for( ; realtime=realtimes[i]; i++) {
                     total_clicks+=realtime.clicks;
                 }
