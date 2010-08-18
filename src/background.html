@@ -461,7 +461,8 @@
         function test_metrics() {
             // clicks|country|referrers
             bitly.metrics("clicks", function(jo) {
-                console.log("clicks", jo)
+                // need to send param: days=40, days:2, days:5
+                console.log("clicks", jo);
             });
             
             bitly.metrics("countries", function(jo) {

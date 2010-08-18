@@ -288,6 +288,7 @@
                     }
 
                     watching_links_box.innerHTML = html;
+                    if(w_list.length<=0) { return; }
                     _q(".removeWatchButton", watching_links_box).addEventListener('click', function(e) {
                         e.preventDefault();
                         var i=0, url_list=[], watch_selected = _qAll("input[type=checkbox]:checked", watching_links_box);

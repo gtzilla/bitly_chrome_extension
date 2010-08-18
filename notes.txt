@@ -1,12 +1,6 @@
 
 1.2.1
-    display of currently 'watched' links --- hmmm, maybe on trending, like two columns
-        Dead Trends | Yet to be born trends
-        
-    Unwatch a link
-    
-    Trending 'conversations' 
-
+    Display currently watched linkes, ability to modify and remove 'watched' links
 1.2
     Watch Button, Trending, character counter
 
