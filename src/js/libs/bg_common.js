@@ -196,8 +196,8 @@ function set_watch_list( watch_list ) {
 }
 
 function remove_watch_item( short_url ) {
-    var w_list = get_watch_list(), i=0, watch_item, clean_list=[];
-    for( var i=0, watch_item; watch_item=w_list[i]; i++) {
+    var latest_watch_list = get_watch_list(), i=0, watch_item, clean_list=[];
+    for( var i=0, watch_item; watch_item=latest_watch_list[i]; i++) {
         if(watch_item.short_url !== short_url) {
             clean_list.push( watch_item );
         }

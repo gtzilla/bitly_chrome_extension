@@ -19,8 +19,8 @@ onmessage = function(evt) {
 
 function processRealtimeResultsResponse(jo) {
     var link, links = jo && jo.realtime_links, curr_time = (new Date()).getTime(), 
-        w_list = jo.watch_list || [], final_watch_links = [];
-        old_time=curr_time - (1000*60*60*24), dead_links=[];
+        w_list = jo.watch_list || [], final_watch_links = [],
+        old_time=curr_time - (1000*60*60*24), dead_links=[], short_urls;
     short_urls=[];
     for(i=0; link=links[i]; i++) {
         for(j=0; item=w_list[j]; j++) {

@@ -158,26 +158,26 @@
         function watch_and_alert() {
             console.log("trending interval check started");
             logger("Watch and Alert for a link has been enabled, notifications");
-            var w_list = get_watch_list();
 
             get_realtime_metrics(function(jo) {
-                jo.watch_list = w_list;          
+                jo.watch_list = get_watch_list();    
                 trends_worker.postMessage( jo  );
             });
 
         }
         
         function process_realtime_post_notification( short_urls ) {
-            var links = localfetch("realtime") || [];
+            var r_time = localfetch("realtime"), bit_result, i=0;
             if(short_urls.length <= 0 ) { return; }
+            r_time = r_time && r_time.realtime_links || [];
             bitly.expand_and_meta( short_urls, function(jo) {
                 // add to the notifications, remove from the list...
-                var bit_result;
+                
                 for(var k in jo.expand_and_meta) {
                     bit_result = jo.expand_and_meta[k];
-                    for(i=0;i<links.length;i++) { 
-                        if(links[i].user_hash === bit_result.user_hash) {
-                            bit_result.trend_clicks = links[i].clicks;
+                    for(i=0;i<r_time.length;i++) { 
+                        if(r_time[i].user_hash === bit_result.user_hash) {
+                            bit_result.trend_clicks = r_time[i].clicks;
                             break;
                         }
 
@@ -485,7 +485,8 @@
            switch( evt.data.action) {
                case "analyzed_links":
 
-                    dead_links = evt.data.results && evt.data.results.dead_links || []
+                    dead_links = evt.data.results && evt.data.results.dead_links || [];
+                    console.log( dead_links )
                     for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
                     process_realtime_post_notification( evt.data.results.short_urls );
                     
