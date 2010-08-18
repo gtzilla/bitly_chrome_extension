@@ -84,7 +84,7 @@
     padding:5px 8px;
     border:1px solid #ccc;        
     font-size:15px; 
-    width:100px; 
+    width:150px; 
     color:#454545;    
 }
 .notificationInnerContainer {
@@ -209,7 +209,7 @@
 #no_expand_domains_box {
     padding:5px 0 0 16px;
 }
-#no_expand_domains_box h4 {
+#no_expand_domains_box h4, #watching_links_box h4 {
     font-size:13px;
     font-weight:normal;
     color:#555;
@@ -254,6 +254,32 @@
     width:72px; 
     text-align:center;
     height:30px;   
+}
+
+#watching_links_box {
+    padding:0px 0 0 16px;    
+}
+#watching_links_box label {
+    margin:0 5px;
+}
+#watching_links_box input[type=checkbox] {
+    margin-right:5px;
+}
+#watching_links_box input[type=text] {
+    border:1px solid #ccc;
+    padding:2px 4px;
+    width:50px;
+    margin-right:5px;
+    border-radius:4px;
+}
+#watching_links_box input[type=submit] {
+    padding:2px 4px;
+}
+#watching_links_box li {
+    padding-bottom:12px;
+}
+.watch_controls_box {
+    padding-top:6px;
 }
 
 /* EOF */

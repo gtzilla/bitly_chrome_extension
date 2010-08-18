@@ -189,6 +189,18 @@ function get_watch_list() {
     return localfetch("watch_list") || [];
 }
 
+function update_watch_item( watch_obj ) {
+    var i=0, watch, w_list = get_watch_list();
+    for( ; watch=w_list[i]; i++) {
+        if( watch.short_url === watch_obj.short_url ) {
+            watch.threshold = watch_obj.threshold;
+            //watch.timestamp = watch_obj.timestamp;            
+        }
+    }
+    console.log(w_list)
+    set_watch_list( w_list );
+}
+
 function set_watch_item( short_url, threshold ) {
     var list = localfetch("watch_list") || [];
     list.push( {'short_url': short_url, 'threshold': threshold, 'timestamp' : _now() } );

@@ -92,7 +92,7 @@
                             <div class="smallInputContainer notificationInnerContainer" style="display:none;">
                             <form id="notifications_form" action="#" method="get" accept-charset="utf-8">
                                 
-                                <label for="click_threshold">Click Threshold</label>
+                                <label for="click_threshold">Default Click Threshold</label>
                                 <input type="text" name="click_threshold" value="20" id="click_threshold">
                                 <input type="submit" class="activeButtons mediumSizeButton" id="submitClickThreshold" value="Update" id="some_name">
 
@@ -101,6 +101,9 @@
                                 
                                 <p class="no_domains_note">Note: Changes to threshold only apply to newly watched links. Threshold can be any integer from 10-400</p>
                             </div>
+                            <div id="watching_links_box">
+                                
+                            </div>                            
 
                         
                         </div>
@@ -172,8 +175,9 @@
         
             
             <!-- <script type="text/javascript" src=""></script> -->
-            <script type="text/javascript" src="js/libs/logFormat.js"></script>
             <script type="text/javascript" src="js/libs/common.js"></script>
+            <script type="text/javascript" src="js/libs/logFormat.js"></script>
+            <script type="text/javascript" src="js/libs/timeFormat.js"></script>            
             <script type="text/javascript" charset="utf-8">
                 
                 var bg = chrome.extension.getBackgroundPage(),
@@ -193,6 +197,14 @@
                     bod = document.body,
                     active_account_list = [];
 
+                
+                function get_safe_threshold( num_value ) {
+                     
+                    var safe_value = Math.max(num_value, 10);
+                    safe_value = Math.ceil( Math.min(safe_value, 500) );
+                    
+                    return safe_value;
+                }
                 
                 
                 function set_api_radio_button() {
@@ -250,6 +262,65 @@
                     //div.innerHTML = html;
                     no_expand_domains_box_elem.innerHTML = html;
                 
+                }
+                
+                
+                function display_user_watched_links() {
+                    var w_list = bg.get_watch_list(), i=0, html="", w;
+                    if(w_list.length>0) {
+                        html += '<h4>Watching:</h4>';
+                        html += '<ul>'
+                        for( ; w=w_list[i]; i++) {
+                            html += '<li>'
+                                html += '<input type="checkbox" name="" value="'+ w.short_url +'" id="watch_item_'+i+'">'
+                                html += '<a href="'+w.short_url+'">' + w.short_url  + "</a> since "
+                                html += timeFormat( w.timestamp ).toLowerCase();
+                                html += '<label for="threshold">Threshold</label>';
+                                html += '<input type="hidden" name="timestamp" value="'+w.timestamp+'" id="some_name">'
+                                html += '<input type="text" name="threshold" value="'+ w.threshold +'" id="w_threshold_'+i+'" />';
+                                html += '<input type="submit" name="some_name" value="Update" class="activeButtons" id="">';
+                            html += '</li>'                        
+                        }
+
+
+                        html += '</ul>'
+                        html += '<div class="watch_controls_box"><a class="removeWatchButton" href="#">Remove selected</a></div>';
+                    }
+
+                    watching_links_box.innerHTML = html;
+                    _q(".removeWatchButton", watching_links_box).addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var i=0, url_list=[], watch_selected = _qAll("input[type=checkbox]:checked", watching_links_box);
+                        console.log(watch_selected);
+                        for(i=0; i<watch_selected.length; i++) {
+                            url_list.push( watch_selected[i].value );
+                        }
+                        bg.remove_watch_items_list( url_list );
+                        if(watch_selected.length>0) {
+                            setTimeout(function() {
+                                display_user_watched_links();                                
+                            }, 100)
+
+                        }
+
+                        
+                    });
+                    watching_links_box.addEventListener('click', function(e) {
+                        console.log(e.target.type)
+                        var el = e.target, threshold, safe_value, sUrl, p, timestamp=0;
+                        if(el.type && el.type==="submit") {
+                            e.preventDefault();
+                            p = el.parentNode;
+                            threshold = _q("input[type=text]", p);
+                            sUrl = _q("input[type=checkbox]", p).value;
+                            timestamp = (_q("input[type=hidden]", p).value)*1;                            
+                            safe_value = get_safe_threshold( threshold.value );
+                            // method for updating a short url here...
+                            bg.update_watch_item( {'short_url' : sUrl, 'threshold' : safe_value, 
+                                                    'timestamp':timestamp }   );
+                        }
+                        
+                    })
                 }
                 
                 function display_logs() {
@@ -390,6 +461,11 @@
                         watch_urls.checked=note_prefs.enabled;
                         var show_watch_check = (note_prefs.enabled) ? "block" : "none";
                         
+                        //display_user_watched_links.style.display=show_watch_check;
+                        if(note_prefs.enabled){
+                            display_user_watched_links();
+                        }
+                            
                         _q('.notificationInnerContainer').style.display=show_watch_check;
                         _q('[type=text]', notifications_form).value = note_prefs.threshold || 20;                        
                     } 
@@ -493,8 +569,7 @@
                     e.preventDefault();
                     var thres = _q("[type=text]", this), safe_value;
                     console.log(thres.value);
-                    safe_value = Math.max(thres.value, 10);
-                    safe_value = Math.ceil( Math.min(safe_value, 500) );
+                    safe_value = get_safe_threshold( thres.value );
                     // todo
                     // error handle, more than 0 clicks
                     bg.set_note_preferences( { 'enabled': true, 'threshold' : safe_value } );                    

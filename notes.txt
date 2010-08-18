@@ -1,3 +1,23 @@
+
+1.2.1
+    display of currently 'watched' links --- hmmm, maybe on trending, like two columns
+        Dead Trends | Yet to be born trends
+        
+    Unwatch a link
+    
+    Trending 'conversations' 
+
+1.2
+    Watch Button, Trending, character counter
+
+1.1.0.13 
+    Copy Link
+
+1.1
+    html5
+
+
+
 ---- Bug
 to fix the open issue with calls to all_domains that aren't logged in, required a restructuring of the startup process
     .. set from cache should do only that...
