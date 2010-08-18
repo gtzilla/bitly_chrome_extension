@@ -58,7 +58,10 @@
                     function(tx, sql_result){
                         if(sql_result.rowsAffected === 0) {
                             // check to make sure update worked, fall back to insert
-                            self.add(key, value, callback);
+                            setTimeout(function(){
+                                self.add(key, value, callback);                                
+                            }, 15)
+
                         } else {
                             callback(tx, sql_result)
                         }
@@ -88,25 +91,31 @@
         },
                 
         add : function( key, value, callback ) {
+            console.log(key, value)
             var saved_value = (typeof value === "string") ? value : JSON.stringify( value );
                 items = [ key, saved_value ], attempts = 0, 
                 self=this, no_table = "no such table";
 
             
             function add_insert_error(tx, sql_error) {
+                console.log(sql_error.code, "add_insert_error in bitlydb-v1.0")
                 if(sql_error.code === 1 ) {
                     // create a table here... 
                     attempts += 1;
                     if(sql_error.message.indexOf( no_table ) > -1) {
                         self.create_table( function() {
                             if(attempts > 5 ) return;
-                            self.insert( items, null, callback, add_insert_error )
+                            
+                            setTimeout(function() {
+                                self.insert( items, null, callback, add_insert_error );
+                            }, 20);
+
                         })                            
                     }
 
                 }                
             }
-
+            
             this.insert( items, null, callback, add_insert_error );
 
         },

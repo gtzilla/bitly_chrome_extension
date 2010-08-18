@@ -155,20 +155,29 @@ function remove_notification() {
 
     var notes = get_latest_notifications();
     notes.shift();
-    
+    console.log("try and remove ", notes)
+    __process_notification_for_db( notes );
+
+         
+}
+
+function __process_notification_for_db( notes ) {
     localstore("notifications", notes);
-    bit_db.save("notifications", notes, function() {
-        // save success...
-    });            
+    if(notes.length > 0) {
+        bit_db.save("notifications", notes, function() {
+            // save success...
+            console.log("set note", arguments)        
+        });        
+    } else {
+        bit_db.remove("notifications", function(){} );
+    }    
 }
 
 function set_notification( note ) {
     var notes = localfetch("notifications") || [];
     notes.push(  note );
-    localstore("notifications", notes);
-    bit_db.save("notifications", notes, function() {
-        // save success...
-    });
+    __process_notification_for_db( notes );
+
 }
 ////////////////***********************////////////////////////
 
@@ -189,10 +198,20 @@ function set_watch_item( short_url, threshold ) {
 }
 function set_watch_list( watch_list ) {
     // careful, overwrites, doesn't append
+    console.log(watch_list)
     localstore("watch_list", watch_list)
-    bit_db.save("watch_list", watch_list, function() {
-        // do something
-    });
+    
+    
+    if(watch_list.length > 0) {
+        bit_db.save("watch_list", watch_list, function(tx, sql_result) {
+            // something
+        });        
+    } else {
+        // drop it
+        bit_db.remove("watch_list", function(){} );
+    }
+    
+
 }
 
 function remove_watch_item( short_url ) {
