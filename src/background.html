@@ -158,63 +158,35 @@
         function watch_and_alert() {
             console.log("trending interval check started");
             logger("Watch and Alert for a link has been enabled, notifications");
-            var i=0, w_list, item, short_urls = [], hash, j=0;
-            bit_interval = setInterval(function() {
-                
-                // make bit.ly call now...
-                w_list = get_watch_list();
-                if(w_list.length<=0) {
-                    clearInterval( bit_interval );
-                    return;
-                }
+            var w_list = get_watch_list();
 
-                get_realtime_metrics(function(jo) {
-                    // now check the threshold of the links, see if it's in here
-                    // break down short url
-                    var link, links = jo && jo.realtime_links, curr_time = _now(), 
-                        old_time=curr_time - (1000*60*60*24), dead_links=[];
-                    short_urls=[];
-                    for(i=0; link=links[i]; i++) {
-                        for(j=0; item=w_list[j]; j++) {
-                            hash = (item.short_url.split("/")).reverse().shift();
-                            // todo
-                            // drop out links after 1 day
-                            
-                            if(item.timestamp < old_time) {
-                                dead_links.push(short_url);
-                            } else if( hash === link.user_hash && item.threshold <= link.clicks ) {
-                                short_urls.push( item.short_url );
-                                break;
-                            }
-                        }   
-                    }
-                    
-                    // drop old links
-                    for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
-                    
-                    if(short_urls.length<=0) return;
-                    
-                    bitly.expand_and_meta( short_urls, function(jo) {
-                        // add to the notifications, remove from the list...
-                        var bit_result;
-                        for(var k in jo.expand_and_meta) {
-                            bit_result = jo.expand_and_meta[k];
-                            for(i=0;i<links.length;i++) { 
-                                if(links[i].user_hash === bit_result.user_hash) {
-                                    bit_result.trend_clicks = links[i].clicks;
-                                    break;
-                                }
+            get_realtime_metrics(function(jo) {
+                jo.watch_list = w_list;          
+                trends_worker.postMessage( jo  );
+            });
 
-                            }
-                            remove_watch_item( bit_result.short_url );
-                            set_notification(bit_result);
+        }
+        
+        function process_realtime_post_notification( short_urls ) {
+            var links = localfetch("realtime") || [];
+            if(short_urls.length <= 0 ) { return; }
+            bitly.expand_and_meta( short_urls, function(jo) {
+                // add to the notifications, remove from the list...
+                var bit_result;
+                for(var k in jo.expand_and_meta) {
+                    bit_result = jo.expand_and_meta[k];
+                    for(i=0;i<links.length;i++) { 
+                        if(links[i].user_hash === bit_result.user_hash) {
+                            bit_result.trend_clicks = links[i].clicks;
+                            break;
                         }
-                        display_notification();
-                    } );
-                    
-                })
-                
-            }, 20000);
+
+                    }
+                    remove_watch_item( bit_result.short_url );
+                    set_notification(bit_result);
+                }
+                display_notification();
+            });            
         }
                 
         function share_message( message, callback) {
@@ -271,7 +243,6 @@
             } else {
                 bitly.realtime( function(jo) {
                     jo.timestamp = now;
-                    console.log("realtime from server is ", jo);
                     
                     localstore("realtime", jo);
                     if(jo && jo.realtime_links && jo.realtime_links.length > 0 ) {
@@ -491,9 +462,9 @@
             });            
         }
         
-        // the bit.ly API worker
+        // the bit.ly API connector
         logger("Initialize bit.ly extension");
-        var bitly=init_api(), bit_db=init_db(),
+        var bitly=init_api(), bit_db=init_db(), trends_worker,
             domains_list, auto_expand_urls = true, bit_interval, // bit_interval is the timer for watch list
             // for google tracking, when that's ready
             _gaq = _gaq || [];
@@ -508,7 +479,24 @@
         set_notifications_from_cache();
         set_watch_list_from_cache();
 
-       
+       trends_worker = new Worker("js/workers/realtime_data.js");
+       trends_worker.onmessage = function(evt) {
+           var i=0, dead_links=[];
+           switch( evt.data.action) {
+               case "analyzed_links":
+
+                    dead_links = evt.data.results && evt.data.results.dead_links || []
+                    for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
+                    process_realtime_post_notification( evt.data.results.short_urls );
+                    
+               break;
+
+               case "realtime":
+                    watch_and_alert();
+               break;
+           }
+           
+       }
         
         /*
             Listen for requests from content scripts, popups and other pages etc
