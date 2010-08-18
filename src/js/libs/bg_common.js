@@ -155,10 +155,13 @@ function remove_notification() {
 
     var notes = get_latest_notifications();
     notes.shift();
-    console.log("try and remove ", notes)
     __process_notification_for_db( notes );
 
          
+}
+
+function set_notification_list( notes_list ) {
+    __process_notification_for_db( notes_list );    
 }
 
 function __process_notification_for_db( notes ) {
@@ -166,7 +169,6 @@ function __process_notification_for_db( notes ) {
     if(notes.length > 0) {
         bit_db.save("notifications", notes, function() {
             // save success...
-            console.log("set note", arguments)        
         });        
     } else {
         bit_db.remove("notifications", function(){} );
@@ -198,7 +200,6 @@ function set_watch_item( short_url, threshold ) {
 }
 function set_watch_list( watch_list ) {
     // careful, overwrites, doesn't append
-    console.log(watch_list)
     localstore("watch_list", watch_list)
     
     

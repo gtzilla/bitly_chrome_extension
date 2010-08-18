@@ -52,8 +52,7 @@
                 saved_value = (typeof value === "string") ? value : JSON.stringify( value )
                 sql = "UPDATE " + this.settings.table + " SET itemValue=? WHERE itemKey=?";
             this.db.transaction(function(tx) {
-                // UPDATE $something WHERE $key is
-                //console.log(sql)
+
                 tx.executeSql( sql, [saved_value, key], 
                     function(tx, sql_result){
                         if(sql_result.rowsAffected === 0) {
@@ -98,7 +97,6 @@
 
             
             function add_insert_error(tx, sql_error) {
-                console.log(sql_error.code, "add_insert_error in bitlydb-v1.0")
                 if(sql_error.code === 1 ) {
                     // create a table here... 
                     attempts += 1;
@@ -152,7 +150,7 @@
         },        
         
         create_table : function( callback, error ) {
-            //console.log(this)
+
             var self = this;
             if(!error) {
                 error = function(tx,sql_error) {

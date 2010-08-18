@@ -168,7 +168,9 @@
         }
         
         function process_realtime_post_notification( short_urls ) {
-            var r_time = localfetch("realtime"), bit_result, i=0;
+            var r_time = localfetch("realtime"), bit_result, i=0, 
+                notes_list = [], l_notes = get_latest_notifications();
+                
             if(short_urls.length <= 0 ) { return; }
             r_time = r_time && r_time.realtime_links || [];
             
@@ -180,18 +182,16 @@
                     for(i=0;i<r_time.length;i++) { 
                         if(r_time[i].user_hash === bit_result.user_hash) {
                             bit_result.trend_clicks = r_time[i].clicks;
-
+                            notes_list.push( bit_result );
                             break;
                         }
                     }
                     
-                    remove_watch_item( bit_result.short_url );  
-                    set_notification( bit_result );
-
-                    console.log(bit_result.short_url, "bit_result.short_url")
-
-
+                    remove_watch_item( bit_result.short_url );
                 }
+                
+                l_notes = l_notes.concat(notes_list);
+                set_notification_list( l_notes );                
                 
                 display_notification();
             });            
@@ -236,7 +236,7 @@
             if(api_change) {
                 localstore("domain", api_domain);
                 bit_db.save("domain", api_domain, function() {
-                    console.log("setting api domain", arguments)
+                    //console.log("setting api domain", arguments)
                 });
             }
         }
@@ -278,7 +278,7 @@
         function set_url_expansion( bool_value) {
             auto_expand_urls = (bool_value) ? true : false;
             bit_db.save("auto_expand_urls", { 'auto_expand' : auto_expand_urls }, function() {
-                console.log("saved auto expand urls", arguments)
+                //console.log("saved auto expand urls", arguments)
             })
         }
 
@@ -494,7 +494,6 @@
                case "analyzed_links":
 
                     dead_links = evt.data.results && evt.data.results.dead_links || [];
-                    console.log( dead_links )
                     for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
                     process_realtime_post_notification( evt.data.results.short_urls );
                     
