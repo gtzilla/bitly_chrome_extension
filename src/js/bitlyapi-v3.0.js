@@ -31,7 +31,6 @@ var bitlyAPI = function( client_id, client_secret, settings  ) {
     host = (settings && settings.host) || host;
     // setting.url = {} will override the 'urls={ ... }'
     urls = extend({}, urls, (settings && settings.urls) );
-    console.log(urls)
     return new BitApi( client_id, client_secret )
 }
 window.bitlyAPI = bitlyAPI;
@@ -401,7 +400,6 @@ function ajaxRequest( obj ) {
     
     if(obj.type === "POST")  {
         ajax_url = obj.url;
-        console.log(obj.data)
         post_data = buildparams( obj.data );
         xhr.open("POST", ajax_url, true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -424,7 +422,6 @@ function ajaxRequest( obj ) {
                       }
                   } catch(e) {
                       // NOT JSON
-                      //console.log("not json")
                       message = xhr.responseXML || xhr.responseText
                   }
                   

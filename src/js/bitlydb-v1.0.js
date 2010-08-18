@@ -90,7 +90,6 @@
         },
                 
         add : function( key, value, callback ) {
-            console.log(key, value)
             var saved_value = (typeof value === "string") ? value : JSON.stringify( value );
                 items = [ key, saved_value ], attempts = 0, 
                 self=this, no_table = "no such table";

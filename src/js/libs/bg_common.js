@@ -215,6 +215,19 @@ function set_watch_list( watch_list ) {
 
 }
 
+function remove_watch_items_list( short_urls ) {
+
+    var l_watch = get_watch_list(), i=0, watched, f_wach_list=[];
+    for(i=0; i<l_watch.length; i++) {
+        watched = l_watch[i];
+        if(short_urls.indexOf( watched.short_url ) === -1 ) {
+            f_wach_list.push(  watched );
+        }
+    }
+    
+    set_watch_list( f_wach_list );
+}
+
 function remove_watch_item( short_url ) {
     var latest_watch_list = get_watch_list(), i=0, watch_item, clean_list=[];
     for( var i=0, watch_item; watch_item=latest_watch_list[i]; i++) {

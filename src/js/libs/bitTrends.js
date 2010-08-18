@@ -76,17 +76,12 @@
             var current_trend = dataStich( new_bits, this.cache.meta ),
                 trends = this.trends_list.slice(0), html, trend_change_elem;
 
-            // todo
-            // check the timestamp whether to 'shift' array or not, aka if they are the same, remove it.
-            //trends.shift();
             current_trend = addTrendingData( current_trend, trends );            
-            //console.log(new_bits)
             for(i=0; i<old_bits.length; i++) { old_bit_hash_keys.push( (old_bits[i]).user_hash  ) }
             
             for(i=0; i<current_trend.length; i++) { 
                 bit_hash_keys.push( (current_trend[i]).user_hash  ); 
                 var t = current_trend[i];
-                console.log(old_bits)
                  if( old_bit_hash_keys.indexOf( t.user_hash ) === -1 ) { 
                         missing_elements_list.push( t ); 
                 }
@@ -114,7 +109,6 @@
                         // J is where the element needs to go...
                         trend_change_elem = item.getElementsByClassName("changed_trend")[0]
                         var t_elem = _q(".bit_trend_clicks", item);
-                        //console.log(t_elem)
                         t_elem.innerHTML = _drawClicks( new_bit );
                         trend_change_elem.innerHTML = _drawChanged( new_bit );                        
                         break;
@@ -183,9 +177,9 @@
                 }
                 b_pos = trend_el.getAttribute("bit_position")*1
                 if( i*trend_heigt === b_pos ) {
-                    console.log("position is the same")
+                    //console.log("position is the same")
                 } else {
-                    console.log("move this element from", b_pos, "to", i*trend_heigt, "px")
+                    //console.log("move this element from", b_pos, "to", i*trend_heigt, "px")
                     trend_el.setAttribute("bit_position", (i*trend_heigt) )
                     //trend_el.setAttribute("style", "top:"+ (i*trend_heigt)  +"px")  
                     

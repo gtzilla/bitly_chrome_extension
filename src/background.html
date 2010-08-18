@@ -169,7 +169,7 @@
         
         function process_realtime_post_notification( short_urls ) {
             var r_time = localfetch("realtime"), bit_result, i=0, 
-                notes_list = [], l_notes = get_latest_notifications();
+                notes_list = [], l_notes = get_latest_notifications(), r_watch_list=[];
                 
             if(short_urls.length <= 0 ) { return; }
             r_time = r_time && r_time.realtime_links || [];
@@ -183,13 +183,16 @@
                         if(r_time[i].user_hash === bit_result.user_hash) {
                             bit_result.trend_clicks = r_time[i].clicks;
                             notes_list.push( bit_result );
+                            r_watch_list.push( bit_result.short_url );
                             break;
                         }
                     }
                     
-                    remove_watch_item( bit_result.short_url );
+                    //remove_watch_item( bit_result.short_url );
                 }
                 
+                
+                remove_watch_items_list( r_watch_list );
                 l_notes = l_notes.concat(notes_list);
                 set_notification_list( l_notes );                
                 
@@ -236,7 +239,7 @@
             if(api_change) {
                 localstore("domain", api_domain);
                 bit_db.save("domain", api_domain, function() {
-                    //console.log("setting api domain", arguments)
+                    // anything here
                 });
             }
         }
@@ -278,7 +281,7 @@
         function set_url_expansion( bool_value) {
             auto_expand_urls = (bool_value) ? true : false;
             bit_db.save("auto_expand_urls", { 'auto_expand' : auto_expand_urls }, function() {
-                //console.log("saved auto expand urls", arguments)
+                //anything here
             })
         }
 
@@ -494,8 +497,12 @@
                case "analyzed_links":
 
                     dead_links = evt.data.results && evt.data.results.dead_links || [];
-                    for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
-                    process_realtime_post_notification( evt.data.results.short_urls );
+                    //for(i=0;i<dead_links.length;i++){ remove_watch_item( dead_links[i] ); }
+                    remove_watch_items_list( dead_links );
+                    setTimeout(function() {
+                        process_realtime_post_notification( evt.data.results.short_urls );                        
+                    }, 40);
+
                     
                break;
 
