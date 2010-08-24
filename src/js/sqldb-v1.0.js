@@ -1,23 +1,30 @@
 /*
     A wrapper to interact with local SQL and make it as simple as local storage, sorta
+    
+    
+    TODO
+    this wrapper should check 'this.db' and see if it's currently doing a transaction (such as table create) and cue accordingly to avoid simultaneous requests that could cause write lock
+    
+    Research required:
+        this.db properties and if a 'availble' / busy flag is available.
 */
 
 (function() {
 
-    var default_desc = "A local SQL DB", default_size = 5000000, default_version = 1
-        bitlyDB = function( name, options ) {
+    var default_desc = "A local SQL DB", default_size = 5000000, default_version = 1,
+        sqlDB = function( name, options ) {
             if(!options) options = {};
         
-            return new BitDatabase( name, options );
+            return new DBWrapper( name, options );
             
         }
     
-    function BitDatabase( name, options ) {
+    function DBWrapper( name, options ) {
         return this.init( name, options )
     }
     
-    window.bitlyDB = bitlyDB;
-    BitDatabase.prototype = {
+    window.sqlDB = sqlDB;
+    DBWrapper.prototype = {
         // hmmm,right now, you can make different objects and interect with diff tables, but will always be same db
         init : function( name, options ) {
             this.db = window.openDatabase( name, options.version || default_version, 
@@ -49,7 +56,10 @@
         
         save : function( key, value, callback ) {
             var self=this, no_table = "no such table"
-                saved_value = (typeof value === "string") ? value : JSON.stringify( value )
+                saved_value = (typeof value === "string") ? value : JSON.stringify( value );
+                // todo
+                // clean this up so SET is pulled from the table schema value in this.settings.schema
+                // shoud be able to write simple regex based on def pattern (name TYPE, name TYPE) etc
                 sql = "UPDATE " + this.settings.table + " SET itemValue=? WHERE itemKey=?";
             this.db.transaction(function(tx) {
 
@@ -67,7 +77,7 @@
                     }, 
                     function(tx, sql_error) {
                         console.log("sql error", sql_error, tx);
-                        if(sql_error.code === 1 && sql_error.message.indexOf( no_table ) > -1 ) {
+                        if(sql_error.message.indexOf( no_table ) > -1 ) {
                             // do an insert, if that fails, create the table and do everything
                             console.log("attempt to insert or create table")
                             self.add( key, value, callback )
@@ -94,21 +104,21 @@
                 items = [ key, saved_value ], attempts = 0, 
                 self=this, no_table = "no such table";
 
-            
             function add_insert_error(tx, sql_error) {
-                if(sql_error.code === 1 ) {
+                console.log("error", tx, sql_error)
+                if(sql_error.message.indexOf( no_table ) > -1 ||  sql_error.code > 0 ) {
                     // create a table here... 
                     attempts += 1;
-                    if(sql_error.message.indexOf( no_table ) > -1) {
-                        self.create_table( function() {
-                            if(attempts > 5 ) return;
-                            
-                            setTimeout(function() {
-                                self.insert( items, null, callback, add_insert_error );
-                            }, 20);
 
-                        })                            
-                    }
+                    self.create_table( function() {
+                        if(attempts > 5 ) return;
+                        
+                        setTimeout(function() {
+                            self.insert( items, null, callback, add_insert_error );
+                        }, 20);
+
+                    })                            
+
 
                 }                
             }

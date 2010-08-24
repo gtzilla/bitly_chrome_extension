@@ -22,7 +22,7 @@
         
         
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
-        <script type="text/javascript" src="js/bitlydb-v1.0.js"></script>
+        <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/bg_common.js"></script> 
         <script type="text/javascript" src="js/libs/common.js"></script>                          
@@ -455,7 +455,7 @@
             return b;
         }
         function init_db( name ) {
-            return bitlyDB("bitly_local_db");
+            return sqlDB("bitly_local_db");
         }
         
         function test_metrics() {
