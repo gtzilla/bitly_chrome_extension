@@ -36,8 +36,8 @@ function no_look_domains( url ) {
 */
 
 function escaper( string ) {
-    return (string && string.replace('&', "&amp;").replace('"', "&quot;").replace("'", "&#39;")
-                 .replace('>', "&gt;").replace('<', "&lt;") ) || "";
+    return (string && string.replace(/&/mgi, "&amp;").replace(/"/mgi, "&quot;").replace(/'/mgi, "&#39;")
+                 .replace(/>/mgi, "&gt;").replace(/</mgi, "&lt;") ) || "";
 }
 
 function _id( name ) {
