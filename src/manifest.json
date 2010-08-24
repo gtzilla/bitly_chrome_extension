@@ -16,15 +16,13 @@
   "permissions": [
     "http://*/*", 
     "https://*/*", 
-    "http://api.bit.ly/",
-    "https://*.bit.ly/",
     "tabs", 
     "notifications",
     "unlimited_storage"     
   ],
   "content_scripts": [
     {
-     "matches": ["http://*/*"],
+     "matches": ["http://*/*", "https://*/*"],
      "js": ["js/content_plugins/bitly.dispatcher.js"]   
     }
   ]
