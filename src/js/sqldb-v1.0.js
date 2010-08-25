@@ -79,7 +79,6 @@
                         console.log("sql error", sql_error, tx);
                         if(sql_error.message.indexOf( no_table ) > -1 ) {
                             // do an insert, if that fails, create the table and do everything
-                            console.log("attempt to insert or create table")
                             self.add( key, value, callback )
                         }
                 });
@@ -103,10 +102,9 @@
             var saved_value = (typeof value === "string") ? value : JSON.stringify( value );
                 items = [ key, saved_value ], attempts = 0, 
                 self=this, no_table = "no such table";
-
             function add_insert_error(tx, sql_error) {
-                console.log("error", tx, sql_error)
-                if(sql_error.message.indexOf( no_table ) > -1 ||  sql_error.code > 0 ) {
+                console.log("error with add_insert_error", tx, sql_error, key, value );
+                if(sql_error.message.indexOf( no_table ) > -1  ) {
                     // create a table here... 
                     attempts += 1;
 
@@ -117,12 +115,21 @@
                             self.insert( items, null, callback, add_insert_error );
                         }, 20);
 
-                    })                            
+                    }, add_insert_error );
+                } else if( sql_error.code > 0 ) {
+                    attempts += 1;
+                    console.log("error code", sql_error.code, "re-attempt", attempts);
+                    setTimeout(function() {
+                        self.save( key, value, callback );                        
+                    }, 30 );
 
-
-                }                
+                }
             }
-            
+            if(attempts>5) {
+                if(callback) callback({ 'error' : 'attempt excepted'});
+                console.log("attempts exceeeded", attempts)
+                return;
+            }
             this.insert( items, null, callback, add_insert_error );
 
         },
@@ -163,9 +170,10 @@
             var self = this;
             if(!error) {
                 error = function(tx,sql_error) {
-                    console.log("error creating table")
+                    console.log("error creating table", error)
                 }
             }
+            console.log(this, "trying to make table now....")
             this.db.transaction(function(tx) {
                 //tx.executeSql( sql_string, obj.values || [], obj.success, obj.error);
                 tx.executeSql("CREATE TABLE " + self.settings.table + " " + self.settings.schema, [], callback, error )                
