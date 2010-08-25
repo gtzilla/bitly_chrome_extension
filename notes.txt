@@ -73,6 +73,7 @@ If this was possible, it would mean the server aspect could be removed and data 
 
 
 
-
+Notes:
+    from contributor gregory80: on github.com all my contributions should be consider unlicensed by http://unlicense.org/. The full text of the unlicensing document can be found there.
 
 
