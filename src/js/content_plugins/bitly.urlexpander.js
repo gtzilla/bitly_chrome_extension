@@ -1,5 +1,5 @@
 var page_links, queried_matches = [],
-    timeout_link, expander_visible = false, container, expanded_elements = [], get_more_links_timeout,
+    timeout_link, expander_visible = false, bit_container_elem, expanded_elements = [], get_more_links_timeout,
     //[-_a-zA-Z0-9][.\?!]?
     fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[-_a-zA-Z0-9]{2,20}))(?:[.\?!]?)$", "gi"),
     // keep this basic list, to eliminate already known items and save some cyles later
@@ -45,10 +45,7 @@ function _id( name ) {
 }
 
 function find_short_links() {
-    
-    //querySelectorAll, document.querySelectorAll("a:not([href=''])")
-    // document.querySelectorAll("a:not([href=''])"), 
-    // document.getElementsByTagName("a")
+
     var links = document.querySelectorAll("a:not([href=''])"), 
         href, matches, final_matches=[], 
         url, i=0, elem;
@@ -83,9 +80,7 @@ function findPos(obj) {
     return [curleft, curtop];
 }
 
-function brainResponse(jo) {
-    //console.log(jo, "the expanded urls");
-    
+function brainResponse(jo) {    
     // start looking for more
     run_find_more_links();
     
@@ -94,15 +89,16 @@ function brainResponse(jo) {
         possible_keywords = [], matched_results = [],
         body = document.body;
     
-    container = document.getElementById("bitly_expanded_container") || document.createElement("div");
-    if(!container.id || container.id === "") {
-        container.id = "bitly_expanded_container";
-        container.addEventListener('mouseover', function(e) {
+    bit_container_elem = document.getElementById("bitly_expanded_container") || document.createElement("div");
+    if(!bit_container_elem.id || bit_container_elem.id === "") {
+        bit_container_elem.id = "bitly_expanded_container";
+        bit_container_elem.addEventListener('mouseover', function(e) {
             clearTimeout(timeout_link);
             expander_visible = true;
+            // hmmmmmmmmm
         });
-        container.addEventListener('mouseout', closeBitlyUrlExpanderBox);
-        container.addEventListener('click', function(e) {
+        bit_container_elem.addEventListener('mouseout', closeBitlyUrlExpanderBox);
+        bit_container_elem.addEventListener('click', function(e) {
             var clss = e.target.className, link_box = _id("always_for_this_domain"), params = {};
             if(e.target.parentNode === link_box) {
                 //bg.add_no_expand_domain( document.location.host );
@@ -112,9 +108,10 @@ function brainResponse(jo) {
                 return;
             }
             if(clss === "bitly_url_expander_box_close") {
+                e.stopPropagation();
                 e.preventDefault();
                 // show box here
-                
+                if(!link_box){ return; }
                 var setting = link_box.style.display;
                 if(setting==="none") {
                     link_box.style.display="block";
@@ -139,7 +136,7 @@ function brainResponse(jo) {
     
     var matches_links = find_link_elements_by_response( jo );   
      
-    body.appendChild( container )
+    body.appendChild( bit_container_elem );
     
     for(var i=0; i<matches_links.length; i++) {
        
@@ -147,7 +144,7 @@ function brainResponse(jo) {
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
             var html = '', el = matches_links[elem_num].elem, 
-                positions = findPos( el ),
+                // positions = findPos( el ),
                 sUrl = escaper(result.short_url),
                 lUrl = escaper( result.long_url ), title = escaper( result.title || result.long_url );
             if(!result || result.error) return;
@@ -172,18 +169,20 @@ function brainResponse(jo) {
             
             
             el.addEventListener('mouseover', function(e) {
-                clearTimeout(timeout_link);                
-                positions = findPos( el );
-                var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0],
-                    top_pos = ( positions[1] + e.target.offsetHeight );
-
-                // TODO
-                // add simple opacity animation
-                container.setAttribute("style", 'display:block; left:'+ left_pos +'px; top:'+ top_pos +'px;'); 
+                clearTimeout(timeout_link);  
+                var evt = e;
+                positions = findPos( evt.target );
+                var left_pos = ( positions[0] > evt.screenX ) ? (evt.screenX-evt.offsetX) : positions[0],
+                    top_pos = ( positions[1] + evt.target.offsetHeight );
+                bit_container_elem.setAttribute("style", 'display:block; left:'+ left_pos +'px; top:'+ top_pos +'px;'); 
                 // set opacity to 0, then stair step it over a period of time?                                             
-                container.innerHTML = html;
+                bit_container_elem.innerHTML = html;
                 
-            })
+                // let people set this timeout value??!
+                set_close_box_timeout( 1100 ); // give the user a moment to grab the box, or hide it
+            });
+            // todo
+            // add bail here, if hover card no activated
             el.addEventListener('mouseout', closeBitlyUrlExpanderBox);
             
             
@@ -196,15 +195,27 @@ function brainResponse(jo) {
  
 }
 
+function _draw_bit_card() {
+    
+}
+
 function close_container() {
-    container.style.display="none"; 
-    container.innerHTML = "";
+    if(bit_container_elem) {
+        bit_container_elem.style.display="none"; 
+        bit_container_elem.innerHTML = "";
+    }
+
 }
 
 function closeBitlyUrlExpanderBox(e) {
+    set_close_box_timeout( 100 );
+}
+
+function set_close_box_timeout( interval ) {
+    if(timeout_link){ clearTimeout(timeout_link); }
     timeout_link = setTimeout(function(){
         close_container();
-    }, 280)    
+    }, interval);    
 }
 
 
@@ -280,7 +291,7 @@ function run_find_more_links() {
 
 function callBrain( final_matches ) {
     if(final_matches.length > 0) {
-        chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : final_matches }, brainResponse)        
+        chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : final_matches }, brainResponse);
     } else {
         run_find_more_links();
     }
@@ -293,9 +304,10 @@ function open_options_callback() {
 
 
 function init() {
-    //console.log("searching for short links...")
     var matches = find_short_links();   
     queried_matches = queried_matches.concat( matches );
+    // close the box, don't let it get stuc
+    document.body.addEventListener('click', closeBitlyUrlExpanderBox);
     callBrain( matches );
 
 }
