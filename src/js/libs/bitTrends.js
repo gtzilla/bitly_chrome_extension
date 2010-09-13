@@ -1,6 +1,6 @@
 /*
     
-    Dependency: common.js, timeFormat.js
+    Dependency: common.js, timeFormat.js, fastFrag.js
     
     This 'script' is really just an interface to the trends DOM structure
         
@@ -19,7 +19,7 @@
         return new bTrend( el, realtime_bits );
     }
     window.bitTrends = bitTrends;
-    var trend_heigt = 75;
+    var trend_height = 75;
 // all the real work, this was all a $.fn.whatever really is anyway, except it inherited the jQuery info
     function bTrend( el, realtime_bits ) {
         
@@ -45,13 +45,15 @@
             
             
             var current_trend = dataStich( this.realtime_bits.realtime_links, this.cache.meta ),
-                trends = this.trends_list.slice(0), html;
+                trends = _copy( this.trends_list ), html, results;
 
             trends.shift();
             current_trend = addTrendingData( current_trend, trends );
             //
             html = drawTrendElements( current_trend );
-            this.el.innerHTML = html;
+            results = fastFrag.create( html )
+            this.el.innerHTML = "";
+            this.el.appendChild( results );
         
         },
         
@@ -74,7 +76,7 @@
 
             
             var current_trend = dataStich( new_bits, this.cache.meta ),
-                trends = this.trends_list.slice(0), html, trend_change_elem;
+                trends = _copy(this.trends_list), html, trend_change_elem;
 
             current_trend = addTrendingData( current_trend, trends );            
             for(i=0; i<old_bits.length; i++) { old_bit_hash_keys.push( (old_bits[i]).user_hash  ) }
@@ -87,9 +89,9 @@
                 }
             }
             
-            for(i=0; i<old_bits.length; i++) {
-               
-            }
+            // for(i=0; i<old_bits.length; i++) {
+            //    
+            // }
             
             
             
@@ -107,10 +109,14 @@
                         // hash match
                         
                         // J is where the element needs to go...
-                        trend_change_elem = item.getElementsByClassName("changed_trend")[0]
+                        trend_change_elem = _q(".changed_trend", item);
                         var t_elem = _q(".bit_trend_clicks", item);
-                        t_elem.innerHTML = _drawClicks( new_bit );
-                        trend_change_elem.innerHTML = _drawChanged( new_bit );                        
+                        t_elem.innerHTML = "";
+                        t_elem.appendChild( fastFrag.create( _drawClicks( new_bit )  ) )
+                        //t_elem.innerHTML = ;
+                        trend_change_elem.innerHTML = "";
+                        trend_change_elem.appendChild( fastFrag.create( _drawChanged( new_bit ) ) )
+                                               
                         break;
                     }
                 }
@@ -137,26 +143,22 @@
             }            
             
             var counter = 0;
-            console.log("The missing elements are", missing_elements_list);
+            //console.log("The missing elements are", missing_elements_list);
             for(var k in missing_elements_list) {
                 var bit_trend_item = missing_elements_list[k],
-                    clone = _q("item").cloneNode(true), el_position,
-                    t_elem = _q(".bit_trend_clicks", clone),
-                    t_elem_1 = _q(".changed_trend", clone),
-                    t_elem_2 = _q(".bit_trend_title", clone),
-                    t_elem_3 = _q(".bit_hash_value", clone);                                  
-                              
+                    el_position = (el_items.length+counter)*trend_height,
+                    results = fastFrag.create({
+                    type : "item",
+                    css : "bit_trend_item",
+                    attributes : {
+                        bit_position : el_position,
+                        bit_hash : bit_trend_item.user_hash,
+                        style : 'top:' + el_position +'px;',
 
-                t_elem.innerHTML = _drawClicks( bit_trend_item );  
-                t_elem_1.innerHTML = _drawChanged( bit_trend_item );
-                t_elem_2.innerHTML = _drawHead( bit_trend_item );
-                t_elem_3.innerHTML = bit_trend_item.user_hash;
-                // addend the element now to end of container...
-                el_position =  (el_items.length+counter)*trend_heigt;
-                clone.setAttribute("bit_hash", bit_trend_item.user_hash );                
-                clone.setAttribute("style", "top:"+el_position+"px")
-                clone.setAttribute("bit_position", el_position)
-                bitTrendsBox.appendChild( clone )
+                    },
+                    content : _drawItem( bit_trend_item )                
+                });
+                bitTrendsBox.appendChild( results );
                 counter+=1;
             }
             
@@ -165,26 +167,21 @@
 
             // now let's move / animate the elements
             // so if I loop over the el_items, I should be able to move to their location in the new_bits array
-            
+            var trend_el, b_pos;            
             for(i=0; i<current_trend.length; i++) {
                 // alright, now find this elements position...
-                var trend_el, b_pos;
-                //console.log(bitTrendsBox.getElementsByTagName("item"))
+
                 try{
                     trend_el= _q("[bit_hash~='"+ current_trend[i].user_hash +"']", bitTrendsBox);
                 } catch(e){
                     // take this node out??
                 }
                 b_pos = trend_el.getAttribute("bit_position")*1
-                if( i*trend_heigt === b_pos ) {
+                if( i*trend_height === b_pos ) {
                     //console.log("position is the same")
                 } else {
-                    //console.log("move this element from", b_pos, "to", i*trend_heigt, "px")
-                    trend_el.setAttribute("bit_position", (i*trend_heigt) )
-                    //trend_el.setAttribute("style", "top:"+ (i*trend_heigt)  +"px")  
-                    
-                    
-                    emile(trend_el, "top:"+ (i*trend_heigt)  +"px;", { 
+                    trend_el.setAttribute("bit_position", (i*trend_height) )
+                    emile(trend_el, "top:"+ (i*trend_height)  +"px;", { 
                             duration: 1700
                           });                    
                                       
@@ -208,13 +205,10 @@
     
     }
     
-    // find percent change formular
-    // ((current_value/old_value) - 1)*100 ... if oldvalue is 0, it's gonna throw an error
-    // Take the new, "current value" and divide it by the old, obsolete value. Subtract 1.00 (or 100%) from the result.
+
         
     function addTrendingData( current_trend, trends ) {
-        //console.log(arguments)
-        //trends = trends.slice(0,10)
+
         var i=0, trend, key, j=0, past_trend, past_realtime, past_realtimes, ii=0;
         
         outerLoop:
@@ -226,7 +220,7 @@
                 for(ii=0; past_realtime=past_realtimes[ii]; ii++) {
                     //console.log(past_realtime)
                     if(key === past_realtime.user_hash && trend.clicks !== past_realtime.clicks) {
-                        console.log(trend.user_hash, trend.clicks, past_realtime.clicks, past_trend.timestamp )
+                        //console.log(trend.user_hash, trend.clicks, past_realtime.clicks, past_trend.timestamp )
                         
                         trend.past_timestamp = past_trend.timestamp;
                         trend.past_clicks = past_realtime.clicks;
@@ -277,78 +271,135 @@
     function drawTrendElements( current_trend_list ) {
         
         var i=0, urls = current_trend_list, url,
-            item, html = "", height=trend_heigt;
-        //html += timeFormat( realtimes_from_cache.timestamp );
-        console.log(realtimes_from_cache.timestamp)
-        html += '<div class="bitTrendsOuterContainer" id="bitTrendsBox">';
+            item, html = "", height=trend_height, structure, structure_items = [];
+
         for( ; url=urls[i]; i++) {
             
-            html += '<item bit_position="'+i*height+'" style="top:'+  i*height +'px;" class="bit_trend_item" bit_hash="'+url.user_hash+'">';            
-                html += _drawItem( url );
-                html += '</item>';                 
+            structure_items.push({
+                type : "item",
+                css : "bit_trend_item",
+                attributes : {
+                    bit_position : (i*height),
+                    bit_hash : url.user_hash,
+                    style : 'top:' + i*height +'px;',
+
+                },
+                content : _drawItem( url )                
+            })
+            
+                            
         }
         
-        html += '</div>';
-        return html;
+        structure = {
+            css : "bitTrendsOuterContainer",
+            id : "bitTrendsBox",
+            content : structure_items
+        }
+        
+        return structure;
     }
     
-    function _drawItem( url, pos ) {
-        var html = "";
-                    
-        html += '<div class="bit_trend_clicks">';
-            html += _drawClicks( url );
-        html += '</div>'
+    function _drawItem( url ) {
+        
+        var structure = [{
+            css : "bit_trend_clicks",
+            content : _drawClicks( url )
+        },{
+            css : "bit_trends_meta",
+            content : [ _drawHead( url ), {
+                css : "changed_trend",
+                content : _drawChanged( url )
+            }, {
+                css : "bit_hash_value",
+                attributes : {
+                    style : "display:none;"
+                },
+                content : url.user_hash
+            }]
+        },{
+            css : "hr",
+            content : {
+                type : "hr"
+            }
+        }];
+        
+        return structure;
 
-
-        html += '<div class="bit_trends_meta">'
-            html += _drawHead( url );        
-            html += '<div class="changed_trend">';                         
-                html += _drawChanged( url );
-            html += '</div>';
-            html += '<div class="bit_hash_value" style="display:none;">'+ url.user_hash +'</div>'
-        html += '</div>'
-        html += '<div class="hr"><hr /></div>'
-        //html += '<div>Total: ' + commify( url.user_clicks )  + " of " + commify( url.global_clicks )  + '</div>';
-        return html;
     }
     
     function _drawClicks( url ) {
-        var html = "";
-            html += '<div class="click_number">' + commify( url.clicks ) + '</div>';
-            html += '<div class="smallText">clicks</div>'        
-        return html;
+        var structure = [{
+            css : "click_number",
+            content : commify( url.clicks )
+        }, {
+            css : "smallText",
+            content : "clicks"
+        }]
+        return structure;
     }
     function _drawHead( url ) {
-        var html = "";
-        html += '<div class="bit_trend_title">'
-            html += '<div class="treadHeader">'
-                html += '<h3>'
-                html += '<a href="'+escaper(url.long_url)+'" target="new">' + escaper( url.title || url.long_url ) + '</a>';
-                html += '</h3>'
-            html += '</div>';
-            html += '<div class="longlink"><a href="'+escaper(url.long_url)+'">'+escaper(url.long_url)+'</a></div>'
-        html += '</div>'
         
-        return html;        
+        return {
+            css : "bit_trend_title",
+            content : [{
+                css : "treadHeader",
+                content : {
+                    type : "h3",
+                    content : {
+                        type : "a",
+                        content : url.title || url.long_url,
+                        attributes : {
+                            href : url.long_url
+                        }
+                    }
+                }
+            },{
+                css : "longlink",
+                content : {
+                    type : "a",
+                    content : url.long_url,
+                    attributes : {
+                        href : url.long_url
+                    }
+                }
+            }]
+        }
+                
     }
     
     function _drawChanged(url) {
-        var html = "", dir = "up";
+        var diff = [], structure, dir = "up";
+        // if(url.time_diff) {
+        //     dir = (url.percent_change > 0) ? "up" : "down";            
+        //     diff = [{
+        //         type : "img",
+        //         attributes : {
+        //             src : 's/graphics/'+dir+'_arrow.png',
+        //             height : 9,
+        //             width : 9,
+        //             border : 0,
+        //             alt : ""
+        //         }
+        //     }, {
+        //         text : ' ' + Math.ceil( url.percent_change ) + '%' + url.time_diff.toLowerCase() + ' from ' + url.past_clicks + ' clicks'
+        //     }]
+        // } else {
+        //     diff = [{
+        //         text : "No change 1 min ago "
+        //     }]
+        // }
+        diff.push({
+            type : "a",
+            attributes : {
+                href : 'http://bit.ly/'+url.user_hash+'+',
+                target : "new"
+            },
+            content : ' more info +'
+        })
+        structure = diff
         
-        if(url.time_diff) {
-            dir = (url.percent_change > 0) ? "up" : "down";
-            html += '<img src="s/graphics/'+dir+'_arrow.png" alt="0" border="0" width="9" height="9" />'
-            html += ' ' + Math.ceil( url.percent_change ) +"%";
-            html += url.time_diff.toLowerCase();
-            html += ' from ' + url.past_clicks + ' clicks';
+        return structure;
 
-        } else {
-            html += "No change 1 min ago ";  
-        }
-
-        html += ' <a href="http://bit.ly/'+url.user_hash+'+" target="new">more info +</a>';            
-        return html;
-        
     }
     
     function extend() {

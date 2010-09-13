@@ -1,58 +1,137 @@
 /*
     html5 workers
-    http://robertnyman.com/2010/03/25/using-html5-web-workers-to-have-background-computational-power/
+
 */
-var timer;
+
+
+
+var ssl_key, black_list=[], ajax_in_action,  timer;
 onmessage = function(evt) {
-    //evt.data
 
-    if(!evt.data || !evt.data.realtime_links) { return; }
-    
-    
-    var results = processRealtimeResultsResponse( evt.data );
-    postMessage({'action' : 'analyzed_links', 'results' : results });
-    if(results.watch_list.length > 0 ) {
-        startTimer();        
+    if( evt.data.action === "start") {
+        
+        if(!evt.data.oauth_key ) { return; }        
+        ssl_key = evt.data.oauth_key;
+        black_list = evt.data.black_list || [];
+
+        callRemote();
+        
+    } else {
+        
+        
+        if(evt.data.oauth_key) { 
+            ssl_key = evt.data.oauth_key;
+        }        
+        
+        
+        if(evt.data.black_list ) {
+            black_list = evt.data.black_list || [];
+        }
+
+        callRemote();
+
     }
 
 }
 
-function processRealtimeResultsResponse(jo) {
-    var link, links = jo && jo.realtime_links, curr_time = (new Date()).getTime(), 
-        w_list = jo.watch_list || [], final_watch_links = [],
-        old_time=curr_time - (1000*60*60*24), dead_links=[], short_urls;
-    short_urls=[];
-    for(i=0; link=links[i]; i++) {
-        for(j=0; item=w_list[j]; j++) {
-            hash = (item.short_url.split("/")).reverse().shift();
-            // todo
-            // drop out links after 1 day
-            
-            if(item.timestamp < old_time) {
-                dead_links.push(short_url);
-            } else if( hash === link.user_hash && item.threshold <= link.clicks ) {
-                short_urls.push( item.short_url );
-                break;
+function handle_api_repsonses(jo) {
+
+    if(jo && jo.data && jo.status_code===200) {
+        
+        var params = process_realtime( jo.data );
+        postMessage( params );
+        
+    } else {
+        postMessage(jo);
+    }
+    
+    timer = setTimeout(callRemote, 20000);
+
+}
+
+function callRemote(){
+    if(ajax_in_action) {
+        ajax_in_action.abort();
+    }
+    
+    if(timer) {
+        clearTimeout(timer);
+    }
+    
+    setTimeout(function() {
+        ajax_in_action = ajaxRequest( ssl_key, handle_api_repsonses );          
+    }, 20000);
+
+   
+}
+
+function process_realtime( data  ) {
+    var links = data.realtime_links, notifications=[], remove_list=[];
+    outerLoop:
+    for(var i=0,link; link=links[i]; i++) {
+        
+                
+        for(var j=0,short_url; short_url=black_list[i]; i++) {
+            var pieces = short_url.split("/"), hash = pieces.pop();
+            if( hash === link.user_hash ) {
+                continue outerLoop;
             }
-        }   
-    }  
-    
-    
-    // strip the dead
-    for(i=0; i<w_list.length; i++) {
-        if( dead_links.indexOf( w_list[i] ) === -1 ) { final_watch_links.push( w_list[i]); }
+            // if( short_url.indexOf( link.user_hash ) > -1 ) {
+            //     continue outerLoop;
+            // }
+        }
+        
+
+        var shorty = "http://bit.ly/" + link.user_hash;
+        notifications.push( shorty );
+
+        
     }
-    // leave 'dead_links' in so the background page can strip fron localstorage and localsql
-    // we are trimming here to avoid 
-    return { 'dead_links' : dead_links, 'short_urls' : short_urls, 'watch_list' : final_watch_links }  
+    
+    
+    return {
+        'notifications' : notifications,
+        'trending_links' : data,
+        'current_blacklist' : black_list
+    }
 }
 
-function startTimer() {
-    if(timer) clearTimeout(timer);
-    setTimeout(timerComplete, 30000);
+
+
+function ajaxRequest( oauth_key, callback ) {
+    var xhr = new XMLHttpRequest(), message, 
+        post_data, url="https://api-ssl.bit.ly/v3/user/realtime_links";
+    
+    if(!oauth_key || oauth_key === "") { 
+        postMessage({'error' : 'no auth key'})
+        return; 
+    }
+    url += '?access_token=' + encodeURIComponent( oauth_key );
+    xhr.open("GET", url, true);
+    xhr.onreadystatechange = function() {
+         if (xhr.readyState == 4) {
+             // do success
+             // if(xhr.status!=200) {
+             //     if(callback) callback({'error' : true}, xhr.status);
+             //     return;
+             // }
+             try {
+                 message = JSON.parse(xhr.responseText)
+             } catch(e) {
+                 message = xhr.responseXML || xhr.responseText
+             }
+             callback( message, xhr.status );
+         }
+    }
+    xhr.send();
+    return xhr;
 }
 
 
-function timerComplete() {
-    postMessage({ 'action' : 'realtime'});
-}
+
+
+
+
+
+
+

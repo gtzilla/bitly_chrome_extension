@@ -123,6 +123,7 @@ function get_no_expand_domains() {
 
 /*  Notification Preferences: enabled, threshold etc   */
 function get_note_preferences() {
+    // 20 days later, this was kinda genius - good job me. the only thing that doesn't suck
     var default_pref = { 'enabled' : true, 'threshold' : 20, "interval" : 1, "interval_type" : 'hour' };
     return localfetch("note_preferences") || default_pref;
 }
@@ -155,13 +156,16 @@ function remove_notification() {
 
     var notes = get_latest_notifications();
     notes.shift();
-    __process_notification_for_db( notes );
+    // console.log("old_note", old_note.short_url)
+    // //localstore.push()
+    //__process_notification_for_db( notes );
 
          
 }
 
 function set_notification_list( notes_list ) {
-    __process_notification_for_db( notes_list );    
+    localstore("notifications", notes_list);
+    //__process_notification_for_db( notes_list );    
 }
 
 function __process_notification_for_db( notes ) {
@@ -177,78 +181,60 @@ function __process_notification_for_db( notes ) {
 
 function set_notification( note ) {
     var notes = localfetch("notifications") || [];
-    notes.push(  note );
-    __process_notification_for_db( notes );
+    for(var i=0, notice; notice=notes[i]; i++) {     
+        if(note.short_url === notice.short_url) {
+            return;
+        }
+    }
+    notes.push(  note );   
+
+    //__process_notification_for_db( notes );
 
 }
 ////////////////***********************////////////////////////
 
 
-/*  Watch List */
-function get_watch_list() {
-    return localfetch("watch_list") || [];
-}
 
-function update_watch_item( watch_obj ) {
-    var i=0, watch, w_list = get_watch_list();
-    for( ; watch=w_list[i]; i++) {
-        if( watch.short_url === watch_obj.short_url ) {
-            watch.threshold = watch_obj.threshold;
-            //watch.timestamp = watch_obj.timestamp;            
+function add_to_notes_blacklist( new_notes ) {
+    // these are just items we don't want to see again
+    var notes = localfetch("note_blacklist") || [];
+    
+    for(var i=0,note;note=new_notes[i]; i++) {
+        if(notes.indexOf( note ) > -1) {
+            continue;
         }
-    }
-    console.log(w_list)
-    set_watch_list( w_list );
-}
-
-function set_watch_item( short_url, threshold ) {
-    var list = localfetch("watch_list") || [];
-    list.push( {'short_url': short_url, 'threshold': threshold, 'timestamp' : _now() } );
-    set_watch_list( list );
-    
-    // set timeout or set interval?????
-    
-    // I can send the entire watch list, the callback should just loop over the results....
-}
-function set_watch_list( watch_list ) {
-    // careful, overwrites, doesn't append
-    localstore("watch_list", watch_list)
-    
-    
-    if(watch_list.length > 0) {
-        bit_db.save("watch_list", watch_list, function(tx, sql_result) {
-            // something
-        });        
-    } else {
-        // drop it
-        bit_db.remove("watch_list", function(){} );
+        notes.push( note );
     }
     
-
+    console.log( notes, "add these to temp blacklist" );
+    localstore("note_blacklist", notes);
 }
 
-function remove_watch_items_list( short_urls ) {
-
-    var l_watch = get_watch_list(), i=0, watched, f_wach_list=[];
-    for(i=0; i<l_watch.length; i++) {
-        watched = l_watch[i];
-        if(short_urls.indexOf( watched.short_url ) === -1 ) {
-            f_wach_list.push(  watched );
+function expire_old_blacklist() {
+    /*
+        Any url that's not in the in 'alive_list' take out of the expiration list.
+    */
+    var notes = localfetch("note_blacklist") || [], new_notes=[], r_time = localfetch("realtime");
+    
+    r_time = r_time && r_time.realtime_links || [];
+    
+    outerLoop_expire:
+    for(var i=0, note; note=notes[i]; i++) {
+        for(var j=0; j<r_time.length; j++) {
+            
+            if( note.indexOf( r_time[j].user_hash ) > -1  ) {
+                new_notes.push(  note );                
+                continue outerLoop_expire;
+            }
         }
+
     }
+    localstore("note_blacklist", new_notes);    
     
-    set_watch_list( f_wach_list );
+    
 }
 
-function remove_watch_item( short_url ) {
-    var latest_watch_list = get_watch_list(), i=0, watch_item, clean_list=[];
-    for( var i=0, watch_item; watch_item=latest_watch_list[i]; i++) {
-        if(watch_item.short_url !== short_url) {
-            clean_list.push( watch_item );
-        }
-    }
-    set_watch_list( clean_list );           
-}
+
 ////////////////***********************////////////////////////
 
 

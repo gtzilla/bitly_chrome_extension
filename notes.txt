@@ -1,6 +1,6 @@
-
+## Current Status
 1.2.1
-    Display currently watched linkes, ability to modify and remove 'watched' links
+    Display currently watched links, ability to modify and remove 'watched' links
 1.2
     Watch Button, Trending, character counter
 
@@ -12,6 +12,48 @@
 
 
 
+## Future Rev
+
+vr2 plan
+    
+    Move to clicks per min api. 
+    
+    Change trending api usage (only targets your links, this will be used for graphing your impact against a click per min score)
+    
+    Canvas Charting
+    
+    Attempt to integrate goog analytics (believe to be resolved, check bug status)
+    
+    Speed Shortens
+        skips shorten and share, copy link directly to clipbord
+            (notifications -- > see have-a-cookie project for examples of this)
+    
+    Translate HTML into JSON for fastFrag deployment
+    
+    All tasks moved to BG progrecces
+    
+    Disable emile.js in favor of CSS transitions. 
+        Transitions are hardware accelerated. JS 'tweening' is not via CSS step algo is not.
+
+
+    Attempt to support local(e) via fastFrag seperation of 'language' and structure on render
+
+
+
+## Notes / Paste Ground
+
+==== Manifest.json ====
+
+/*
+The version number is automatically incremented by build.sh
+    Note:
+        In order to deploy this to google extension gallery, must remove all comments and the update url
+        Consider altering 'deploy' script to handle this
+*/
+---- as noted, comments moved
+
+
+(resolved?)
 ---- Bug
 to fix the open issue with calls to all_domains that aren't logged in, required a restructuring of the startup process
     .. set from cache should do only that...
@@ -25,37 +67,6 @@ Consider moving 'watch and alert' into a worker, where the timer and processing 
 With this adjustment, allow for display of 'watch list' and un-watching links via the UI
 
 This UI change could also add 'timeout' value, which would be the amount of time to stop looking for this link. 2 hours 1 day, 5 days etc
-
-
-
-==== Manifest.json ====
-
-/*
-The version number is automatically incremented by build.sh
-    Note:
-        In order to deploy this to google extension gallery, must remove all comments and the update url
-        Consider altering 'deploy' script to handle this
-*/
----- as noted, comments moved
-
-Support local in future rev
-
-
-
-=== Error Handling / Post Share Experience ====
-Currently, raw, returns success or failure. Does not check for minor errors, like not sending to one account if multiple accounts are specified
-
-Improvement Ideas:
-    1. Replace textarea with links and account used, make area scrollable to it over fits box exactly (no-redrawn)
-        Add a close button, returns to text area with original 'shared' message
-    
-    2. display a series of 'messages' to user, in order of response (ticker-like style. Similar to bit.ly error handling)
-    
-
-    **3. Add link to 'share history', takes user to page of history of all shares, message and result. 
-        Adjust current message to include a # of #. 
-            ex: Successfully shared to # of # accounts. more >>
-    (1 vote gregory80)        
 
 
 

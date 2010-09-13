@@ -20,7 +20,6 @@
                   <ul class="ext_nav_list">
                       <!-- <li><a class="openOptions" href="">Options</a></li> -->
                   </ul>
-              
               </div>
               
               <div id="logo">
@@ -72,6 +71,7 @@
         <script type="text/javascript" src="js/libs/backtweet.js"></script>
         <script type="text/javascript" src="js/libs/timeFormat.js"></script>
         <script type="text/javascript" src="js/libs/emile.js"></script>
+        <script type="text/javascript" src="js/libs/fastFrag.js"></script>
         <script type="text/javascript" src="js/libs/bitTrends.js"></script>
         <script type="text/javascript" charset="utf-8">
             // global variable definitions
@@ -87,7 +87,7 @@
             
             function expand_callback( jo ) {
                 // this gets called the first time... only....
-                console.log("jo expanded: ", jo)
+                //console.log("jo expanded: ", jo)
                 var links = jo && jo.expand_and_meta;
                     
                 
@@ -97,9 +97,11 @@
             }
             
             function watcher_callback( jo ) {
-                
+                //console.log("money monkey", jo)
                 var links = jo && jo.expand_and_meta || {},
-                    link_trends = bg.localfetch("trends")                
+                    link_trends = bg.localfetch("realtime")                
+                
+                //console.log("link_trends in watcher_callback", link_trends, links)
                 bitly_trends.update_meta( links );
                 
                 bitly_trends.update_trends( link_trends );                
@@ -108,7 +110,8 @@
             
             function latest_trends(jo) {
                 // I need to see if I know about these links already....
-                var i=0, realtime, realtimes = jo && jo.realtime_links, urls = [];
+                //console.log("realtimes", realtimes)
+                var i=0, realtime, realtimes = jo && jo.realtime_links || [], urls = [];
                 current_trend_list = realtimes;
                 realtimes_from_cache = jo;
                 for( ; realtime=realtimes[i]; i++) {
@@ -120,15 +123,24 @@
             }
             
             function trends_callback(jo) {
-                var url, i=0, urls = latest_trends(jo), cached = bitly_trends.cache.meta, final_urls=[];
+                var url, i=0, urls = latest_trends(jo) || [], cached = bitly_trends.cache.meta, final_urls=[];
                 for( ; url=urls[i]; i++) {
                     if( !cached[url] ) { final_urls.push(url); }
                 }
                 // check if I have these urls in cache already
-                console.log( "trend cache", bitly_trends.cache.meta, final_urls );
+                //console.log( "trend cache", bitly_trends.cache.meta, final_urls );
                 if(final_urls.length > 0) {
+                    
+                    /*
+                        Phone the BG page,
+                            Get more data (to diplay page title and long url etc)
+                    */
                     chrome.extension.sendRequest({ 'action' : 'expand_and_meta', 'short_url' : final_urls },  watcher_callback );                                    
                 } else {
+                    
+                    /*
+                        All links displayed, have meta data and can be displayed 'ok'
+                    */
                     watcher_callback({});
                 }
                 
@@ -136,20 +148,20 @@
             
             function trends_watcher() {
                 if(trends_internval) clearInterval(trends_internval);
-                
+                //console.log("trend watching")
                 trends_internval = setInterval(function() {
                     ///bg.get_realtime_metrics(  );
                     chrome.extension.sendRequest({'action' : 'realtime_metrics'}, trends_callback)
-                }, 15000)
+                }, 10000)
             }
             
             var bg = chrome.extension.getBackgroundPage(),
                 realtimes_from_cache = bg.localfetch("realtime"),
                 trends_internval, current_trend_list = [],
                 user_data = bg.localfetch("user_data"),
-                link_trends = bg.localfetch("trends");
+                link_trends = [];
             
-            console.log("link trends", link_trends)
+            //console.log("link trends", link_trends)
             
             var bitly_trends = bitTrends( trending_container, realtimes_from_cache );
             //bitly_trends.update_realtime( [] );
@@ -159,7 +171,7 @@
             
             if(user_data.x_login) {
 
-
+                addClass(document.body, "page_loaded");
                 trending_links_hed.innerText = user_data.x_login + " Trending Bits";
                 trends_watcher();
                 

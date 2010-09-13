@@ -21,6 +21,7 @@ var host = "http://api.bit.ly",
         'share' : '/v3/user/share',
         'clicks' : '/v3/clicks',
         'lookup' : '/v3/lookup',
+        'clicks_by_minute' : '/v3/clicks_by_minute',
         'realtime' : '/v3/user/realtime_links',
         'metrics_base' : '/v3/user/'
     }, errors = [];
@@ -176,10 +177,24 @@ BitApi.prototype = {
         internal_multiget( host + urls.lookup, 'url', params, callback );
     },
     
+    realtime_clicks_by_minutes : function( shortUrls, callback ) {
+        // http://api.bitly.net/v3/clicks_by_minute?
+        //login=XXXXXXX&apiKey=XXXXXXXXXXXXXXXXXXXXXXX&shortUrl=http://stk.ly/b45q7L
+        var params = {}
+        
+        this.count+=1;
+        var params = { 'login' : this.bit_request.login,
+                        'apiKey' : this.bit_request.apiKey,
+                        'shortUrl' : shortUrls };
+        internal_multiget( host + urls.clicks_by_minute, 'url', params, callback );        
+    },
     
+
     /*
-        SSL Hosts
+        SSL Hosts (HTTPS)
     */
+
+    
     realtime : function( callback ) {
         var params = { 'access_token' : this.bit_request.access_token }
         bitlyRequest( ssl_host + urls.realtime, params, callback );
@@ -208,7 +223,6 @@ BitApi.prototype = {
     bitly_domains : function( callback )  {
         //
         var params = { 'access_token' : this.bit_request.access_token }
-        //http://api.bit.ly/v3/all_domains
         bitlyRequest( ssl_host + urls.domains, params, callback);
     },
     

@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
+<!DOCTYPE HTML>
+<html>
 
 <!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
@@ -14,48 +14,134 @@
     <body>
         <div id="container">
             <div id="containerInner">
-                <div id="footer">
-                    <h1><a class="trendsPage" href="#">Trending: </a></h1>
-                </div>
-                <div id="note_contents_box">
-
-                </div>
-                <div id="bit_fish">
-                    <img src="s/graphics/bitly_fish_48.png" border="0" height="48" width="48" alt="" />
-                </div>
+                <div id="note_contents_box"></div>                            
             </div>
-        </div> <!-- end #container -->
+        </div>
 
+
+        <script type="text/javascript" src="js/libs/fastFrag.js" charset="utf-8"></script>
         <script type="text/javascript" src="js/libs/common.js" charset="utf-8"></script>
         <script type="text/javascript" charset="utf-8">
             
+        (function(){
+
+
+            console.log("working?")
             var bg = chrome.extension.getBackgroundPage(),
                 notification_data = bg.get_latest_notifications(),
-                latest = notification_data && notification_data.shift(), html = "";
-            if(!latest) {
-                note_contents_box.innerHTML = "Oops, Sorry but an error happened"
-            }
-            console.log(notification_data);
-            html += "<div class='note_headline'>";
-                html += escaper(latest.title || latest.long_url)
-            html += "</div>";
-            // html += "<div>"
-            //     html += latest.long_url
-            // html += "</div>"           
-            //html += "Past Hour: " + latest.trend_clicks;
-            html += '<h4>Total clicks</h4>';
-            html += commify( latest.user_clicks );
-            html += "<div>of</div>"; 
-            html += commify( latest.global_clicks );
+                latest = notification_data, display_urls=[];
+            // if(!latest) {
+            //    // note_contents_box.innerHTML = "Oops, Sorry but an error happened"
+            //    return;
+            // }
+            // okay, let's trash the stuff in memory
             
-            var trend_link = document.querySelector(".trendsPage");
+            bg.set_notification_list( [] );
+
+            latest_display = latest.slice(0,3);
+            var params = {}, items = [];
+            for(var j=0, bl_item; bl_item=latest[j]; j++) {
+                display_urls.push( bl_item.short_url  );                
+            }
+            for(var i=0,note; note=latest_display[i]; i++) {
+                params={
+                    type : "li",
+                    content : note.short_url
+                }
+
+                items.push( params );
+            }
+            
+            
+            items.push({
+                type : "li",
+                css : "more_trending_link_box",
+                content : {
+                    type : "a",
+                    css : "",
+                    content : "more",
+                    attributes : {
+                        href : "#"
+                    }
+                }
+            })
+            
+            bg.add_to_notes_blacklist(  display_urls );
+            
+            
+            var ending = (latest.length>1) ? "s" : "";
+            
+            
+            // todo error handle for zero
+            
+            var strucuture = {
+                
+                content : [{
+                    ///css : "note_headline",
+                    type : "h4",
+                    content : {
+                        type : "a",
+                        css : "",
+                        content : latest.length + " New Trending Bit" + ending,
+                        attributes : {
+                            href : "#"
+                        }
+                    }
+                },{
+                    content : {
+                        type : "ul",
+                        content : items                        
+                    }
+                },{
+                    id : "bit_fish",
+                    content : {
+                        type : "img",
+                        attributes : {
+                            src : "s/graphics/bitly_fish_48.png",
+                            width : 48,
+                            height : 48,
+                            border : 0,
+                            alt : ""
+                        }
+                    }
+                }]
+                
+            }
+            
+            var results = fastFrag.create( strucuture  );
+            note_contents_box.appendChild( results  );
+            
+            var trend_link = _q("#containerInner");
             trend_link.addEventListener('click', function(e) {
                 e.preventDefault();
                 bg.get_chrome_page("trending.html");
-            });
-            trend_link.innerHTML = "Trending Bit: " + commify(latest.trend_clicks) + " clicks";
-            note_contents_box.innerHTML = html;
-            bg.remove_notification();
+            });            
+
+        }());
+
+            
+            
+            // console.log(notification_data);
+            // html += "<div class='note_headline'>";
+            //     html += escaper(latest.title || latest.long_url)
+            // html += "</div>";
+            // // html += "<div>"
+            // //     html += latest.long_url
+            // // html += "</div>"           
+            // //html += "Past Hour: " + latest.trend_clicks;
+            // html += '<h4>Total clicks</h4>';
+            // html += commify( latest.user_clicks );
+            // html += "<div>of</div>"; 
+            // html += commify( latest.global_clicks );
+            // 
+            // var trend_link = document.querySelector(".trendsPage");
+            // trend_link.addEventListener('click', function(e) {
+            //     e.preventDefault();
+            //     bg.get_chrome_page("trending.html");
+            // });
+            // trend_link.innerHTML = "Trending Bit: " + commify(latest.trend_clicks) + " clicks";
+            // note_contents_box.innerHTML = html;
+            // bg.remove_notification();
             // now remove it from list...
         </script>
 

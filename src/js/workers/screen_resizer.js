@@ -1,4 +1,4 @@
-/*
+note_prefs/*
     Worker Script
     
     screen_resizer

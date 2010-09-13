@@ -53,10 +53,9 @@
 
                                  </div>
                                  
-                                 <div class="watchContainerOuter">
+                                 <!-- <div class="watchContainerOuter">
                                     <a href="#" class="watchLinkButton">Watch</a>
-                                    <!-- <img src="s/graphics/watch_eye.png" width="50" height="19" border="0" alt="" /> -->
-                                 </div>                                 
+                                 </div>                                  -->
                                  
                                  <div class="copyContainerOuter" id="copy_elements_wrapper">
                                          <div id="hidden_sharing_box">
@@ -123,8 +122,7 @@
             
             function update_share_box( message, short_url ) {
                 _id("loading_short_url").style.display="none";                
-                var copy_elem_wrap = _id("copy_elements_wrapper"), 
-                    watched = bg.get_watch_list(), i=0, watch;
+                var copy_elem_wrap = _id("copy_elements_wrapper"), i=0, watch;
                 
                 txtarea_short_url.value = short_url;
                 txtarea.innerText = message;
@@ -144,15 +142,20 @@
                 } 
                 
                 
-                if(short_url === "") {
-                    _q('.watchContainerOuter').style.display="none";
-                } else {
-                    for( ; watch=watched[i]; i++) {
-                        if(watch.short_url === short_url) {
-                            _q('.watchLinkButton').innerText="Watched";
-                        }
-                    }                    
+                if(short_url && short_url.trim() !== "") {
+                    bg.watch_and_alert();
                 }
+     
+                
+                // if(short_url === "") {
+                //     _q('.watchContainerOuter').style.display="none";
+                // } else {
+                //     for( ; watch=watched[i]; i++) {
+                //         if(watch.short_url === short_url) {
+                //             _q('.watchLinkButton').innerText="Watched";
+                //         }
+                //     }                    
+                // }
                 
 
                 
@@ -285,12 +288,9 @@
                 active_account_list = [], open_options_elem = _id("options_page"),
                 bg = chrome.extension.getBackgroundPage(), current_meta = {},
                 message_box_elem = _id("message_box"),
-                watch_preferences = bg.get_note_preferences();
+                note_preferences = bg.get_note_preferences();
             
-            // Shorten the current tab
-            if(!watch_preferences.enabled) {
-                _q('.watchContainerOuter').style.display="none";
-            }
+
                 
             chrome.tabs.getSelected(null, function( curr_tab) {
                
@@ -400,14 +400,13 @@
             
             });
             
-            _q(".watchLinkButton").addEventListener('click', function(e) {
-                e.preventDefault();
-                // get a real value...
-                var note_prefs = bg.get_note_preferences();
-                bg.set_watch_item(current_short_url, note_prefs.threshold || 20);
-                e.target.innerHTML = "Watched"
-                bg.watch_and_alert();
-            })
+            // _q(".watchLinkButton").addEventListener('click', function(e) {
+            //     e.preventDefault();
+            //     // get a real value...
+            //     var note_prefs = bg.get_note_preferences();
+            //     e.target.innerHTML = "Watched"
+            //     bg.watch_and_alert();
+            // });
             
             // this totally works, generally onbeforeunload is better, but not working in this ext.
             addEventListener("unload", function(e) {
