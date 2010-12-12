@@ -7,7 +7,10 @@
 /*    width:100%;*/
     left:0px;
     display:none;
-
+    height:80px;
+    width:392px;
+    overflow:hidden;
+    margin-top:3px;    
 }
 
 #bitly_expanded_container * {
@@ -24,7 +27,6 @@
 }
 
 #bitly_expanded_container .bit_url_expander_box {
-    margin-top:3px;
     padding:0 10px;
     background:white;
     border:3px solid #ccc;    
@@ -91,12 +93,14 @@
     color:#999;
     
 }
+
 #bitly_expanded_container .bit_url_expander_box .bitly_home_promo {
-    position:absolute;
+    position:absolute;    
     bottom:3px;
     right:6px;
+    margin:0 6px 3px 0;
     font-size:11px;
-    color:#c79840;    
+    color:#c79840;
 }
 #bitly_expanded_container .bit_user_clicks_box {
     font-size:13px;

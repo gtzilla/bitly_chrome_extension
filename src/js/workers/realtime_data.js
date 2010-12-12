@@ -106,7 +106,7 @@ function ajaxRequest( oauth_key, callback ) {
         postMessage({'error' : 'no auth key'})
         return; 
     }
-    url += '?access_token=' + encodeURIComponent( oauth_key );
+    url += '?appid=chromeext&access_token=' + encodeURIComponent( oauth_key );
     xhr.open("GET", url, true);
     xhr.onreadystatechange = function() {
          if (xhr.readyState == 4) {
