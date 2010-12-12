@@ -502,7 +502,8 @@
         // the bit.ly API connector
         logger("Initialize bit.ly extension");
         var bitly=init_api(), bit_db=init_db(), trends_worker, click_by_min_worker,
-            domains_list, auto_expand_urls = true, bit_interval, // bit_interval is the timer for watch list
+            domains_list, auto_expand_urls = true, enhance_twitter_com=true, 
+            bit_interval, // bit_interval is the timer for watch list
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         
@@ -548,6 +549,12 @@
             switch( act ) {
                 
                 case "page_loaded":
+                    
+                    if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
+                        
+                        //chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
+                    }
+                
                     if(!bitly.is_authenticated() || !auto_expand_urls) return;
                     var injectTabs = sender.tab && sender.tab.url,
                         no_expand_list = get_no_expand_domains();
