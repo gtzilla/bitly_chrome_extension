@@ -45,10 +45,7 @@ function _id( name ) {
 }
 
 function find_short_links() {
-    
-    //querySelectorAll, document.querySelectorAll("a:not([href=''])")
-    // document.querySelectorAll("a:not([href=''])"), 
-    // document.getElementsByTagName("a")
+
     var links = document.querySelectorAll("a:not([href=''])"), 
         href, matches, final_matches=[], 
         url, i=0, elem;
@@ -202,6 +199,7 @@ function close_container() {
 }
 
 function closeBitlyUrlExpanderBox(e) {
+    if(timeout_link){ clearTimeout(timeout_link); }
     timeout_link = setTimeout(function(){
         close_container();
     }, 280)    
@@ -296,6 +294,8 @@ function init() {
     //console.log("searching for short links...")
     var matches = find_short_links();   
     queried_matches = queried_matches.concat( matches );
+    // close the box, don't let it get stuc
+    document.body.addEventListener('click', closeBitlyUrlExpanderBox);
     callBrain( matches );
 
 }

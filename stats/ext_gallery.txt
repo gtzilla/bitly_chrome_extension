@@ -675,3 +675,9 @@ Daily Stats:
 - 2,089 weekly installs
 ::end::
 
+Sun Dec 12 14:43:00 EST 2010
+Daily Stats:
+- 26,702 users
+- 2,113 weekly installs
+::end::
+
