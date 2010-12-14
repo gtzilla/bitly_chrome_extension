@@ -172,12 +172,14 @@ function brainResponse(jo) {
             el.addEventListener('mouseover', function(e) {
                 clearTimeout(timeout_link);  
                 var evt = e;
-                positions = findPos( evt.target );
+                // positions = findPos( evt.target );
                 console.log(evt)
                 // var left_pos = ( positions[0] > evt.screenX ) ? (evt.screenX-evt.offsetX) : positions[0],
                 //     top_pos = ( positions[1] + evt.target.offsetHeight );
                 // var left_pos = positions[0], top_pos=positions[1];
-                var left_pos = evt.clientX, top_pos=evt.clientY;
+                // but I need to only ADD the difference
+                var left_pos = evt.clientX, top_pos=evt.clientY+evt.target.offsetHeight;
+                // todo, offset to edge of parrent item
 
                 // TODO
                 // add simple opacity animation
