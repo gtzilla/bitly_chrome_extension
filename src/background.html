@@ -630,6 +630,12 @@
                     bitly.shorten( request.long_url, sendResponse );
                 break;
                 
+                case "shorten":
+                    console.log("shorten these..")
+                    if(request.long_url) {
+                        bitly.shorten( request.long_url, sendResponse );                        
+                    }
+                break;
                 
                 case "realtime_metrics":
                     

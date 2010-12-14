@@ -278,7 +278,7 @@ function run_find_more_links() {
 
 function callBrain( final_matches ) {
     if(final_matches.length > 0) {
-        chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : final_matches }, brainResponse)        
+        chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : final_matches }, brainResponse);
     } else {
         run_find_more_links();
     }
