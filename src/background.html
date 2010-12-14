@@ -552,7 +552,7 @@
                     
                     if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
                         
-                        //chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
+                        chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
                     }
                 
                     if(!bitly.is_authenticated() || !auto_expand_urls) return;

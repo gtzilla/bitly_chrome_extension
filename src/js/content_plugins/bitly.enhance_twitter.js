@@ -7,7 +7,7 @@
 // 
 
 
-var avtive_tweet_box, link_set=[];
+var active_tweet_box, link_set=[];
 
 function check_twitter_text_input() {
     // look for (http(?:s)?:\/\/(?:[^/]){1,}\.(?:[^/]{2,})/(?:[^ ]))
@@ -18,7 +18,10 @@ function check_twitter_text_input() {
 
     console.log("matches", matches )
     
-    var tweetboxs = get_tweet_box();
+    // var tweetboxs = get_tweet_box();
+    if(!active_tweet_box) {
+        console.log("find my box")
+    }
     var matches, txt_string;
     for(var i=0,box; box=tweetboxs[i]; i++) {
         txt_string = box.value
@@ -49,8 +52,8 @@ function init() {
      window.addEventListener("focus", function(e) {
          console.log("focusing..." ,e )
      });
-     var tweetboxs = get_tweet_box() || [];
-     console.log("tweetboxs", tweetboxs)
+    if(!active_tweet_box) { active_tweet_box = get_tweet_box(); }
+     // var tweetboxs = get_tweet_box() || [];
      
      if(tweetboxs.length <= 0 ) {
          console.log("look again...");
@@ -59,27 +62,43 @@ function init() {
          return;
      }
      
-     for(var i=0,box; box=tweetboxs[i]; i++) {
-         avtive_tweet_box=box;
-         box.addEventListener("focus", function(e) {
-             console.log("focus box");
-         });
-         
-         box.addEventListener("keypress", function(e) {
-             console.log("type type", e);
-             
-             setTimeout(check_twitter_text_input, 10);
-         });        
-     }
+     // for(var i=0,box; box=tweetboxs[i]; i++) {
+         // active_tweet_box=box;
+         // active_tweet_box.addEventListener("focus", function(e) {
+         //     console.log("focus box");
+         // });
+         // 
+         // active_tweet_box.addEventListener("keypress", function(e) {
+         //     console.log("type type", e);
+         //     
+         //     setTimeout(check_twitter_text_input, 10);
+         // });        
+     // }
 
      
      
 }
 
+function funky_time() {
+    console.log("round trip");
+    var boxes = get_tweet_box();
+    active_tweet_box=box;
+    active_tweet_box.addEventListener("focus", function(e) {
+        console.log("focus box");
+    });
+    
+    active_tweet_box.addEventListener("keypress", function(e) {
+        console.log("type type", e);
+        
+        setTimeout(check_twitter_text_input, 10);
+    });    
+    // active_tweet_box = boxes && boxes[0] || [];
+}
 
 // start it
 function main() {
     setTimeout(init,20);    
+    setInterval(funky_time, 4000);
 }
 
 main();
