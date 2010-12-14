@@ -190,8 +190,9 @@ function brainResponse(jo) {
                 container.setAttribute("style", 'display:block; left:'+ left_pos +'px; top:'+ top_pos +'px;'); 
                 // set opacity to 0, then stair step it over a period of time?                                             
                 container.innerHTML = html;
-
-                set_close_box_timeout( 900 ); // give the user a moment to grab the box, or hide it
+                
+                // let people set this timeout value??!
+                set_close_box_timeout( 1100 ); // give the user a moment to grab the box, or hide it
             });
             // todo
             // add bail here, if hover card no activated
