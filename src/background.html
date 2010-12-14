@@ -20,7 +20,7 @@
         
         </div> <!-- end #container -->
         
-        
+        <!-- compress and build these?????? -->
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
@@ -632,6 +632,11 @@
                 
                 case "shorten":
                     console.log("shorten these..")
+                    // see if this is an object..
+                    // loop over it
+                    // check the white list for this url... ouch expensive... go other way?
+                    // loop over HUGE whitelist set, check smaller 'long url' domains -- common method for doing this?
+                    // shorten them, get a response, send back
                     if(request.long_url) {
                         bitly.shorten( request.long_url, sendResponse );                        
                     }

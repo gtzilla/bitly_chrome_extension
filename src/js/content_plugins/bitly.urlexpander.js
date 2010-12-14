@@ -97,6 +97,7 @@ function brainResponse(jo) {
         container.addEventListener('mouseover', function(e) {
             clearTimeout(timeout_link);
             expander_visible = true;
+            // hmmmmmmmmm
         });
         container.addEventListener('mouseout', closeBitlyUrlExpanderBox);
         container.addEventListener('click', function(e) {
@@ -111,7 +112,7 @@ function brainResponse(jo) {
             if(clss === "bitly_url_expander_box_close") {
                 e.preventDefault();
                 // show box here
-                
+                if(!link_box){ return; }
                 var setting = link_box.style.display;
                 if(setting==="none") {
                     link_box.style.display="block";
@@ -136,7 +137,7 @@ function brainResponse(jo) {
     
     var matches_links = find_link_elements_by_response( jo );   
      
-    body.appendChild( container )
+    body.appendChild( container );
     
     for(var i=0; i<matches_links.length; i++) {
        
@@ -144,7 +145,7 @@ function brainResponse(jo) {
         // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
             var html = '', el = matches_links[elem_num].elem, 
-                positions = findPos( el ),
+                // positions = findPos( el ),
                 sUrl = escaper(result.short_url),
                 lUrl = escaper( result.long_url ), title = escaper( result.title || result.long_url );
             if(!result || result.error) return;
@@ -169,18 +170,26 @@ function brainResponse(jo) {
             
             
             el.addEventListener('mouseover', function(e) {
-                clearTimeout(timeout_link);                
-                positions = findPos( el );
-                var left_pos = ( positions[0] > e.pageX ) ? (e.pageX-e.offsetX) : positions[0],
-                    top_pos = ( positions[1] + e.target.offsetHeight );
+                clearTimeout(timeout_link);  
+                var evt = e;
+                positions = findPos( evt.target );
+                console.log(evt)
+                // var left_pos = ( positions[0] > evt.screenX ) ? (evt.screenX-evt.offsetX) : positions[0],
+                //     top_pos = ( positions[1] + evt.target.offsetHeight );
+                // var left_pos = positions[0], top_pos=positions[1];
+                var left_pos = evt.clientX, top_pos=evt.clientY;
 
                 // TODO
                 // add simple opacity animation
+                // hmmm... maybe i should let it hover for like 10 milliseconds
                 container.setAttribute("style", 'display:block; left:'+ left_pos +'px; top:'+ top_pos +'px;'); 
                 // set opacity to 0, then stair step it over a period of time?                                             
                 container.innerHTML = html;
-                
-            })
+
+                set_close_box_timeout( 900 ); // give the user a moment to grab the box, or hide it
+            });
+            // todo
+            // add bail here, if hover card no activated
             el.addEventListener('mouseout', closeBitlyUrlExpanderBox);
             
             
@@ -193,16 +202,24 @@ function brainResponse(jo) {
  
 }
 
+function _draw_bit_card() {
+    
+}
+
 function close_container() {
     container.style.display="none"; 
     container.innerHTML = "";
 }
 
 function closeBitlyUrlExpanderBox(e) {
+    set_close_box_timeout( 100 );
+}
+
+function set_close_box_timeout( interval ) {
     if(timeout_link){ clearTimeout(timeout_link); }
     timeout_link = setTimeout(function(){
         close_container();
-    }, 280)    
+    }, interval);    
 }
 
 

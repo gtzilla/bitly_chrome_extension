@@ -1,5 +1,5 @@
 #bitly_expanded_container {
-    position:absolute;
+    position:fixed;
 
     /* round the corners  */
     bottom:1px;
@@ -91,12 +91,13 @@
     color:#999;
     
 }
+
 #bitly_expanded_container .bit_url_expander_box .bitly_home_promo {
-    position:absolute;
-    bottom:3px;
-    right:6px;
+    float:right;
+    margin:0 6px 3px 0;
     font-size:11px;
-    color:#c79840;    
+    color:#c79840;
+    width:100px;    
 }
 #bitly_expanded_container .bit_user_clicks_box {
     font-size:13px;
