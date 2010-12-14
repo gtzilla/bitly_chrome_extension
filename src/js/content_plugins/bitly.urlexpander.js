@@ -178,7 +178,9 @@ function brainResponse(jo) {
                 //     top_pos = ( positions[1] + evt.target.offsetHeight );
                 // var left_pos = positions[0], top_pos=positions[1];
                 // but I need to only ADD the difference
-                var left_pos = evt.clientX, top_pos=evt.clientY;
+                elem_height=evt.target.offsetHeight
+                evt.layerY // where the mouse is
+                var left_pos = evt.clientX, top_pos=evt.clientY + ( elem_height-evt.layerY-evt.offsetY );
                 //+evt.target.offsetHeight
                 // todo, offset to edge of parrent item
 

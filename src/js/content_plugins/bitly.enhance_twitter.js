@@ -3,13 +3,15 @@
 //  bitly_chrome_extension
 //  
 //  Created by gregory tomlinson on 2010-11-22.
-//  
+//  http://www.youtube.com/watch?v=Vxq9yj2pVWk
 // 
 
 
 var active_tweet_boxes, link_set=[], bit_shorten_button;
 
 function check_twitter_text_input( target_elem  ) {
+
+    // climb up and find "tweet-box", see if my bit_shorten is within this parent
 
     var txt_string=target_elem.value, matches = match_long_links( txt_string );
     // var tweetboxs=active_tweet_box;
