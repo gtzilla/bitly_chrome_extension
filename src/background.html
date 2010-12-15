@@ -564,7 +564,7 @@
                         no_expand_list.indexOf( request.domain_host ) === -1) {
                             
                             chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
-                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});
+                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.hovercard.js"});
                     }
                 break;
                 
