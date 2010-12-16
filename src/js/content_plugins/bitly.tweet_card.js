@@ -30,14 +30,22 @@ function look_for_links() {
             continue;
         }
         matches =is_a_link( href );
-        console.log("matches... please?", matches);
+        if(matches) {
+            link.setAttribute("bitly_hovercard", 1)
+            console.log("matches... please?", matches);
+            var p = _pClass(link, ".stream-tweet"), d=document.createElement("div");
+            d.innerHTML="Show"
+            p.appendChild(d);
+        }
+        // get parent node.... fuckers
+
     }
     // let's loop and check
 }
 
 function main() {
     look_for_links();
-    //timer_interval = setInterval( look_for_links, 5500 );
+    timer_interval = setInterval( look_for_links, 5500 );
     //look_for_links();
 }
 
