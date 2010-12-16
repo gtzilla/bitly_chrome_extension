@@ -35,8 +35,10 @@ function look_for_links() {
             if(clean_domains && clean_domains.length > 0 ) {
                 link.setAttribute("bitly_hovercard", 1);
                 console.log("matches... please?", clean_domains);
+                // todo, make sure that I don't actually need this
                 var p = _pClass(link, ".stream-tweet"), d=document.createElement("div");
-                d.innerHTML="Show"
+                if(p.getAttribute("bit_link")) { continue; }
+                d.innerHTML="Show";
                 if(p){ p.appendChild(d); }    
                 p.setAttribute("bit_link", href);
                 query_bitly_link_set.push( link );
@@ -48,6 +50,7 @@ function look_for_links() {
     }
     console.log("neato query_bitly_link_set", query_bitly_link_set)
     // let's loop and check
+    return query_bitly_link_set;
 }
 
 function check_domain( match_list ) {
