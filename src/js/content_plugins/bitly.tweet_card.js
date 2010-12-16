@@ -6,8 +6,12 @@
 //  Copyright 2010. All rights reserved.
 // 
 // var regex_pattern = "(http(?:s)?:\/\/(?:[^/]){1,}?\.(?:[^/]{2,})/(?:[^ ]){1,})",
-var regex_pattern = "(http:\/\/(?:[^/]){1,}?\.(?:[^/]{2,})/(?:[^ ]){3,})", timer_interval,
-    regex = new RegExp( regex_pattern, "gmi" );
+var regex_pattern = "(http:\/\/([^/]){1,}?\.(?:[^/]{2,})/(?:[^ ]){3,})", timer_interval,
+    regex = new RegExp( regex_pattern, "gmi" ),
+    false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
+                            "yfrog.com", "digg.com", "twitgoo.com", "ficly.com", "google.com", "paste.ly",
+                            "su.pr", "venmo.com", "blippy.com", "felttip.com", "github.com", "cnt.to",
+                            "is.gd", "tinyurl.com", "twurl.nl", "twitter.com", "ow.ly", "mash.to"];
 function is_a_link( txt_string ) {
     var matches;
     if(txt_string && txt_string !== "") {
@@ -19,34 +23,52 @@ function is_a_link( txt_string ) {
 
 function look_for_links() {
     console.log("check for links")
-    var links = document.getElementsByTagName("a"), href, matches;
+    var links = document.getElementsByTagName("a"), href, matches, query_bitly_link_set=[];
     for(var i=0,link; link=links[i]; i++) {
-        // party
         href = link.getAttribute("href");
-        // has attribute check...
-        var exsiting = link.getAttribute("bitly_hovercard")
-        if(exsiting && exsiting === "1") {
-            
-            continue;
-        }
+
+        var exsiting = link.getAttribute("bitly_hovercard"); // has attribute check...
+        if(exsiting && exsiting === "1") { continue; }
         matches =is_a_link( href );
         if(matches) {
-            link.setAttribute("bitly_hovercard", 1)
-            console.log("matches... please?", matches);
-            var p = _pClass(link, ".stream-tweet"), d=document.createElement("div");
-            d.innerHTML="Show"
-            p.appendChild(d);
+            var clean_domains = check_domain( matches );
+            if(clean_domains && clean_domains.length > 0 ) {
+                link.setAttribute("bitly_hovercard", 1);
+                console.log("matches... please?", clean_domains);
+                var p = _pClass(link, ".stream-tweet"), d=document.createElement("div");
+                d.innerHTML="Show"
+                if(p){ p.appendChild(d); }    
+                p.setAttribute("bit_link", href);
+                query_bitly_link_set.push( link );
+            }
+
         }
         // get parent node.... fuckers
 
     }
+    console.log("neato query_bitly_link_set", query_bitly_link_set)
     // let's loop and check
+}
+
+function check_domain( match_list ) {
+    var final_matches=[];
+    for(var i=0; i<match_list.length; i++) {
+        var domain_name = match_list[i].split("http://")[1].split("/")[0] || "";
+        if( false_positive_list.indexOf( domain_name ) < 0 ) {
+            final_matches.push( match_list[i] );
+        } 
+    }
+    
+    return final_matches;
 }
 
 function main() {
     look_for_links();
     timer_interval = setInterval( look_for_links, 5500 );
     //look_for_links();
+}
+function decay_check() {
+    // like after a while of getting nothing, kinda like turn this off or something
 }
 
 main();
