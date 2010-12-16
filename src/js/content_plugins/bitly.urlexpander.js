@@ -101,6 +101,7 @@ function brainResponse(jo) {
         });
         container.addEventListener('mouseout', closeBitlyUrlExpanderBox);
         container.addEventListener('click', function(e) {
+            e.preventDefault();
             var clss = e.target.className, link_box = _id("always_for_this_domain"), params = {};
             if(e.target.parentNode === link_box) {
                 //bg.add_no_expand_domain( document.location.host );
@@ -172,15 +173,15 @@ function brainResponse(jo) {
             el.addEventListener('mouseover', function(e) {
                 clearTimeout(timeout_link);  
                 var evt = e;
-                // positions = findPos( evt.target );
-                console.log(evt)
-                // var left_pos = ( positions[0] > evt.screenX ) ? (evt.screenX-evt.offsetX) : positions[0],
-                //     top_pos = ( positions[1] + evt.target.offsetHeight );
+                positions = findPos( evt.target );
+                // console.log(evt)
+                var left_pos = ( positions[0] > evt.screenX ) ? (evt.screenX-evt.offsetX) : positions[0],
+                    top_pos = ( positions[1] + evt.target.offsetHeight );
                 // var left_pos = positions[0], top_pos=positions[1];
                 // but I need to only ADD the difference
-                elem_height=evt.target.offsetHeight
-                evt.layerY // where the mouse is
-                var left_pos = evt.clientX, top_pos=evt.clientY + ( elem_height-evt.layerY-evt.offsetY );
+                // elem_height=evt.target.offsetHeight
+                // evt.layerY // where the mouse is
+                // var left_pos = evt.clientX, top_pos=evt.clientY + ( elem_height-evt.layerY-evt.offsetY );
                 //+evt.target.offsetHeight
                 // todo, offset to edge of parrent item
 
@@ -208,9 +209,6 @@ function brainResponse(jo) {
  
 }
 
-function _draw_bit_card() {
-    
-}
 
 function close_container() {
     container.style.display="none"; 

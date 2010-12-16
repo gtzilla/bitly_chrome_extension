@@ -549,11 +549,15 @@
             switch( act ) {
                 
                 case "page_loaded":
+                    var script_location = "js/content_plugins/bitly.urlexpander.js";
+                    
                     
                     if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
                         
-                        chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
-                    }
+                        chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"}); 
+                        script_location="js/content_plugins/bitly.bitly.hovercard.js";
+                        // user a twitter specific card
+                    } 
                 
                     if(!bitly.is_authenticated() || !auto_expand_urls) return;
                     var injectTabs = sender.tab && sender.tab.url,
@@ -562,9 +566,8 @@
                     // only support http || https domains
                     if(injectTabs && injectTabs.indexOf("http") === 0 &&
                         no_expand_list.indexOf( request.domain_host ) === -1) {
-                            
-                            chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
-                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.hovercard.js"});
+                            chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"});
+                            chrome.tabs.executeScript(sender.tab.id, {file: script_location });
                     }
                 break;
                 
