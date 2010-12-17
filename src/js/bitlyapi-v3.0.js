@@ -194,13 +194,19 @@ BitApi.prototype = {
         var params = extend({}, this.bit_request, { 'hash' : bit_hash } );
         delete params.access_token;
         this.count+=1;
-
+        self=this;
         bitlyRequest( host + urls.recommend, params, function(jo) {
             var info_hashes=[];            
-            for(var i=0, recommended; recommended=jo.recommendations[i] && i<limit; i++){
-                info_hashes.push( recommended.global_hash );
+            console.log(jo, "err ummmmmmm")
+            var recommended=jo.recommendations
+            for(var i=0; i<recommended.length && i<limit; i++){
+                info_hashes.push( recommended[i].global_hash );
             }
-            var info_params = extend({}, this.bit_request, { 'hash' : info_hashes } );
+            if(!info_hashes || info_hashes.length <= 0) {
+                callback({}); // just send empty for now
+                return;
+            }
+            var info_params = extend({}, self.bit_request, { 'hash' : info_hashes } );
             delete params.access_token;            
             bitlyRequest( host + urls.info, info_params, function(jo) {
                 console.log(jo, "data");

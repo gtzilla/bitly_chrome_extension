@@ -79,22 +79,22 @@ function brainResponse( jo ) {
         short_link = elem.getAttribute("bit_link");
         var link_meta = data[short_link];
         if(link_meta) {
-            (function(data_elem, shorty ) {
-                chrome.extension.sendRequest({'action' : 'recommend_this_link', 'hash' : link_meta.global_hash }, function(jo) {
+            (function(data_elem, global_hash ) {
+                chrome.extension.sendRequest({'action' : 'recommend_this_link', 'hash' : global_hash }, function(jo) {
                     console.log("for this one", data_elem, jo)
                     if(jo && jo.info) {
                         
                     }
                 });                
-            })(elem, short_link);
+            })(elem, link_meta.global_hash);
         
-            console.log(link_meta, short_link);
+            // console.log(link_meta, short_link);
             elem.appendChild( draw_data_card(link_meta) )
         }
     }
-    console.log(found_links, "umm found umm?");
+    // console.log(found_links, "umm found umm?");
     
-    console.log("then also", parents);
+    // console.log("then also", parents);
 }
 
 function draw_data_card( link_data ) {
