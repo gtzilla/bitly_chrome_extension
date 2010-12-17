@@ -83,7 +83,7 @@ function brainResponse( jo ) {
                 chrome.extension.sendRequest({'action' : 'recommend_this_link', 'hash' : global_hash }, function(jo) {
                     console.log("for this one", data_elem, jo)
                     if(jo && jo.info) {
-                        
+                        draw_recommend( data_elem, jo.info );
                     }
                 });                
             })(elem, link_meta.global_hash);
@@ -95,6 +95,18 @@ function brainResponse( jo ) {
     // console.log(found_links, "umm found umm?");
     
     // console.log("then also", parents);
+}
+
+function draw_recommend( elem, cool_links ) {
+    var html="<ul>", d=document.createElement("div"), title;
+    for(var i=0; i<cool_links.length; i++) {
+        console.log( cool_links[i], "cool link info" );
+        title=cool_links[i].title || "http://bit.ly/" + cool_links[i].global_hash;
+        html += '<li><a target="new" href="http://bit.ly/'+cool_links[i].global_hash +'">' + title + '</li>';
+    }
+    html += '</ul>'
+    d.innerHTML=html;
+    elem.appendChild(d);
 }
 
 function draw_data_card( link_data ) {
