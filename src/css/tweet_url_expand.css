@@ -5,3 +5,9 @@
    Created by gregory tomlinson on 2010-12-16.
    Copyright 2010. All rights reserved.
 */
+
+
+.bitly_tweetcard_recommend_list_box {
+	-webkit-column-count: 2;
+	-webkit-column-gap: 20px;    
+}

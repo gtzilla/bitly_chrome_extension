@@ -98,11 +98,21 @@ function brainResponse( jo ) {
 }
 
 function draw_recommend( elem, cool_links ) {
-    var html="<ul>", d=document.createElement("div"), title;
+    var html="", d=document.createElement("div"), title;
+    
+    html +=  '<div>'
+        html += 'People who consumed this link, also consumed.'
+    html += '</div>'
+    
+    html += '<div class="bitly_tweetcard_recommend_list_box">';
+    html += '<ul>'
     for(var i=0; i<cool_links.length; i++) {
         console.log( cool_links[i], "cool link info" );
         title=cool_links[i].title || "http://bit.ly/" + cool_links[i].global_hash;
-        html += '<li><a target="new" href="http://bit.ly/'+cool_links[i].global_hash +'">' + title + '</li>';
+        html += '<li>'
+        html += '<a target="new" href="http://bit.ly/'+cool_links[i].global_hash +'">' + title + '</a></li>';
+
+        
     }
     html += '</ul>'
     d.innerHTML=html;
@@ -116,6 +126,12 @@ function draw_data_card( link_data ) {
     html += '<div>';
         html += '<h4>'+ title +'</h4>';
         html += '<div><a href="'+link_data.long_url+'">'+ link_data.long_url +'</a></div>';
+        html += '<div><ul>'
+            html += '<li><a href="'+link_data.short_url+'+">'+link_data.user_clicks+'</a></li>'        
+            html += '<li> of </li>'
+            html += '<li><a href="http://bit.ly'+link_data.global_hash+'+">'+link_data.global_clicks+'</a></li>'            
+        html += '</ul></div>'
+
     html += '</div>';
     html +="<div>created by <a target='new' href='http://bit.ly/u/"+link_data.created_by+"'>" + link_data.created_by + "</a></div>";
     d.innerHTML=html;
