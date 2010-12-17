@@ -5,7 +5,7 @@
 //  Created by gregory tomlinson on 2010-11-22.
 //  http://www.youtube.com/watch?v=Vxq9yj2pVWk
 // 
-
+/// todo, hook to reply box...
 
 var active_tweet_boxes, link_set=[], bit_shorten_button;
 
@@ -74,6 +74,7 @@ function funky_time() {
     add_box_events( boxes );
 
 }
+
 function add_box_events( boxes ) {
     active_tweet_boxes=box;    
     for(var i=0,box; box=boxes[i];i++) {

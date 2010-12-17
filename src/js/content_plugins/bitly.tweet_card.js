@@ -4,9 +4,11 @@
 //  
 //  Created by gregory tomlinson on 2010-12-14.
 //  Copyright 2010. All rights reserved.
-// 
+//  --- dependency: libs/common.js
+
+
 // var regex_pattern = "(http(?:s)?:\/\/(?:[^/]){1,}?\.(?:[^/]{2,})/(?:[^ ]){1,})",
-var regex_pattern = "(http:\/\/([^/]){1,}?\.(?:[^/]{2,})/(?:[^ ]){3,})", timer_interval,
+var regex_pattern = "(http:\/\/([^/]){1,}?\.(?:[^/]{2,})/(?:[^ /]){3,})", timer_interval,
     regex = new RegExp( regex_pattern, "gmi" ),
     false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
                             "yfrog.com", "digg.com", "twitgoo.com", "ficly.com", "google.com", "paste.ly",
@@ -22,14 +24,14 @@ function is_a_link( txt_string ) {
 }
 
 function look_for_links() {
-    console.log("check for links")
+    console.log("check for links");
     var links = document.getElementsByTagName("a"), href, matches, query_bitly_link_set=[];
     for(var i=0,link; link=links[i]; i++) {
         href = link.getAttribute("href");
 
         var exsiting = link.getAttribute("bitly_hovercard"); // has attribute check...
         if(exsiting && exsiting === "1") { continue; }
-        matches =is_a_link( href );
+        matches = is_a_link( href );
         if(matches) {
             var clean_domains = check_domain( matches );
             if(clean_domains && clean_domains.length > 0 ) {
@@ -37,20 +39,75 @@ function look_for_links() {
                 console.log("matches... please?", clean_domains);
                 // todo, make sure that I don't actually need this
                 var p = _pClass(link, ".stream-tweet"), d=document.createElement("div");
-                if(p.getAttribute("bit_link")) { continue; }
+                if(p && p.getAttribute("bit_link")) { continue; }
                 d.innerHTML="Show";
-                if(p){ p.appendChild(d); }    
-                p.setAttribute("bit_link", href);
-                query_bitly_link_set.push( link );
+                if(p){ 
+                    p.appendChild(d); 
+                    p.setAttribute("bit_link", href);
+                    query_bitly_link_set.push( href );
+                }    
+
+
             }
 
         }
-        // get parent node.... fuckers
+        
 
     }
-    console.log("neato query_bitly_link_set", query_bitly_link_set)
+    
+    expand_links_and_meta( query_bitly_link_set );
+    // console.log("neato query_bitly_link_set", query_bitly_link_set)
     // let's loop and check
-    return query_bitly_link_set;
+    // return query_bitly_link_set;
+}
+
+function expand_links_and_meta( link_set ) {
+    if(!link_set || link_set.length <= 0 ) {
+        return;
+    }
+    chrome.extension.sendRequest({'action' : 'expand_and_meta', 'short_url' : link_set }, brainResponse);
+    
+    
+}
+function brainResponse( jo ) {
+    console.log("found these", jo);
+    var found_links = document.querySelectorAll("a[bitly_hovercard='1']"),
+        parents = document.querySelectorAll(".stream-tweet[bit_link]"), 
+        short_link, data = jo.expand_and_meta;
+        
+    for(var i=0,elem; elem=parents[i]; i++) {
+        short_link = elem.getAttribute("bit_link");
+        var link_meta = data[short_link];
+        if(link_meta) {
+            (function(data_elem, shorty ) {
+                chrome.extension.sendRequest({'action' : 'recommend_this_link', 'hash' : link_meta.global_hash }, function(jo) {
+                    console.log("for this one", data_elem, jo)
+                    if(jo && jo.info) {
+                        
+                    }
+                });                
+            })(elem, short_link);
+        
+            console.log(link_meta, short_link);
+            elem.appendChild( draw_data_card(link_meta) )
+        }
+    }
+    console.log(found_links, "umm found umm?");
+    
+    console.log("then also", parents);
+}
+
+function draw_data_card( link_data ) {
+    var d = document.createElement("div"), 
+        html="", 
+        title = link_data.title || link_data.long_url || "";
+    html += '<div>';
+        html += '<h4>'+ title +'</h4>';
+        html += '<div><a href="'+link_data.long_url+'">'+ link_data.long_url +'</a></div>';
+    html += '</div>';
+    html +="<div>created by <a target='new' href='http://bit.ly/u/"+link_data.created_by+"'>" + link_data.created_by + "</a></div>";
+    d.innerHTML=html;
+    return d;
 }
 
 function check_domain( match_list ) {

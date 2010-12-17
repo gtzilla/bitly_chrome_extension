@@ -23,7 +23,8 @@ var host = "http://api.bit.ly",
         'lookup' : '/v3/lookup',
         'clicks_by_minute' : '/v3/clicks_by_minute',
         'realtime' : '/v3/user/realtime_links',
-        'metrics_base' : '/v3/user/'
+        'metrics_base' : '/v3/user/',
+        'recommend' : '/beta/recommended_links',
     }, errors = [];
     
     ///user/(clicks|country|referrers), /user/realtime_links
@@ -189,6 +190,25 @@ BitApi.prototype = {
         internal_multiget( host + urls.clicks_by_minute, 'url', params, callback );        
     },
     
+    recommend : function( bit_hash, limit, callback ) {
+        var params = extend({}, this.bit_request, { 'hash' : bit_hash } );
+        delete params.access_token;
+        this.count+=1;
+
+        bitlyRequest( host + urls.recommend, params, function(jo) {
+            var info_hashes=[];            
+            for(var i=0, recommended; recommended=jo.recommendations[i] && i<limit; i++){
+                info_hashes.push( recommended.global_hash );
+            }
+            var info_params = extend({}, this.bit_request, { 'hash' : info_hashes } );
+            delete params.access_token;            
+            bitlyRequest( host + urls.info, info_params, function(jo) {
+                console.log(jo, "data");
+                callback( jo );
+            } );            
+
+        });        
+    },
 
     /*
         SSL Hosts (HTTPS)

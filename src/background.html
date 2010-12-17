@@ -627,6 +627,12 @@
                 
                 break;
                 
+                case "recommend_this_link":
+                    console.log("recommend")
+                    bitly.recommend( request.hash, 10, sendResponse )
+                    
+                break;
+                
                 case "shorten_and_select":
                     logger("Shorten request");
                     if(request.long_url.indexOf("http") === 0) {
