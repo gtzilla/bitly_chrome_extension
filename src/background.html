@@ -554,7 +554,10 @@
                     
                     
                     if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
+                        // todo
+                        // compress these on release
                         chrome.tabs.executeScript(sender.tab.id, {file: "js/libs/common.js"});
+                        chrome.tabs.executeScript(sender.tab.id, {file: "js/libs/emile.js"});                        
                         chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"}); 
 
                         script_location="js/content_plugins/bitly.tweet_card.js";

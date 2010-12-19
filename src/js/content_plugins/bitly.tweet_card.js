@@ -40,7 +40,7 @@ function look_for_links() {
                 // todo, make sure that I don't actually need this
                 var p = _pClass(link, ".stream-tweet"), d=document.createElement("div");
                 if(p && p.getAttribute("bit_link")) { continue; }
-                d.innerHTML="Show";
+                // d.innerHTML="Show";
                 if(p){ 
                     p.appendChild(d); 
                     p.setAttribute("bit_link", href);
@@ -115,25 +115,27 @@ function draw_recommend( elem, cool_links ) {
         
     }
     html += '</ul>'
+    d.className="bit_box_recommend_list_outer_container";
     d.innerHTML=html;
     elem.appendChild(d);
 }
 
 function draw_data_card( link_data ) {
     var d = document.createElement("div"), 
-        html="", 
+        html='<div class="bit_box_sng_data_box_outer">', 
         title = link_data.title || link_data.long_url || "";
-    html += '<div>';
-        html += '<h4>'+ title +'</h4>';
-        html += '<div><a href="'+link_data.long_url+'">'+ link_data.long_url +'</a></div>';
+    html += '<div  class="bit_box_sng_data_box_inner">';
+        html += '<h4><a href="">'+ title +'</a></h4>';
+        html += '<div><a target="_blank" class="bit_box_link" href="'+link_data.long_url+'">'+ link_data.long_url +'</a></div>';
         html += '<div><ul>'
-            html += '<li><a href="'+link_data.short_url+'+">'+link_data.user_clicks+'</a></li>'        
+            html += '<li><a class="bit_box_link" href="'+link_data.short_url+'+">'+link_data.user_clicks+'</a></li>'        
             html += '<li> of </li>'
-            html += '<li><a href="http://bit.ly'+link_data.global_hash+'+">'+link_data.global_clicks+'</a></li>'            
+            html += '<li><a class="bit_box_link" href="http://bit.ly'+link_data.global_hash+'+">'+link_data.global_clicks+'</a></li>'            
         html += '</ul></div>'
 
     html += '</div>';
-    html +="<div>created by <a target='new' href='http://bit.ly/u/"+link_data.created_by+"'>" + link_data.created_by + "</a></div>";
+    html +="<div>created by <a class='bit_box_link' target='_blank' href='http://bit.ly/u/"+link_data.created_by+"'>" + link_data.created_by + "</a></div>";
+    html += '</div>'
     d.innerHTML=html;
     return d;
 }

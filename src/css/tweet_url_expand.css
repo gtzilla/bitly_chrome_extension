@@ -11,3 +11,23 @@
 	-webkit-column-count: 2;
 	-webkit-column-gap: 20px;    
 }
+
+.bit_box_sng_data_box_outer {
+    
+}
+
+.bit_box_sng_data_box_inner {
+    
+}
+
+.bit_box_sng_data_box_inner h4 {
+    font-size:13px;
+    
+}
+
+.bit_box_sng_data_box_inner ul {
+    list-style:none;
+}
+.bit_box_sng_data_box_inner ul li {
+    display:inline;
+}
