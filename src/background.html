@@ -20,7 +20,7 @@
         
         </div> <!-- end #container -->
         
-        
+        <!-- compress and build these?????? -->
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
@@ -103,6 +103,7 @@
         function sign_out() {
             bitly.remove_credentials();
             auto_expand_urls = true;
+            enhance_twitter_com=true;
             
             if(bit_interval) { clearInterval( bit_interval ); }
             
@@ -126,6 +127,7 @@
             bit_db.remove("user_data", delete_sql_handler );
             bit_db.remove("domain", delete_sql_handler );
             bit_db.remove("auto_expand_urls", delete_sql_handler );
+            bit_db.remove("enhance_twitter_com", delete_sql_handler );            
             bitly.set_domain("bit.ly");
 
             
@@ -289,7 +291,17 @@
             auto_expand_urls = (bool_value) ? true : false;
             bit_db.save("auto_expand_urls", { 'auto_expand' : auto_expand_urls }, function() {
                 //anything here
-            })
+            });
+        }
+        function set_enhance_twitter_com( bool_value ) {
+            enhance_twitter_com=(bool_value) ? true : false;
+            bit_db.save("enhance_twitter_com", { 'enhance_twitter_com' : enhance_twitter_com }, function() {
+                //anything here
+            });            
+        }
+        
+        function get_enhance_twitter() {
+            return enhance_twitter_com;
         }
         
         function resync_linked_account( callback ) {
@@ -385,10 +397,6 @@
         }
         
         function set_auto_copy_from_cache() {
-            // bit_db.save("auto_copy", {'copy' : copy_bool }, function(){
-            //     // save was successful
-            //     localstore("auto_copy", copy_bool);
-            // });
             bit_db.find("auto_copy", function(jo) {
                 if(jo === undefined) return;
                 localstore("auto_copy", jo.copy );
@@ -411,6 +419,12 @@
                 else auto_expand_urls = jo.auto_expand;
             })
         }
+        function set_enhance_twitter_com_from_cache() {
+            bit_db.find("enhance_twitter_com", function(jo) {
+                if(jo === undefined) enhance_twitter_com=true
+                else enhance_twitter_com = jo.enhance_twitter_com;
+            })
+        }        
         
         function set_api_domain_from_cache() {
             bit_db.find("domain", function(domain_string) {
@@ -502,7 +516,8 @@
         // the bit.ly API connector
         logger("Initialize bit.ly extension");
         var bitly=init_api(), bit_db=init_db(), trends_worker, click_by_min_worker,
-            domains_list, auto_expand_urls = true, bit_interval, // bit_interval is the timer for watch list
+            domains_list, auto_expand_urls = true, enhance_twitter_com=true, 
+            bit_interval, // bit_interval is the timer for watch list
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         
@@ -519,7 +534,7 @@
         set_no_expand_domains_from_cache();
         set_auto_copy_from_cache();
         set_notifications_from_cache();
-
+        set_enhance_twitter_com_from_cache();
 
        
        
@@ -548,17 +563,33 @@
             switch( act ) {
                 
                 case "page_loaded":
-                    if(!bitly.is_authenticated() || !auto_expand_urls) return;
-                    var injectTabs = sender.tab && sender.tab.url,
-                        no_expand_list = get_no_expand_domains();
                     
-                    // only support http || https domains
-                    if(injectTabs && injectTabs.indexOf("http") === 0 &&
-                        no_expand_list.indexOf( request.domain_host ) === -1) {
-                            
-                            chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
-                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});
-                    }
+                    var user_data = localfetch("user_data");
+                    /*
+                        Makes determination if used is logged in, toggles 'popup' behavior accordingly
+                            Default popup behavior is to load options.html, login page
+                    */
+
+                    if(user_data && user_data.x_login && user_data.x_apiKey) {
+                        if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
+
+                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
+                        }
+
+                        if(!bitly.is_authenticated() || !auto_expand_urls) return;
+                        var injectTabs = sender.tab && sender.tab.url,
+                            no_expand_list = get_no_expand_domains();
+
+                        // only support http || https domains
+                        if(injectTabs && injectTabs.indexOf("http") === 0 &&
+                            no_expand_list.indexOf( request.domain_host ) === -1) {
+
+                                chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
+                                chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});
+                        }                    
+                    }                    
+                    
+
                 break;
                 
                 /*
@@ -623,6 +654,17 @@
                     bitly.shorten( request.long_url, sendResponse );
                 break;
                 
+                case "shorten":
+                    console.log("shorten these..")
+                    // see if this is an object..
+                    // loop over it
+                    // check the white list for this url... ouch expensive... go other way?
+                    // loop over HUGE whitelist set, check smaller 'long url' domains -- common method for doing this?
+                    // shorten them, get a response, send back
+                    if(request.long_url) {
+                        bitly.shorten( request.long_url, sendResponse );                        
+                    }
+                break;
                 
                 case "realtime_metrics":
                     
