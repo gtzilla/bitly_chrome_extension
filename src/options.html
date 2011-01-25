@@ -74,6 +74,7 @@
                         <div>
 
                             <input type="checkbox" name="watch_urls" value="" id="watch_urls">
+
                             <label for="watch_urls">Enable Notifications</label>
                             
                             <div class="smallInputContainer notificationInnerContainer" style="display:none;">
@@ -446,9 +447,11 @@
                             type : "p",
                             content : [{
                                 type : "a",
+                                css : "add_or_remove",
                                 content : "Add or remove",
                                 attributes : {
-                                    href : "#"
+                                    href : "http://bit.ly/a/account",
+                                    target : "new"
                                 }                                
                             },{
                                 text : " accounts on bit.ly | "
