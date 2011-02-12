@@ -13,6 +13,7 @@
             <div id="top">
             </div> <!-- end #top -->
             <div id="middle">
+                <textarea id="instant_clipboad_copy_space"></textarea>
             </div> <!-- END #middle -->
             <div id="bottom">
                     <div id="escape_worker"></div>
@@ -94,6 +95,11 @@
                     chrome.browserAction.setPopup({ "popup" : "popup.html"});
                     fetch_all_domains();
                     watch_and_alert();
+                    if(!context_menu_added) {
+                        add_link_context_menu();                        
+                        context_menu_added=true;
+                    }
+
                 }
                 if(callback) callback(response)
             
@@ -146,7 +152,6 @@
         }
         
         function display_notification() {
-            
             bitNote.show();
         }
         
@@ -364,7 +369,10 @@
                 bitly.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
                 watch_and_alert();
                 chrome.browserAction.setPopup({ "popup" : "popup.html"});
-            
+                if(!context_menu_added) {
+                    add_link_context_menu();                        
+                    context_menu_added=true;
+                }
             
             } else {
                 bit_db.find("user_data", function( sql_user_data ) {
@@ -374,6 +382,10 @@
                     bitly.set_credentials( sql_user_data.x_login, sql_user_data.x_apiKey, sql_user_data.access_token );
                     watch_and_alert();
                     chrome.browserAction.setPopup({ "popup" : "popup.html"});
+                    if(!context_menu_added) {
+                        add_link_context_menu();                        
+                        context_menu_added=true;
+                    }
                 });
             }
         }
@@ -481,12 +493,24 @@
                 'documentUrlPatterns' : ['http://*/*', 'https://*/*']
             }
             
-            chrome.contextMenus.create(params, function() {
-                console.log("created a context menu", chrome.extension.lastError)
-            })
+            chrome.contextMenus.create(params, function() {});
         }
-        function _on_context_menu_link_click() {
-            
+        function _on_context_menu_link_click( info, tab ) {
+            //http://code.google.com/chrome/extensions/contextMenus.html
+            var txt_area;
+            if(info.linkUrl && info.linkUrl.trim() !== "" ) {
+                bitly.shorten( info.linkUrl.trim(), function(jo) {
+                    if(jo && jo.url && jo.url !== "") {
+                        txt_area = _id("instant_clipboad_copy_space");
+                        try {
+                            txt_area.value=jo.url;
+                            txt_area.select();
+                            document.execCommand("copy", false, null);                            
+                        } catch(e){}
+
+                    }
+                }); 
+            }
         }
         
         function test_metrics() {
@@ -530,11 +554,14 @@
             }
         }
         
-        // the bit.ly API connector
+
         logger("Initialize bit.ly extension");
+        // the bit.ly API connector, db interface and other global variables        
         var bitly=init_api(), bit_db=init_db(), trends_worker, click_by_min_worker,
-            domains_list, auto_expand_urls = true, enhance_twitter_com=true, 
+            domains_list, auto_expand_urls = true, enhance_twitter_com=true,
+            context_menu_added=false, 
             bit_interval, // bit_interval is the timer for watch list
+            
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         
@@ -552,7 +579,7 @@
         set_auto_copy_from_cache();
         set_notifications_from_cache();
         set_enhance_twitter_com_from_cache();
-        //add_link_context_menu();
+
 
 
        
