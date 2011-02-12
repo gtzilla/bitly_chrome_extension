@@ -2,7 +2,7 @@
   "name": "bit.ly | a simple URL shortener",
   "version": "1.2.1.1",
   "options_page": "options.html",
-  "description": "Shorten, share, and track your link, right from your browser, instantly",
+  "description": "Shorten, share, and track your links, right from your browser, instantly",
   "background_page": "background.html",
   "browser_action": {
     "default_title": "bit.ly",  

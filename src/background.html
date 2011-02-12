@@ -487,7 +487,7 @@
         function add_link_context_menu() {
             var params = {
                 'type' : 'normal',
-                'title' : 'Shorten link with bit.ly',
+                'title' : 'Shorten and copy link with bit.ly',
                 'contexts' : ["link"],
                 'onclick' : _on_context_menu_link_click,
                 'documentUrlPatterns' : ['http://*/*', 'https://*/*']
@@ -497,20 +497,36 @@
         }
         function _on_context_menu_link_click( info, tab ) {
             //http://code.google.com/chrome/extensions/contextMenus.html
-            var txt_area;
-            if(info.linkUrl && info.linkUrl.trim() !== "" ) {
+            var long_url = info.linkUrl && info.linkUrl.trim(), expand_meta_data;
+            if(long_url !== "" ) {
                 bitly.shorten( info.linkUrl.trim(), function(jo) {
-                    if(jo && jo.url && jo.url !== "") {
-                        txt_area = _id("instant_clipboad_copy_space");
-                        try {
-                            txt_area.value=jo.url;
-                            txt_area.select();
-                            document.execCommand("copy", false, null);                            
-                        } catch(e){}
-
+                    if(jo && jo.status_txt && jo.status_txt === "ALREADY_A_BITLY_LINK") {
+                       _util_expand_and_reshorten( long_url  );
+                    } else if(jo && jo.url && jo.url !== "") {
+                        copy_to_clip(jo.url);
                     }
                 }); 
             }
+        }
+        
+        function _util_expand_and_reshorten( long_url ) {
+            bitly.expand( long_url, function(jo) {
+                expand_meta_data = jo&&jo.expand&&jo.expand.pop();
+                bitly.shorten( expand_meta_data.long_url, function(jo) {
+                    if(jo && jo.url && jo.url !== "") {
+                        copy_to_clip(jo.url);                                    
+                    }
+                });
+            });
+        }
+        
+        function copy_to_clip( str_value  ) {
+            var txt_area = _id("instant_clipboad_copy_space");
+            try {
+                txt_area.value=str_value;
+                txt_area.select();
+                document.execCommand("copy", false, null);                            
+            } catch(e){}            
         }
         
         function test_metrics() {
