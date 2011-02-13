@@ -3,3 +3,4 @@ build
 
 # key file
 src.pem
+bitly_oauth_credentials.js

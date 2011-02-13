@@ -45,7 +45,7 @@ function handle_api_repsonses(jo) {
         postMessage(jo);
     }
     
-    timer = setTimeout(callRemote, 35000);
+    timer = setTimeout(callRemote, 28000);
 
 }
 
@@ -60,7 +60,7 @@ function callRemote(){
     
     setTimeout(function() {
         ajax_in_action = ajaxRequest( ssl_key, handle_api_repsonses );          
-    }, 35000);
+    }, 26000);
 
    
 }

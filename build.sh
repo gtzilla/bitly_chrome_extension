@@ -17,6 +17,13 @@ if [ ! -f "$CWD/src/manifest.json" ]; then
     exit 1;
 fi
 
+# support and check for separate oauth file
+if [ ! -f "$CWD/src/js/bitly_oauth_credentials.js" ]; then
+    echo "valid oauth file is needed to build the extension correctly"
+    echo "create: src/js/bitly_oauth_credentials.js with instructions from README.md"
+    exit 1;
+fi
+
 ## now increment the trailing version number
 perl -pe 's/(\s+.version.: .\d+\.\d+\.\d+\.)(\d+)/$1.($2+1)/eg' -i "src/manifest.json"
 
