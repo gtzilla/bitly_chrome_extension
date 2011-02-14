@@ -52,7 +52,8 @@
     
     (function() {
         var bg = chrome.extension.getBackgroundPage(), 
-            context, total_h=350, total_w=900, user_click_data=[];
+            context, total_h=400, total_w=850, user_click_data=[], 
+            paint_graph=[], loop_interval;
         
         function init() {
             $(function(){
@@ -66,53 +67,69 @@
                     max_clicks=Math.max(max_clicks,jo.clicks[i].clicks)
                 }
                 user_click_data=jo.clicks;
-                // console.log("max_clicks", max_clicks)
-                // paint_graph( jo.clicks.slice(14).reverse(), 14, max_clicks, "rgba(192,192,192,0.4)" );
-                paint_graph( jo.clicks.reverse(), jo.clicks.length, max_clicks, "rgba(107,175,240,0.5)" );
-
+                create_graph_paint_points( jo.clicks.reverse(), jo.clicks.length, max_clicks );
+                loop_interval = setInterval(loop, 1000/60);
             });
             var can_tag = document.getElementById("metrics_summary_canvas");
-            console.log(can_tag.getBoundingClientRect())
-            context=can_tag.getContext('2d')
-            console.log(context)
+            context=can_tag.getContext('2d');
         }
         
-        function paint_graph( click_data, days, max_clicks, fill_color ) {
-            console.log("days", days);
-            
-            /*
-                {
-                    x:0,y:0,
-                    total:function(){return canvas_total_height-(clicks*scale_offset);}
-                }
-                scale_offset=Math.round(total_h/max_clicks);
-            */
-            // todo
-            // setup obejcts
-            // start loopin / painting using 'framerate' speed aka not a for loop directly
-            context.beginPath();
-            context.lineJoin="round";
-            context.lineWidth=2;
-            context.fillStyle=fill_color
-            context.moveTo(0,total_h);
-            var offsetter=Math.round(total_w/days),
-                top_off=Math.round(total_h/max_clicks);
+        function create_graph_paint_points( click_data, days, max_clicks ) {
+            var items=[], offsetter=Math.round(total_w/days), top_off=Math.round(total_h/max_clicks);
             for(var i=0; i<click_data.length; i++) {
-                context.lineTo(i*offsetter,total_h-(click_data[i].clicks*top_off));
+                items.push({
+                    x : i*offsetter,
+                    y : Math.round(total_h),
+                    end_y : Math.round(total_h-(click_data[i].clicks*top_off)),
+                    stop_paint:false
+                });
+                
             }
-            context.lineTo((days-1)*offsetter,total_h);
-            context.closePath(); 
-            context.stroke();
-            // context.closePath();
-            context.fill();
-            
-
-            
-            console.log("max clicks for period", max_clicks)
+            context.fillStyle="rgba(107,175,240,0.7)";
+            paint_graph=items;
         }
         
         function loop() {
-            
+            var paintr;
+            context.lineWidth=2;            
+            context.lineJoin="round";
+            context.clearRect( 0, 0, total_w, total_h  );   
+            var filter_painting = paint_graph.filter(function(z){ if (!z.stop_paint){return z;} });
+            if(filter_painting.length<=0) {
+                console.log("stop paint")
+                clearInterval(loop_interval);
+                // todo
+                context.strokeStyle="rgba(200,200,200,0.4)"
+                for(var i=0;i<paint_graph.length;i++) {
+                    context.beginPath();
+                    // if(i % 7 && i !== paint_graph.length-1) {continue;}
+                    context.moveTo(paint_graph[i].x,0);
+                    context.lineTo(paint_graph[i].x,total_h);
+                    context.closePath()
+                    context.stroke();                
+
+                }
+                
+                // paint vertical bars
+            }        
+            context.beginPath();  
+            context.moveTo(0,total_h);  
+         
+            context.strokeStyle="rgba(107,175,240,1)";
+            for(var i=0; i<paint_graph.length; i++) { 
+                paintr=paint_graph[i];
+                context.lineTo(paintr.x, paintr.y);
+                paintr.y += (paintr.end_y - paintr.y ) * 0.1;
+
+                if(Math.round(paintr.y) == Math.round(paintr.end_y)) {
+                    paintr.stop_paint=true;
+                }
+            }
+            context.lineTo((paint_graph.length-1)*Math.round(total_w/paint_graph.length),total_h);
+            context.closePath(); 
+            context.stroke();
+            context.closePath();
+            context.fill();
         }
         
         function build_canvas(w,h) {
@@ -134,14 +151,16 @@
                             attr : {
                                 href : "#"
                             }
-                        }, {
-                            type : "a",
-                            css : "myClass",
-                            content : "Weekly Overlay view",
-                            attr : {
-                                href : "#"
-                            }
                         }]
+                        // , {
+                        //                             type : "a",
+                        //                             css : "myClass",
+                        //                             content : "Weekly Overlay view",
+                        //                             attr : {
+                        //                                 href : "#"
+                        //                             }
+                        //                         }]
+
                     }
                 }]
             }
