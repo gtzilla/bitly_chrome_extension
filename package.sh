@@ -30,7 +30,8 @@ perl -pe 's/(\s+.version.: .\d+\.\d+\.\d+\.)(\d+)/$1.($2+1)/eg' -i "src/manifest
 VERSION=`cat src/manifest.json | grep '"version"' | awk -F '"' '{print $4}'`
 echo "new extension version is $VERSION"
 
-zip -q -r "bitly_ext-$VERSION.zip" "$CWD/src" --exclude .\*
+## remove the sample file and any Mac specific files
+zip -q -r "bitly_ext-$VERSION.zip" "$CWD/src" --exclude \*.DS_Store \*bitly_oauth_credentials.js.sample
 
 echo "upload: bitly_ext-$VERSION.zip"
 exit 0;
