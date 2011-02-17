@@ -8,8 +8,8 @@
 
 // TODO
 // move this info to settings file
-var host = "http://api.bit.ly",
-    ssl_host = "https://api-ssl.bit.ly",
+var host = "http://api.bitly.com",
+    ssl_host = "https://api-ssl.bitly.com",
     urls = {
         'shorten' : '/v3/shorten',
         'expand' : '/v3/expand',
@@ -23,7 +23,8 @@ var host = "http://api.bit.ly",
         'lookup' : '/v3/lookup',
         'clicks_by_minute' : '/v3/clicks_by_minute',
         'realtime' : '/v3/user/realtime_links',
-        'metrics_base' : '/v3/user/'
+        'metrics_base' : '/v3/user/',
+        'user_clicks' : '/v3/user/clicks'
     }, errors = [];
     
     ///user/(clicks|country|referrers), /user/realtime_links
@@ -194,6 +195,10 @@ BitApi.prototype = {
         SSL Hosts (HTTPS)
     */
 
+    user_clicks : function( days, callback) {
+        var params = { 'access_token' : this.bit_request.access_token, 'days' : days }
+        bitlyRequest( ssl_host + urls.user_clicks, params, callback );        
+    },
     
     realtime : function( callback ) {
         var params = { 'access_token' : this.bit_request.access_token }

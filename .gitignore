@@ -3,3 +3,7 @@ build
 
 # key file
 src.pem
+bitly_oauth_credentials.js
+src.zip
+bitly_ext*.zip
+src_alter

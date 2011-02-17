@@ -2,75 +2,97 @@
     /*
             fastFrag
                 Turn JSON into HTML, http://github.com/gregory80/fastFrag
+                
+            Usage: fastFrag.create( { content : "hello world" });
+            // creates Document Fragment: <div>hello world</div>
+            
+            Learn more: http://github.com/gregory80/fastFrag/blob/master/README.md or http://fastfrag.org
+            
+            Convert HTML to fastFrag (fast!): http://json.fastfrag.org/
     */
-    
+
     var fastFrag = {
         create : function( params ) {
-            return drawHTML(params);
+            base_frag=d.createDocumentFragment();
+            return assembleHTML(params);
         },
-        version : "1.0.1"
-    
+        version : "1.1.2.2"
+
     };
     window.fastFrag = fastFrag;
 
-    var d = document;
-    
-    function drawHTML( params ) {
-        var frag = d.createDocumentFragment(), k, el;
+    var d = document, base_frag=null;
+
+    function assembleHTML( params ) {
+        var el;
         if(params && params.length === undefined) {
             el = _singleNode( params );
-            frag.appendChild( el );
+            base_frag.appendChild( el );
         } else {
+            var sub_frag=d.createDocumentFragment(), k;
             for(k in params) {
                 el = _singleNode( params[k] );
-                frag.appendChild( el );
+                sub_frag.appendChild( el );
             }
+            return sub_frag;
         }
-        return frag;
+        return base_frag;
     }
-    
-    function _mke(elem) {
-        return document.createElement( elem );
-    }
-    function _mke_attribute( el, attrs ) {
-        var safe_value;
-        for(var k in attrs) { 
-            // yuck
-            if(k === "disabled" && !attrs[k]) { continue; }
-            el.setAttribute(k, _safe( attrs[k] ) ); 
+
+    // helpers
+    function _singleNode( o ) {
+        var el, txt;
+        if( o.text !== undefined ) {
+            el = d.createTextNode( o.text || "" );
+        } else {
+            el = _make_element( o );
+            txt = _process_node( o );                                            
+            try{
+                el.appendChild( txt );                        
+            } catch(e){}
         }
         return el;
+    }
+    function _mke_attribute( el, attrs ) {
+        for(var k in attrs) { 
+            // yuck, setting disabled to false or none still breaks browsers, skip it instead
+            if(k === "disabled" && !attrs[k]) { continue; }
+            el.setAttribute(k, _safe( attrs[k] ) );                                         
+        }
     }
     function _make_element( o ) {
         var el_name, el;
         el_name = o.type || "div";
         el = _mke( el_name );
-        if(o.attributes) { _mke_attribute(el, o.attributes); }
+        // Starting in ver1.0.5, can use any mix of o.attributes || o.attr  || o.attrs
+        if(o.attributes || o.attr || o.attrs) { _mke_attribute( el, o.attributes || o.attr  || o.attrs ); }
         el.id = (o.id) ? o.id : null;  el.className = (o.css) ? o.css : null;
         return el;
     }
-    function _safe( string ) {
-        return (d.createTextNode(string).nodeValue).toString();  // put in a text node, then grab it
-    }
-    function _singleNode( o ) {
-        var frag = d.createDocumentFragment(), el, content_type = typeof o.content, txt, txt_value;
-        if( o.text !== undefined ) {
-            el = d.createTextNode( o.text || "" );
+
+    function _process_node( o ) {
+        var txt=null, content_type = typeof o.content, txt_value;
+        // JS thinks both Object and Array are typeof object, let assembleHTML guide it 
+        if( content_type === "object") {
+            txt = assembleHTML( o.content );
+        } else if(content_type === "string") {
+            txt = d.createTextNode( o.content );
         } else {
-            el = _make_element( o );
-            txt=null;
-            if( content_type === "object") {
-                txt = drawHTML( o.content );
-            } else if(content_type === "string") {
-                txt = d.createTextNode( o.content );
-            } else {
-                txt_value = (o.content !== undefined) ? (o.content.toString() || "")  : "";
-                txt = d.createTextNode( txt_value );
-            }
-            el.appendChild( txt );
+            // this might be an intger or float or boolean, it's all text to HTML..
+            txt_value = (o.content !== undefined) ? (o.content.toString() || "")  : "";
+            txt = d.createTextNode( txt_value );
         }
-        
-        frag.appendChild(el);
-        return frag;
+        return txt        
     }
+    // short cut / conveince methods
+    function _mke(elem) {
+        return d.createElement( elem );
+    }    
+    function _safe( string ) {
+        var txt_node=d.createTextNode(string);
+        var txt=(txt_node.nodeValue).toString();  // put in a text node, then grab it
+        txt_node=null
+        return txt;
+    }    
+
 })();

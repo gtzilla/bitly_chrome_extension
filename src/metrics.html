@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+
+<!--
+    http://unlicense.org/
+    author: gregory tomlinson
+-->
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bit.ly Chrome Extension Metrics Summary</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+        <link rel="stylesheet" href="css/metrics.css" type="text/css" charset="utf-8" />                
+        
+    </head>
+    <body>
+        <div id="container">
+
+            <div id="top">
+                <div id="blueBanner">
+                    <ul class="ext_nav_list">
+                        <!-- <li><a class="openOptions" href="/options.html">Settings</a></li>
+                        <li><a class="openTrending" href="">Currently Trending</a></li>
+                        <li><a class="openAnalyze" href="/metrics.html">Analyze</a></li>  -->                          
+                    </ul>
+                
+                </div>
+                
+                <div id="logo">
+                    <a href="options.html"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
+                </div>
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+                Analyze
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+
+            </div> <!-- end #bottom -->
+            
+        </div> <!-- end #container -->
+    
+<script type="text/javascript" charset="utf-8" src="js/libs/fastFrag.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery-1.4.4.js"></script>
+<script type="text/javascript" charset="utf-8">
+    //user_clicks
+    
+    (function() {
+        var bg = chrome.extension.getBackgroundPage(), 
+            context, total_h=400, total_w=850, user_click_data=[], 
+            paint_graph=[], loop_interval;
+        
+        function init() {
+            $(function(){
+                $(document.body).addClass("page_loaded");
+            });
+            $('#middle').append( fastFrag.create(build_canvas(total_w,total_h) ) );
+            bg.bitly.user_clicks(30,function(jo) {
+                console.log(jo, "metrics for user");
+                var max_clicks=0;
+                for(var i=0; i<jo.clicks.length; i++) {
+                    max_clicks=Math.max(max_clicks,jo.clicks[i].clicks)
+                }
+                user_click_data=jo.clicks;
+                create_graph_paint_points( jo.clicks.reverse(), jo.clicks.length, max_clicks );
+                loop_interval = setInterval(loop, 1000/60);
+            });
+            var can_tag = document.getElementById("metrics_summary_canvas");
+            context=can_tag.getContext('2d');
+        }
+        
+        function create_graph_paint_points( click_data, days, max_clicks ) {
+            var items=[], offsetter=Math.round(total_w/days), top_off=Math.round(total_h/max_clicks);
+            for(var i=0; i<click_data.length; i++) {
+                items.push({
+                    x : i*offsetter,
+                    y : Math.round(total_h),
+                    end_y : Math.round(total_h-(click_data[i].clicks*top_off)),
+                    stop_paint:false
+                });
+                
+            }
+            context.fillStyle="rgba(107,175,240,0.7)";
+            paint_graph=items;
+        }
+        
+        function loop() {
+            var paintr;
+            context.lineWidth=2;            
+            context.lineJoin="round";
+            context.clearRect( 0, 0, total_w, total_h  );   
+            var filter_painting = paint_graph.filter(function(z){ if (!z.stop_paint){return z;} });
+            if(filter_painting.length<=0) {
+                console.log("stop paint")
+                clearInterval(loop_interval);
+                // todo
+                context.strokeStyle="rgba(200,200,200,0.4)"
+                for(var i=0;i<paint_graph.length;i++) {
+                    context.beginPath();
+                    // if(i % 7 && i !== paint_graph.length-1) {continue;}
+                    context.moveTo(paint_graph[i].x,0);
+                    context.lineTo(paint_graph[i].x,total_h);
+                    context.closePath()
+                    context.stroke();                
+
+                }
+                
+                // paint vertical bars
+            }        
+            context.beginPath();  
+            context.moveTo(0,total_h);  
+         
+            context.strokeStyle="rgba(107,175,240,1)";
+            for(var i=0; i<paint_graph.length; i++) { 
+                paintr=paint_graph[i];
+                context.lineTo(paintr.x, paintr.y);
+                paintr.y += (paintr.end_y - paintr.y ) * 0.1;
+
+                if(Math.round(paintr.y) == Math.round(paintr.end_y)) {
+                    paintr.stop_paint=true;
+                }
+            }
+            context.lineTo((paint_graph.length-1)*Math.round(total_w/paint_graph.length),total_h);
+            context.closePath(); 
+            context.stroke();
+            context.closePath();
+            context.fill();
+        }
+        
+        function build_canvas(w,h) {
+            return {
+                content :[{
+                    type : 'canvas',
+                    id : 'metrics_summary_canvas',
+                    attr : {
+                        'width' : w,
+                        'height' : h
+                    }                    
+                },{
+                    content : {
+                        type : "ul",
+                        content : [{
+                            type : "a",
+                            css : "",
+                            content : "last 30 days",
+                            attr : {
+                                href : "#"
+                            }
+                        }]
+                        // , {
+                        //                             type : "a",
+                        //                             css : "myClass",
+                        //                             content : "Weekly Overlay view",
+                        //                             attr : {
+                        //                                 href : "#"
+                        //                             }
+                        //                         }]
+
+                    }
+                }]
+            }
+        }
+        
+        
+        init();
+        
+    })();
+</script>
+      
+    </body>
+</html>

@@ -23,11 +23,14 @@
         
         <!-- compress and build these?????? -->
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
+        <!-- //*this file does NOT appear in GIT, you will have to manually add the correct credentials* -->
+        <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>        
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/bg_common.js"></script>
         <script type="text/javascript" src="js/libs/common.js"></script>
         <script type="text/javascript" src="js/libs/bitNote.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/libs/expand_thirdparty.js"></script>
         <script type="text/javascript" charset="utf-8">
 
         
@@ -163,7 +166,7 @@
             }
             var black_list=[], note_blacklist = localfetch("note_blacklist") || [];
             
-            console.log("starts with", note_blacklist)
+            // console.log("starts with", note_blacklist)
             var params = {
                 oauth_key : bitly.bit_request.access_token,
                 'black_list' : note_blacklist,
@@ -200,8 +203,8 @@
                 }
                 
                 l_notes = l_notes.concat(notes_list);
-                console.log("l_notes", l_notes)
-                console.log("black list", black_list)
+                // console.log("l_notes", l_notes)
+                // console.log("black list", black_list)
                 set_notification_list( l_notes );
                 
                 if(l_notes.length > 0 ) {
@@ -220,7 +223,7 @@
                     
                     // I can trim out stuff from note_blacklist
                     
-                    console.log("Updating the worker", black_list, params)
+                    // console.log("Updating the worker", black_list, params)
                     trends_worker.postMessage( params );                    
                 }
                 
@@ -475,9 +478,11 @@
         function init_api() {
             // get from local storage?
             // pull this value from a settings file
-            var client_id = "298b336871d6aa29e06b3033269f21ced9717625",
-                client_signature = "319b6d82931c7b92bc05d83e005c3f415a66e31b",
-                b = bitlyAPI( client_id, client_signature );
+            if(!bitly_oauth_credentials) {
+                console.log("a required file is missing! please add a valid js/bitly_oauth_credentials.js")
+                throw "MISSING_CREDENTIALS_FILE";
+            }
+            var b = bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature );
             return b;
         }
         function init_db( name ) {
@@ -512,6 +517,7 @@
         function _util_expand_and_reshorten( long_url ) {
             bitly.expand( long_url, function(jo) {
                 expand_meta_data = jo&&jo.expand&&jo.expand.pop();
+                if(!expand_meta_data) { return; } // todo, bubble error??
                 bitly.shorten( expand_meta_data.long_url, function(jo) {
                     if(jo && jo.url && jo.url !== "") {
                         copy_to_clip(jo.url);                                    
@@ -547,7 +553,7 @@
         
         function trends_worker_message_event( evt ) {
             // console.log(evt, "the worker says?")
-            console.log(evt.data, "trend data")
+            // console.log(evt.data, "trend data")
             
             
             if(!evt.data.trending_links) {
@@ -571,6 +577,8 @@
         }
         
 
+        /////////////////////////////////////////////////////////////
+        /// START UP the Chrome Extension Application..
         logger("Initialize bit.ly extension");
         // the bit.ly API connector, db interface and other global variables        
         var bitly=init_api(), bit_db=init_db(), trends_worker, click_by_min_worker,
@@ -586,7 +594,7 @@
         trends_worker = new Worker("js/workers/realtime_data.js");
         trends_worker.onmessage = trends_worker_message_event;
         
-        
+        // derive items from cache
         set_current_bitly_user_from_cache();
         set_domain_list_from_cache();
         set_auto_expand_from_cache();
@@ -595,19 +603,7 @@
         set_auto_copy_from_cache();
         set_notifications_from_cache();
         set_enhance_twitter_com_from_cache();
-
-
-
-       
-       
-       
-       // click_by_min_worker = new Worker("js/workers/clicks_per_minute.js");
-       // click_by_min_worker.postMessage({'shortUrl' : []});
-       //
-       // click_by_min_worker.onmessage = function(evt) {
-       //     console.log(evt, "that worker works")
-       // }
-
+        
         
         
         /*
