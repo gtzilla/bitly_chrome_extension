@@ -59,7 +59,7 @@ COMPRESS_JAR="../projects/website/tools/closure_compiler.jar"
 ## done;
 
 ## remove the sample file and any Mac specific files
-zip -q -r "bitly_ext-$VERSION.zip" "$CWD/src" --exclude \*.DS_Store \*bitly_oauth_credentials.js.sample
+zip -q -r "bitly_ext-$VERSION.zip" "src" --exclude \*.DS_Store \*bitly_oauth_credentials.js.sample
 # rm -rf src_alter
 
 echo "upload: bitly_ext-$VERSION.zip"
