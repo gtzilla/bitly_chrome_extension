@@ -36,7 +36,7 @@ function makeRemoteCall() {
     
     // todo pull this value from the init values!!!
     current_request = ajaxRequest({
-        url : 'http://api.bit.ly/v3/clicks_by_minute?login=j3h14h&apiKey=R_ea5a37f5757cf2ef91b514b66d6d8fcc&shortUrl=http://nyti.ms/cjdehk',
+        url : '',
         success : function(jo) {
             postMessage(jo)
         }

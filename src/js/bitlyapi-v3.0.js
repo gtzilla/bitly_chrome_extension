@@ -1,7 +1,7 @@
 /*
     A BITLY JS API
         - Little wrapper object to handle bit.ly API calls
-            api.bit.ly
+            api.bitly.com
 */
 
 (function() {

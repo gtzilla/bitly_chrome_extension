@@ -100,7 +100,7 @@ function process_realtime( data  ) {
 
 function ajaxRequest( oauth_key, callback ) {
     var xhr = new XMLHttpRequest(), message, 
-        post_data, url="https://api-ssl.bit.ly/v3/user/realtime_links";
+        post_data, url="https://api-ssl.bitly.com/v3/user/realtime_links";
     
     if(!oauth_key || oauth_key === "") { 
         postMessage({'error' : 'no auth key'})

@@ -1,5 +1,5 @@
 {
-    'host' : 'api.bit.ly',
+    'host' : 'api.bitly.com',
     'ssl_host' : '',
     'user_table' : 'users_t',
     'db_version' : 1
