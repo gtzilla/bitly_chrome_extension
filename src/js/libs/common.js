@@ -67,3 +67,6 @@ function _copy( obj1 ) {
       } else { newObj[i] = obj1[i]; }
     } return newObj;        
 }
+
+
+

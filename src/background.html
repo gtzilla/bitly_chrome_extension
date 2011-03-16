@@ -10,8 +10,8 @@
     <body>
         <div id="container">
             
-            <div id="top">
-            </div> <!-- end #top -->
+            <!-- <div id="top">
+            </div> <!-- end #top --> -->
             <div id="middle">
                 <textarea id="instant_clipboad_copy_space"></textarea>
             </div> <!-- END #middle -->
@@ -28,6 +28,8 @@
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/bg_common.js"></script>
+        <script type="text/javascript" src="js/libs/bg_getset_common.js"></script>        
+        
         <script type="text/javascript" src="js/libs/common.js"></script>
         <script type="text/javascript" src="js/libs/bitNote.js"></script>
         <script type="text/javascript" charset="utf-8" src="js/libs/expand_thirdparty.js"></script>
@@ -35,49 +37,6 @@
 
         
         // for use with expand_and_meta
-        function process_domains( url_list ) {
-            var i=0, j=0, domain, possible,
-                possible_domains = parse_domains( url_list ),
-                total_possible = possible_domains.length,
-                l = domains_list || [], final_results = [];
-            
-            
-            if(possible_domains <= 0 ) return;
-            
-            if(l.length > 1 ) {
-                // JS Definitive Guide page 90, 6.10 labels
-                // Avoids having to recaluate .length on domains_list, which is ~3100 items
-                // label allows inner loop to break outer loop
-                outerloop:
-                    for( ; domain = l[i]; i++) {
-                        innerloop:
-                            for(j=0; possible=possible_domains[j]; j++) {
-                                if(possible.md5 === domain ) {
-                                    final_results.push(possible.short_url); // positive match
-                                    if(final_results.length >= total_possible) {  break outerloop; }
-                                }
-                            }
-                    }
-            } else { final_results = url_list; }
-            return final_results;
-        }
-        
-        function parse_domains( url_list ) {
-            var final_list = [],
-                regex = new RegExp("(?:https?://){1}([^/]*)/(?:.*)", 'i'),
-                matches, md5_domain, i=0, url;
-            for( ; url=url_list[i]; i++) {
-                matches = url.match(regex)
-                if(matches && matches.length > 1) md5_domain = hex_md5( matches[1] );
-                else  {
-                    md5_domain = null;
-                    continue;
-                }
-                final_list.push({ 'md5' : md5_domain, 'short_url' : url })
-            }
-            
-            return final_list;
-        }
         
         function sign_in(username, password, callback) {
             logger("auth attempt for", username)
@@ -90,23 +49,22 @@
                         "x_apiKey": auth.apiKey,
                         "access_token" : auth.access_token
                     }
-                    localstore("user_data", current_user);
-                    bit_db.save( "user_data", current_user, function( tx, sql ) {
-                        // do something with results?
-                        logger("Logged in user")
-                    });
-                    chrome.browserAction.setPopup({ "popup" : "popup.html"});
+                    save_signedin_user( current_user );
                     fetch_all_domains();
-                    watch_and_alert();
-                    if(!context_menu_added) {
-                        add_link_context_menu();                        
-                        context_menu_added=true;
-                    }
-
+                    initilaize_with_signin_info();
                 }
-                if(callback) callback(response)
+                if(callback) { callback(response); }
             
             });
+        }
+                
+        function initilaize_with_signin_info(){
+            watch_and_alert(); // trending check
+            chrome.browserAction.setPopup({ "popup" : "popup.html"});  
+            if(!context_menu_added) {
+                add_link_context_menu();                        
+                context_menu_added=true;
+            }                      
         }
         
         function sign_out() {
@@ -114,67 +72,22 @@
             auto_expand_urls = true;
             enhance_twitter_com=true;
             
-            if(bit_interval) { clearInterval( bit_interval ); }
-            
-            localdelete("realtime");
-            localdelete("note_blacklist");
-            localdelete("notifications");
-            localdelete("stash");
-            
-            // todo
-            // remove notifications
-            // remove watch list...
-            
-            localdelete("user_data");
-            localdelete("share_accounts"); //  we don't store share accounts in SQL
-            localdelete("no_expand_domains");
-
-            
-            bit_db.remove("notifications", delete_sql_handler );
-            
-            bit_db.remove("no_expand_domains", delete_sql_handler );
-            bit_db.remove("user_data", delete_sql_handler );
-            bit_db.remove("domain", delete_sql_handler );
-            bit_db.remove("auto_expand_urls", delete_sql_handler );
-            bit_db.remove("enhance_twitter_com", delete_sql_handler );            
+            reset_local_data();
             bitly.set_domain("bit.ly");
-
-            
-            
             chrome.browserAction.setPopup({ "popup" : ""});
             return;
-        
         }
-        function delete_sql_handler() {
-            // this is just a callback for deletes, check for success / failure, todo
-        }
-        
-        
+                
         function notification_close_action( evt ){
             console.log("close the", evt, arguments)
         }
         
+        
+        // convenience method
         function display_notification() {
             bitNote.show();
         }
-        
-        function watch_and_alert() {
-            console.log("trending interval check started");
-            //logger("Watch and Alert for a link has been enabled, notifications");
-            if(!bitly.bit_request.access_token) {
-                console.log("no token to poll with");
-            }
-            var black_list=[], note_blacklist = localfetch("note_blacklist") || [];
-            
-            // console.log("starts with", note_blacklist)
-            var params = {
-                oauth_key : bitly.bit_request.access_token,
-                'black_list' : note_blacklist,
-                'action' : 'start'
-            }
-            trends_worker.postMessage( params );
-        }
-        
+                
         function process_realtime_post_notification( short_urls ) {
             var r_time = localfetch("realtime"), bit_result, i=0, black_list=[], active_links = [],
                 notes_list = [], l_notes = get_latest_notifications(),
@@ -203,34 +116,19 @@
                 }
                 
                 l_notes = l_notes.concat(notes_list);
-                // console.log("l_notes", l_notes)
-                // console.log("black list", black_list)
                 set_notification_list( l_notes );
                 
                 if(l_notes.length > 0 ) {
-                    
                     display_notification();
                 }
                 
-                if(black_list.length > 0) {
-                    ///////////// //
-                    var note_b_list = localfetch("note_blacklist") || [];
-                    var params = {
-                        oauth_key : bitly.bit_request.access_token,
-                        'black_list' : note_b_list.concat( black_list ),
-                        'action' : 'update'
-                    }
-                    
-                    // I can trim out stuff from note_blacklist
-                    
-                    // console.log("Updating the worker", black_list, params)
-                    trends_worker.postMessage( params );                    
-                }
-                
+                update_blacklist_trends_worker( black_list, bitly.bit_request.access_token );
                 expire_old_blacklist();
             
             });
         }
+        
+
         
         function share_message( message, callback) {
             var a = localfetch("share_accounts"),
@@ -257,59 +155,6 @@
                 }
                 callback(jo);
             } );
-        }
-        
-        function clear_domain_list() {
-            domains_list = [];
-            bit_db.remove( "domains_list" , function() {
-                console.log("success deleting domains list", arguments)
-            })
-        }
-        
-        function set_api_domain( api_domain ) {
-            var api_change = bitly.set_domain( api_domain );
-            if(api_change) {
-                localstore("domain", api_domain);
-                bit_db.save("domain", api_domain, function() {
-                    // anything here
-                });
-            }
-        }
-        
-        function get_realtime_metrics( callback ) {
-            
-            var minues=1, realtime = localfetch("realtime"), now = _now(),
-                then = now - (1000*30), trends;
-            
-            callback( realtime );
-        }
-        
-        function get_api_domain() {
-            return bitly.get_domain();
-        }
-        
-        
-        // this is kinda gross since it relies on a global VAR
-        function get_url_expansion() {
-            // this is a boolean, whether the bitly.urlexpander.js script will be loaded to the page.
-            return auto_expand_urls;
-        }
-        
-        function set_url_expansion( bool_value) {
-            auto_expand_urls = (bool_value) ? true : false;
-            bit_db.save("auto_expand_urls", { 'auto_expand' : auto_expand_urls }, function() {
-                //anything here
-            });
-        }
-        function set_enhance_twitter_com( bool_value ) {
-            enhance_twitter_com=(bool_value) ? true : false;
-            bit_db.save("enhance_twitter_com", { 'enhance_twitter_com' : enhance_twitter_com }, function() {
-                //anything here
-            });            
-        }
-        
-        function get_enhance_twitter() {
-            return enhance_twitter_com;
         }
         
         function resync_linked_account( callback ) {
@@ -339,142 +184,14 @@
             });
         }
         
-        function fetch_all_domains() {
-            bitly.bitly_domains( function(jo) {
-                var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : _now() };
-                
-                if(jo.status_code === 403) {
-                    sign_out();
-                } else {
-                    bit_db.save( "domains_list", params, function() {
-                        console.log("storing domains to sql", bit_domains.length)
-                    })
-                    domains_list = bit_domains;
-                }
-            });
-        }
-        
-        /*
-            Methods to fetch from 'cache'
-                Local cache involes either window.localStorage || window.db.openDatabase || 'global variable'
-        
-        
-        */
-        function set_current_bitly_user_from_cache() {
-            var user_data = localfetch("user_data"), domain = localfetch("domain");
-            /*
-                Makes determination if used is logged in, toggles 'popup' behavior accordingly
-                    Default popup behavior is to load options.html, login page
-            */
-            
-            if(user_data && user_data.x_login && user_data.x_apiKey) {
-                logger("User credentials found in cache");
-                bitly.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
-                watch_and_alert();
-                chrome.browserAction.setPopup({ "popup" : "popup.html"});
-                if(!context_menu_added) {
-                    add_link_context_menu();                        
-                    context_menu_added=true;
-                }
-            
-            } else {
-                bit_db.find("user_data", function( sql_user_data ) {
-                    if(!sql_user_data || !sql_user_data.x_login) { return; }
-                    localstore("user_data", sql_user_data);
-                    // stash credentials into bitly API
-                    bitly.set_credentials( sql_user_data.x_login, sql_user_data.x_apiKey, sql_user_data.access_token );
-                    watch_and_alert();
-                    chrome.browserAction.setPopup({ "popup" : "popup.html"});
-                    if(!context_menu_added) {
-                        add_link_context_menu();                        
-                        context_menu_added=true;
-                    }
-                });
-            }
-        }
-        
-        function set_no_expand_domains_from_cache() {
-            var no_expand_domains = localfetch("no_expand_domains");
-            
-            if(!no_expand_domains || no_expand_domains.length <= 0) {
-                bit_db.find("no_expand_domains", function(  domains_list ) {
-                    
-                    if(!domains_list) {
-                        no_expand_domains = ["bit.ly", "j.mp"];
-                        bit_db.save("no_expand_domains", no_expand_domains, function() {
-                            localstore("no_expand_domains", no_expand_domains);
-                        })
-                    } else {
-                        localstore("no_expand_domains", domains_list);
-                    }
-                })
-            }
-        }
-        
-        function set_auto_copy_from_cache() {
-            bit_db.find("auto_copy", function(jo) {
-                if(jo === undefined) return;
-                localstore("auto_copy", jo.copy );
-            })
-        }
+        // calls bit.ly, so has to say here for a moment until we clear up dependencies 
+        // the ISSUE
+        // is that user credentials are getting stored POORLY
+        // this makes it required to ask the bitly object for information
+        // while this makes sense, it's a global object
+        // .... 
 
-        
-        
-        function set_notifications_from_cache() {
-            bit_db.find("notifications", function(jo) {
-                if(jo === undefined) return;
-                localstore("notifications", jo );
-            })
-        }
-        
-        
-        function set_auto_expand_from_cache() {
-            bit_db.find("auto_expand_urls", function(jo) {
-                if(jo === undefined) auto_expand_urls=true
-                else auto_expand_urls = jo.auto_expand;
-            })
-        }
-        function set_enhance_twitter_com_from_cache() {
-            bit_db.find("enhance_twitter_com", function(jo) {
-                if(jo === undefined) enhance_twitter_com=true
-                else enhance_twitter_com = jo.enhance_twitter_com;
-            })
-        }        
-        
-        function set_api_domain_from_cache() {
-            bit_db.find("domain", function(domain_string) {
-                bitly.set_domain( domain_string )
-            });
-        }
-        
-        function set_note_preferences_from_cache() {
-            bit_db.find("note_preferences", function(jo) {
-                if(jo===undefined) {return;}
-                localstore("note_preferences", jo);
-            })
-        }
-        
-        function set_domain_list_from_cache() {
-            
-            bit_db.find("domains_list", function(jo) {
-                var now =  _now(), then = now - (24*60*60*1000)*5, curr_user;
-                if(jo && jo.timestamp > then && jo.domains.length > 10) {
-                    
-                    domains_list = jo.domains || jo;
-                } else {
-                    curr_user = localfetch("user_data") || {};
-                    if( bitly.is_authenticated() ) {
-                        fetch_all_domains();
-                    } else {
-                        domains_list=[];
-                    }
-                }
-            
-            });
-        }
-
-
-// Start the App controls
+        // Start the App controls
         function init_api() {
             // get from local storage?
             // pull this value from a settings file
@@ -487,52 +204,6 @@
         }
         function init_db( name ) {
             return sqlDB("bitly_local_db");
-        }
-        
-        function add_link_context_menu() {
-            var params = {
-                'type' : 'normal',
-                'title' : 'Shorten and copy link with bit.ly',
-                'contexts' : ["link"],
-                'onclick' : _on_context_menu_link_click,
-                'documentUrlPatterns' : ['http://*/*', 'https://*/*']
-            }
-            
-            chrome.contextMenus.create(params, function() {});
-        }
-        function _on_context_menu_link_click( info, tab ) {
-            //http://code.google.com/chrome/extensions/contextMenus.html
-            var long_url = info.linkUrl && info.linkUrl.trim(), expand_meta_data;
-            if(long_url !== "" ) {
-                bitly.shorten( info.linkUrl.trim(), function(jo) {
-                    if(jo && jo.status_txt && jo.status_txt === "ALREADY_A_BITLY_LINK") {
-                       _util_expand_and_reshorten( long_url  );
-                    } else if(jo && jo.url && jo.url !== "") {
-                        copy_to_clip(jo.url);
-                    }
-                }); 
-            }
-        }
-        
-        function _util_expand_and_reshorten( long_url ) {
-            bitly.expand( long_url, function(jo) {
-                expand_meta_data = jo&&jo.expand&&jo.expand.pop();
-                if(!expand_meta_data) { return; } // todo, bubble error??
-                bitly.shorten( expand_meta_data.long_url, function(jo) {
-                    if(jo && jo.url && jo.url !== "") {
-                        copy_to_clip(jo.url);                                    
-                    }
-                });
-            });
-        }
-        
-        function copy_to_clip( str_value  ) {
-            var txt_area = _id("instant_clipboad_copy_space");
-            try {
-                txt_area.value=str_value;
-                txt_area.select();
-                document.execCommand("copy", false, null);                            
-            } catch(e){}            
         }
         
         function test_metrics() {
@@ -551,41 +222,30 @@
             });
         }
         
-        function trends_worker_message_event( evt ) {
-            // console.log(evt, "the worker says?")
-            // console.log(evt.data, "trend data")
-            
-            
-            if(!evt.data.trending_links) {
-                return;
-            }
-            
-            
-            localstore("realtime", evt.data.trending_links );
-            
-            var lists = evt.data.remove_list || [], black_list=[];
-            for( var i=0,item; item = lists[i]; i++ ) {
-                black_list.push( item.short_url );
-            }
-
-            
-            var prefs = get_note_preferences();
-            
-            if(prefs.enabled) {
-                process_realtime_post_notification( evt.data.notifications  );
-            }
-        }
-        
-
         /////////////////////////////////////////////////////////////
         /// START UP the Chrome Extension Application..
+        /*
+            Variable Information
+                bitly -- the global variable and interface to the bit.ly API
+                            Options like, user Auth Key, oAuthToken are stored here
+                        
+                        Make methods available to api.bitly.com 
+                        
+                bit_db -- the global variable for the SQL Lite interface
+                
+                trends_worker -- a long running worker process that checks 
+                                    for currently trending USER links
+                                    This is a 'short' poll SSL interface
+                                    
+                domains_list  -- bit.ly what label domains to check against to avoid unneeded lookups
+                                    Resolves issues with incorrectly expanding non bit.ly domains
+        
+        */
         logger("Initialize bit.ly extension");
         // the bit.ly API connector, db interface and other global variables        
-        var bitly=init_api(), bit_db=init_db(), trends_worker, click_by_min_worker,
-            domains_list, auto_expand_urls = true, enhance_twitter_com=true,
-            context_menu_added=false, 
-            bit_interval, // bit_interval is the timer for watch list
-            
+        var bitly=init_api(), bit_db=init_db(), 
+            trends_worker, domains_list, 
+            auto_expand_urls = true, enhance_twitter_com=true, context_menu_added=false,
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         
@@ -595,26 +255,16 @@
         trends_worker.onmessage = trends_worker_message_event;
         
         // derive items from cache
-        set_current_bitly_user_from_cache();
-        set_domain_list_from_cache();
-        set_auto_expand_from_cache();
-        set_api_domain_from_cache();
-        set_no_expand_domains_from_cache();
-        set_auto_copy_from_cache();
-        set_notifications_from_cache();
-        set_enhance_twitter_com_from_cache();
+        initialize_data_from_local_cache();
         
         
         
         /*
             Listen for requests from content scripts, popups and other pages etc
+                Party Line, everyone is talking
+                    Everyone is invited....
         */
-        
-        function browser_action_listener( curr_tab ) {
-            // if popup is NOT set, this event will be triggered
-            get_chrome_page("options.html");
-        }
-        
+                
         function actions_listeners( request, sender, sendResponse ) {
             if(!request.action) return;
             var act = request.action;
@@ -713,7 +363,7 @@
                 break;
                 
                 case "shorten":
-                    console.log("shorten these..")
+                    console.log("shorten these..");
                     // see if this is an object..
                     // loop over it
                     // check the white list for this url... ouch expensive... go other way?
@@ -725,7 +375,6 @@
                 break;
                 
                 case "realtime_metrics":
-                    
                     get_realtime_metrics( sendResponse );
                 break;
                 
@@ -771,8 +420,11 @@
         */
         
         
+        function browser_action_listener( curr_tab ) {
+            // if popup is NOT set, this event will be triggered
+            get_chrome_page("options.html");
+        }        
         chrome.extension.onRequest.addListener(actions_listeners);
-        
         if( !chrome.browserAction.onClicked.hasListener( browser_action_listener ) ) {
             chrome.browserAction.onClicked.addListener( browser_action_listener );
         }

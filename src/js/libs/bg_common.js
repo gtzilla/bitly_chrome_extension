@@ -17,6 +17,14 @@
         
         
         File also contains references to chrome.* object
+        
+        
+        
+        Common global variables..
+        
+            trends_worker
+            bit_db
+            bitly
     
 */
 
@@ -49,6 +57,38 @@ function localfetch( itemKey ) {
 
 ////////////////***********************////////////////////////
 
+/// Manage Local User Data --
+
+function save_signedin_user( curr_user_data ) {
+    localstore("user_data", curr_user_data);
+    bit_db.save( "user_data", curr_user_data, function( tx, sql ) {});            
+}
+
+
+function reset_local_data() {
+    
+    localdelete("realtime");
+    localdelete("note_blacklist");
+    localdelete("notifications");
+    localdelete("stash");            
+    
+    localdelete("user_data");
+    localdelete("share_accounts"); //  we don't store share accounts in SQL
+    localdelete("no_expand_domains");            
+    
+    bit_db.remove("notifications", delete_sql_handler );
+    bit_db.remove("no_expand_domains", delete_sql_handler );
+    bit_db.remove("user_data", delete_sql_handler );
+    bit_db.remove("domain", delete_sql_handler );
+    bit_db.remove("auto_expand_urls", delete_sql_handler );
+    bit_db.remove("enhance_twitter_com", delete_sql_handler );            
+}
+
+function delete_sql_handler() { /* this is just a callback for deletes, check for success / failure, todo */  }
+////////////////***********************////////////////////////
+
+
+///
 function logger( message ) {
     var logs = localfetch("logs") || [];
     logs.push({ timestamp : _now(), 'message' : message });
@@ -63,17 +103,7 @@ function logger( message ) {
 function get_logs() {
     return localfetch("logs") || [];
 }
-function get_auto_copy() {
-    return localfetch("auto_copy");
-}
-function set_auto_copy( copy_bool ) {
-    localstore("auto_copy", copy_bool);
-    bit_db.save("auto_copy", {'copy' : copy_bool }, function(){
-        // save was successful
 
-    });
-    
-}
 
 /* 
     No 'expand' domains are domains / hosts that 
@@ -118,6 +148,75 @@ function get_no_expand_domains() {
     
     return domains_list;
 }
+
+
+
+
+/*   MAnaging Domains  */
+function fetch_all_domains() {
+    bitly.bitly_domains( function(jo) {
+        var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : _now() };
+        
+        if(jo.status_code === 403) {
+            sign_out();
+        } else {
+            bit_db.save( "domains_list", params, function() {
+                console.log("storing domains to sql", bit_domains.length)
+            })
+            domains_list = bit_domains;
+        }
+    });
+}
+function clear_domain_list() {
+    domains_list = [];
+    bit_db.remove( "domains_list" , function() {
+        console.log("success deleting domains list", arguments)
+    })
+}
+
+function parse_domains( url_list ) {
+    var final_list = [],
+        regex = new RegExp("(?:https?://){1}([^/]*)/(?:.*)", 'i'),
+        matches, md5_domain, i=0, url;
+    for( ; url=url_list[i]; i++) {
+        matches = url.match(regex)
+        if(matches && matches.length > 1) md5_domain = hex_md5( matches[1] );
+        else  {
+            md5_domain = null;
+            continue;
+        }
+        final_list.push({ 'md5' : md5_domain, 'short_url' : url })
+    }
+    
+    return final_list;
+}
+
+function process_domains( url_list ) {
+    var i=0, j=0, domain, possible,
+        possible_domains = parse_domains( url_list ),
+        total_possible = possible_domains.length,
+        l = domains_list || [], final_results = [];
+    
+    
+    if(possible_domains <= 0 ) return;
+    
+    if(l.length > 1 ) {
+        // JS Definitive Guide page 90, 6.10 labels
+        // Avoids having to recaluate .length on domains_list, which is ~3100 items
+        // label allows inner loop to break outer loop
+        outerloop:
+            for( ; domain = l[i]; i++) {
+                innerloop:
+                    for(j=0; possible=possible_domains[j]; j++) {
+                        if(possible.md5 === domain ) {
+                            final_results.push(possible.short_url); // positive match
+                            if(final_results.length >= total_possible) {  break outerloop; }
+                        }
+                    }
+            }
+    } else { final_results = url_list; }
+    return final_results;
+}
 ////////////////***********************////////////////////////
 
 
@@ -158,25 +257,12 @@ function remove_notification() {
     notes.shift();
     // console.log("old_note", old_note.short_url)
     // //localstore.push()
-    //__process_notification_for_db( notes );
 
          
 }
 
 function set_notification_list( notes_list ) {
     localstore("notifications", notes_list);
-    //__process_notification_for_db( notes_list );    
-}
-
-function __process_notification_for_db( notes ) {
-    localstore("notifications", notes);
-    if(notes.length > 0) {
-        bit_db.save("notifications", notes, function() {
-            // save success...
-        });        
-    } else {
-        bit_db.remove("notifications", function(){} );
-    }    
 }
 
 function set_notification( note ) {
@@ -188,7 +274,6 @@ function set_notification( note ) {
     }
     notes.push(  note );   
 
-    //__process_notification_for_db( notes );
 
 }
 ////////////////***********************////////////////////////
@@ -234,6 +319,64 @@ function expire_old_blacklist() {
     
 }
 
+////////////////***********************////////////////////////
+
+/*  Trend Worker  | trending worker, trends work */
+// Trending...
+function watch_and_alert() {
+    console.log("trending interval check started");
+    //logger("Watch and Alert for a link has been enabled, notifications");
+    if(!bitly.bit_request.access_token) {
+        console.log("no token to poll with");
+        // throw an error here.... 
+        return;
+    }
+    var black_list=[], note_blacklist = localfetch("note_blacklist") || [];
+    
+    // console.log("starts with", note_blacklist)
+    var params = {
+        'oauth_key' : bitly.bit_request.access_token,
+        'black_list' : note_blacklist,
+        'action' : 'start'
+    }
+    trends_worker.postMessage( params );
+}
+function update_blacklist_trends_worker( black_list, bitly_token ) {
+    if(black_list.length > 0) {            
+        var note_b_list = localfetch("note_blacklist") || [],
+            params = {
+                'oauth_key' : bitly_token, // keep passing this in...
+                'black_list' : note_b_list.concat( black_list ),
+                'action' : 'update'
+            }
+        trends_worker.postMessage( params );  // Updating the worker
+    }
+}
+function trends_worker_message_event( evt ) {
+    // console.log(evt, "the worker says?")
+    // console.log(evt.data, "trend data")
+    
+    
+    if(!evt.data.trending_links) {
+        return;
+    }
+    
+    
+    localstore("realtime", evt.data.trending_links );
+    
+    var lists = evt.data.remove_list || [], black_list=[];
+    for( var i=0,item; item = lists[i]; i++ ) {
+        black_list.push( item.short_url );
+    }
+
+    
+    var prefs = get_note_preferences();
+    
+    if(prefs.enabled) {
+        process_realtime_post_notification( evt.data.notifications  );
+    }
+}
+
 
 ////////////////***********************////////////////////////
 
@@ -256,4 +399,55 @@ function get_chrome_page( page_name ) {
        }
         if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL(page_name) }) }
     });
+}
+
+
+
+/////// Context MEnu
+///// Context Menu (right click menu)
+function add_link_context_menu() {
+    var params = {
+        'type' : 'normal',
+        'title' : 'Shorten and copy link with bit.ly',
+        'contexts' : ["link"],
+        'onclick' : _on_context_menu_link_click,
+        'documentUrlPatterns' : ['http://*/*', 'https://*/*']
+    }
+
+    chrome.contextMenus.create(params, function() {});
+}
+function _on_context_menu_link_click( info, tab ) {
+    //http://code.google.com/chrome/extensions/contextMenus.html
+    var long_url = info.linkUrl && info.linkUrl.trim(), expand_meta_data;
+    if(long_url !== "" ) {
+        bitly.shorten( info.linkUrl.trim(), function(jo) {
+            if(jo && jo.status_txt && jo.status_txt === "ALREADY_A_BITLY_LINK") {
+               _util_expand_and_reshorten( long_url  );
+            } else if(jo && jo.url && jo.url !== "") {
+                copy_to_clip(jo.url);
+            }
+        }); 
+    }
+}
+
+function _util_expand_and_reshorten( long_url ) {
+    bitly.expand( long_url, function(jo) {
+        expand_meta_data = jo&&jo.expand&&jo.expand.pop();
+        if(!expand_meta_data) { return; } // todo, bubble error??
+        bitly.shorten( expand_meta_data.long_url, function(jo) {
+            if(jo && jo.url && jo.url !== "") {
+                copy_to_clip(jo.url);                                    
+            }
+        });
+    });
+}
+
+// relies on DOM for this page, could create this on the fly...
+function copy_to_clip( str_value  ) {
+    var txt_area = _id("instant_clipboad_copy_space");
+    try {
+        txt_area.value=str_value;
+        txt_area.select();
+        document.execCommand("copy", false, null);  
+    } catch(e){}            
 }
