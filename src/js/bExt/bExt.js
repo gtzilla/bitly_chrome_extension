@@ -14,13 +14,25 @@ var bExt={
         this.is_chrome=true;
         // common events
         this.common_actions=["page_loaded", "share"]
+    },
+    Evt : function( cb ) {
+        // so this is like the representation of an event?
+        // callback
+        this.callback=cb;
+        // return this;
     }
 }
 // todo,
 // move this elsewhere
 Function.prototype._scope = function( scope ) {
     var self=this;
-    return function() { self.apply( scope, Array.prototype.slice.call(arguments, 0) ); }
+    return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
+}
+/*
+    Events
+*/
+bExt.Evt.prototype={
+    
 }
 
 
@@ -40,7 +52,7 @@ bExt.Eventer.prototype={
     // hmmm, not a fan yet
     register : function( name, fn_method ) {
         var fn_type=(typeof fn_method).toLowerCase();
-        if(!fn_method) { return; } // quietly do nothing?
+        if(!fn_method) { return; } // quietly, do nothing
         if(fn_type === "function") {
             this.methods[name]=fn_method;
         } else if (fn_type === "object") {
@@ -56,7 +68,8 @@ bExt.Eventer.prototype={
     },
     // webkit_listen : function() {}
     _chrome_listen : function( request, sender, sendResponse  ) {
-        this._event_direction( request && request.action, [request, sender, sendResponse] );
+        var evt_payload = new bExt.Evt( Array.prototype.slice.call( arguments, 0 ) );        
+        this._event_direction( request && request.action, evt_payload );
     },
     
     _event_direction : function( name, payload ) {
@@ -64,9 +77,10 @@ bExt.Eventer.prototype={
         if(fn && (typeof fn).toLowerCase() === "function") {
             // request, sender, sendResponse
             // todo, adjust this as needed
+
             var data = fn.apply(this, payload);
             if(this.is_chrome) {
-                payload[2]( data ); // call sendResponse
+                //payload[2]( data ); // call sendResponse
             }
         }
     },

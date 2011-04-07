@@ -166,8 +166,15 @@
         var chrome_actions={
             "page_loaded" : function(r, s, sr) {
                 // incomplete
+                // NO
+                // it has to be access wrappers
+                // no straight calling CHROME
+                // generic, plz
                 console.log("the brain hears you in bitly_listen");
                 this._add_js( s.tab.id, "js/content_plugins/bitly.enhance_twitter.js" );
+                
+                
+                this._add_js( s.tab.id, "js/content_plugins/bitly.urlexpander.js" );                
                 return;
             },
             "share" : function() {
