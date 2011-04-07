@@ -3,7 +3,7 @@
 
 <!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
-        <title>bit.ly Extension Settings</title>
+        <title>bitly Extension Settings</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="bit.ly" />
         <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
@@ -38,14 +38,17 @@
             
             <div id="middle">
                 
-                <h1 id="bitly_options">Settings</h1>
+                <div class="ext_opts_page_header_box">
+                    
+                    <h1 id="bitly_options" class="ext_options_header">Extension Options</h1>                    
+                    <div id="signOutButtonContainer">
+                        <span id="signedin_username"></span><a class="signout" href="#">Sign Out</a>
+                    </div>
+                </div>
+
                 
                 <div id="signedin_info_contents" style="display:none;">
-                    
-                    <div id="signOutButtonContainer">
-                        <a class="signout" href="#">Sign Out</a>
-                    </div>
-                    
+                                        
                     <div id="share_accounts"></div>
                     
 
@@ -111,16 +114,27 @@
                     
                     </div>
                     
+                    <div id="context_menu_notifications" style="display:none;" class="options_container">
+                        <h3>Context Menu Notifications</h3>
+                        <p>On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs</p>
+                        
+                        <div>
+                            <input type="checkbox" name="show_success_notification" value="" id="show_success_notification">
+                            <label for="show_success_notification">Show Success Notification</label>
+                            
+                        </div>
+                    </div>
+                    
 
                     <div id="api_domains">
                         
                         <div class="api_type_selector options_container">
                         <h3>API Domains</h3>
                             
-                            <p>You can choose either the bit.ly API or the j.mp API. Both work just the same way, but j.mp is just a little shorter. This change only applies to new shortens.</p>
+                            <p>You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change <strong>only</strong> applies to <strong>new shortens</strong>.</p>
                             
                             <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
-                                
+                                 
                                 <div class="bentoOptions">
                                     
                                     <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
@@ -132,6 +146,11 @@
                                     <label for="bitly">Use j.mp API</label>
                                 
                                 </div>
+                                
+                                <div class="bentoOptions">
+                                    <input type="radio" name="api_choice" checked value="bitly.com" id="bitlydotcom">
+                                    <label for="bitlydotcom">Use bitly.com API</label>
+                                </div>                                
 
                             
                             </form>
@@ -530,8 +549,11 @@
                     elem.style.display="block";
                     // _id("api_key").setAttribute("value", user_data.x_apiKey);
                     // _id("current_username").innerText = user_data.x_login;
-                    var domain_elem = _id("api_domains")
-                    header.innerText = user_data.x_login + " Settings";
+                    var domain_elem = _id("api_domains");
+                    _id("context_menu_notifications").style.display="block";
+                    
+                    
+                    _id("signedin_username").innerText = user_data.x_login + " | ";
                     chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
                     api_domains_elem.style.display="block";
                     _id("auto_expand_container").style.display="block";

@@ -118,8 +118,9 @@
 /* sharing  */
 
 #signOutButtonContainer {
-    float:right;
-    font-size:14px;
+    position:absolute;
+    right:0;
+    top:25px;
 }
 
 
@@ -136,8 +137,11 @@
 
 
 
-/* just a litle text at the bottom  */
-#bitly_options {
+/*options page header*/
+.ext_opts_page_header_box {
+    position:relative;
+}
+.ext_options_header {
     font-size:26px;
     color:#999;
     border-bottom:1px solid #ccc;

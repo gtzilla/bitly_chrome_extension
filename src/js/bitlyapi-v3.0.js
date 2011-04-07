@@ -265,7 +265,8 @@ BitApi.prototype = {
     },
     
     set_domain : function( api_domain ) {
-        var types = ["bit.ly", "j.mp"];
+        // to REALLY change things.. sanity check
+        var types = ["bit.ly", "j.mp", "bitly.com"];
         if(types.indexOf(api_domain) > -1 ) {
             this.bit_request.domain = api_domain;
             return true;
@@ -324,6 +325,7 @@ function extend() {
 
 function parse_oauth_response( url_string ) {
     //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
+    // maybe a regex here instead would be faster?
     var items = ( url_string && typeof url_string === "string" ) && url_string.split("&"),
         response = {}, i=0, params;
     if(!items) {

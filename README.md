@@ -1,7 +1,7 @@
-bit.ly Chrome Extension
+bitly Chrome Extension
 ==========
 
-This is the official [bit.ly](http://bit.ly/) chrome extension. Shorten and Share, right from your browser, instantly
+This is the official [bitly](http://bit.ly/) chrome extension. Shorten and Share, right from your browser, instantly
 
 Installing
 -----
@@ -14,7 +14,7 @@ Source Code: [github.com/bitly/bitly_chrome_extension](http://github.com/bitly/b
 
 Please see notes on setting up valid Oauth credentials
 
-Bit.ly OAuth Credentials
+Bitly OAuth Credentials
 -------
 You will need to create and add a file to the js directory, so that
 
@@ -32,13 +32,13 @@ Features / Description
 -----
 - Shorten and Share, right from your browser, instantly
 - Shares to any of your linked social accounts, such as [Twitter](http://twitter.com) and [Facebook](http://facebook.com/)
-- Expands all [bit.ly](http://bit.ly/) links, including white-label domains, such as [4sq.com](http://4sq.com/). Can be easily disabled.
-- Easy and safe direct login to [bit.ly](http://bit.ly/)
+- Expands all [bitly](http://bit.ly/) links, including white-label domains, such as [4sq.com](http://4sq.com/). Can be easily disabled.
+- Easy and safe direct login to [bitly](http://bit.ly/)
 - Captures selected page text, which can be quickly shared.
-- Supports both [bit.ly](http://bit.ly/) and [j.mp](http://j.mp/) APIs
+- Supports both [bitly](http://bit.ly/) and [j.mp](http://j.mp/) APIs
 - Works with both HTTPS and HTTP sites
 - Quickly copy short links to your clipboard.
-- Uses new [bit.ly](http://bit.ly/) SSL [oauth](http://oauth.net/) for authentication. You're credentials are never sent as clear text.
+- Uses new [bitly](http://bit.ly/) SSL [oauth](http://oauth.net/) for authentication. You're credentials are never sent as clear text.
 - Right click "shorten and copy" your link with bit.ly
 
 

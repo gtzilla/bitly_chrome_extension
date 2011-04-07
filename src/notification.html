@@ -3,7 +3,7 @@
 
 <!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
-        <title>bit.ly notification</title>
+        <title>bitly notification</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="awesome" />
         <meta name="description" content="" />
@@ -28,7 +28,7 @@
 
             console.log("working?")
             var bg = chrome.extension.getBackgroundPage(),
-                notification_data = bg.get_latest_notifications(),
+                notification_data = bg.notification_get_latest(),
                 latest = notification_data, display_urls=[];
             // if(!latest) {
             //    // note_contents_box.innerHTML = "Oops, Sorry but an error happened"
@@ -36,7 +36,7 @@
             // }
             // okay, let's trash the stuff in memory
             
-            bg.set_notification_list( [] );
+            bg.notification_set_list( [] );
 
             latest_display = latest.slice(0,3);
             var params = {}, items = [];
@@ -141,7 +141,7 @@
             // });
             // trend_link.innerHTML = "Trending Bit: " + commify(latest.trend_clicks) + " clicks";
             // note_contents_box.innerHTML = html;
-            // bg.remove_notification();
+            // bg.notification_remove();
             // now remove it from list...
         </script>
 

@@ -23,6 +23,17 @@
 
 */ 
 
+// 
+function get_notify_on_context_menu_shorten() {
+    return localfetch("notify_on_context_menu_shorten");
+}
+function set_notify_on_context_menu_shorten( s_bool ) {
+    localstore("notify_on_context_menu_shorten", s_bool );
+    notify_on_context_menu=s_bool;
+    // return notify_on_context_menu;
+}
+
+
 // get realtime metrics from local cache
 function get_realtime_metrics( callback ) {
     var minues=1, realtime = localfetch("realtime"), now = _now(),
@@ -119,7 +130,7 @@ function set_auto_copy_from_cache() {
 
 
 
-function set_notifications_from_cache() {
+function notification_sets_from_cache() {
     bit_db.find("notifications", function(jo) {
         if(jo === undefined) return;
         localstore("notifications", jo );
@@ -199,7 +210,7 @@ function initialize_data_from_local_cache() {
     set_api_domain_from_cache();
     set_no_expand_domains_from_cache();
     set_auto_copy_from_cache();
-    set_notifications_from_cache();
+    notification_sets_from_cache();
     set_enhance_twitter_com_from_cache();    
 }
 

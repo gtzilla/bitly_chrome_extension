@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <title>bit.ly | Chrome Extension Background</title>
+        <title>bitly | Chrome Extension Background</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="keywords" content="bit.ly" />
+        <meta name="keywords" content="bit.ly, awesome, ladies love outlaws" />
         <meta name="description" content="Shorten and Share, right from your browser, instantly" />
     
     </head>
@@ -24,7 +24,8 @@
         <!-- compress and build these?????? -->
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
         <!-- //*this file does NOT appear in GIT, you will have to manually add the correct credentials* -->
-        <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>        
+        <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>  
+        <script type="text/javascript" src="js/bExt/bExt.js"></script>
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/bg_common.js"></script>
@@ -57,15 +58,7 @@
             
             });
         }
-                
-        function initilaize_with_signin_info(){
-            watch_and_alert(); // trending check
-            chrome.browserAction.setPopup({ "popup" : "popup.html"});  
-            if(!context_menu_added) {
-                add_link_context_menu();                        
-                context_menu_added=true;
-            }                      
-        }
+        
         
         function sign_out() {
             bitly.remove_credentials();
@@ -78,111 +71,10 @@
             return;
         }
                 
-        function notification_close_action( evt ){
-            console.log("close the", evt, arguments)
-        }
-        
-        
-        // convenience method
-        function display_notification() {
-            bitNote.show();
-        }
-                
-        function process_realtime_post_notification( short_urls ) {
-            var r_time = localfetch("realtime"), bit_result, i=0, black_list=[], active_links = [],
-                notes_list = [], l_notes = get_latest_notifications(),
-                prefs = get_note_preferences();
-            
-            if(short_urls.length <= 0 ) { return; }
-            r_time = r_time && r_time.realtime_links || [];
-            
-            
-            bitly.expand_and_meta( short_urls, function(jo) {
-                // add to the notifications, remove from the list...
-                
-                for(var k in jo.expand_and_meta) {
-                    bit_result = jo.expand_and_meta[k];
-                    
-                    for(i=0;i<r_time.length;i++) {
-                        if(r_time[i].user_hash === bit_result.user_hash) {
-                            bit_result.trend_clicks = r_time[i].clicks;
-                        }
-                    }
-                    
-                    if(bit_result.trend_clicks > prefs.threshold) {
-                        black_list.push( bit_result.short_url );
-                        notes_list.push( bit_result );
-                    }
-                }
-                
-                l_notes = l_notes.concat(notes_list);
-                set_notification_list( l_notes );
-                
-                if(l_notes.length > 0 ) {
-                    display_notification();
-                }
-                
-                update_blacklist_trends_worker( black_list, bitly.bit_request.access_token );
-                expire_old_blacklist();
-            
-            });
-        }
+
         
 
         
-        function share_message( message, callback) {
-            var a = localfetch("share_accounts"),
-                accounts = a && a.share_accounts || [],
-                i=0, account, share_ids = [], params = {};
-            
-            for( ; account=accounts[i]; i++) {
-                if(account.active) {
-                    share_ids.push( account.account_id );
-                }
-            }
-            if(message.trim() === "" || share_ids.length <= 0 ) {
-                callback({'error' : 'no active accounts'})
-                return;
-            }
-            
-            params.account_id = share_ids;
-            params.share_text = message;
-            bitly.share( params, function(jo) {
-                if (jo.status_code === 403) {
-                    // issue #8, explicitly sign out!
-                    sign_out();
-                    jo.error = true;
-                }
-                callback(jo);
-            } );
-        }
-        
-        function resync_linked_account( callback ) {
-            // get fresh from sever
-            var account, accounts, i=0;
-            logger("resync linked accounts from bit.ly")
-            bitly.share_accounts( function(response) {
-                // no SQL cache, don't keep it that long
-                if (response.status_code === 403) {
-                    // issue #8, explicitly sign out!
-                    sign_out();
-                    response.error = true;
-                    callback(response)
-                    return;
-                }
-                
-                accounts = response && response.share_accounts;
-                if(accounts) {
-                    
-                    for( ; account=accounts[i]; i++) {
-                        account.active=true;
-                    }
-                    localstore("share_accounts", response);
-                }
-                callback(response);
-            
-            });
-        }
         
         // calls bit.ly, so has to say here for a moment until we clear up dependencies 
         // the ISSUE
@@ -245,7 +137,7 @@
         // the bit.ly API connector, db interface and other global variables        
         var bitly=init_api(), bit_db=init_db(), 
             trends_worker, domains_list, 
-            auto_expand_urls = true, enhance_twitter_com=true, context_menu_added=false,
+            auto_expand_urls = true, enhance_twitter_com=true, context_menu_added=false, notify_on_context_menu=false,
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         
@@ -264,7 +156,31 @@
                 Party Line, everyone is talking
                     Everyone is invited....
         */
-                
+          
+          
+          
+
+        console.log("new structure bExt.Eventer");
+        var bitly_listen=new bExt.Eventer();
+        
+        var chrome_actions={
+            "page_loaded" : function(r, s, sr) {
+                // incomplete
+                console.log("the brain hears you in bitly_listen");
+                this._add_js( s.tab.id, "js/content_plugins/bitly.enhance_twitter.js" );
+                return;
+            },
+            "share" : function() {
+                console.log("share share")
+            }
+        }
+        
+        bitly_listen.register(null, chrome_actions);
+        
+        bitly_listen.chrome_listen();
+        
+        
+        
         function actions_listeners( request, sender, sendResponse ) {
             if(!request.action) return;
             var act = request.action;
@@ -284,7 +200,7 @@
                             chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
                         }
 
-                        if(!bitly.is_authenticated() || !auto_expand_urls) return;
+                        if(!bitly.is_authenticated() || !auto_expand_urls) return; // the bail out...
                         var injectTabs = sender.tab && sender.tab.url,
                             no_expand_list = get_no_expand_domains();
 
@@ -311,7 +227,7 @@
                 case "share_accounts":
                     var user_share_accounts = localfetch("share_accounts");
                     if(!user_share_accounts) {
-                        resync_linked_account( sendResponse );
+                        sharing_resync_linked_account( sendResponse );
                     } else {
                         sendResponse( user_share_accounts )
                     }
@@ -319,7 +235,7 @@
                 break;
                 
                 case "re_sync_share_accounts":
-                    resync_linked_account( sendResponse );
+                    sharing_resync_linked_account( sendResponse );
                 break;
                 
                 case "activate_account":
