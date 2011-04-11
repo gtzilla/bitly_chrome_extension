@@ -8,7 +8,7 @@
 (function(){
     window['expand_thirdparty']={
         google : expand_google_shortlink,
-        isgd : expand_isgd_shortlink,
+        isgd : expand_isgd_shortlink
     }
     
     function startapp() {

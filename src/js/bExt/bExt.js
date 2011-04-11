@@ -8,104 +8,74 @@
 
 
 
+
+
 var bExt={
-    Eventer : function() {
-        this.methods={}
-        this.is_chrome=true;
-        // common events
-        this.common_actions=["page_loaded", "share"]
+    // bExt.match_host
+    'api' : null,
+    'db' : null,
+    match_host : function(url_str) {
+        var matches = url_str.match(/^http(?:s)?:\/\/([^/]{2,})\/.*$/i);
+        return matches && matches.pop();
     },
-    Evt : function( cb ) {
-        // so this is like the representation of an event?
-        // callback
-        this.callback=cb;
+    // bExt.Evt
+    Evt : function(request, sender, callback) {
+        // an Ext Event Wrapper / Representation
+        this.__finished=false;
+        this.url=sender.tab && sender.tab.url;
+        this.domain_host=bExt.match_host( this.url );
+        this.tab_id=sender && sender.tab && sender.tab.id || null;
+        this.__cb=callback && (typeof callback === "function") && callback || function(){};
         // return this;
+    },
+    // bExt.user    
+    user : {
+        /*
+            enhance_twitter_com
+            auto_expand_urls
+            user_data = localfetch("user_data");
+        */
+        
+        'get' : function(key) {
+            if(!this.__data[key]) {
+                // get from cache, store it
+            }
+            return this.__data[key];
+        },
+        'set' : function(k,v) {
+            this.__data[k]=v;
+        },
+        '__data' : {},
+        'load_cache' : function() {
+            // everything from the cache
+        },
+        
+        'clear' : function() {
+            // signout
+        }
     }
 }
-// todo,
-// move this elsewhere
-Function.prototype._scope = function( scope ) {
-    var self=this;
-    return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
-}
+
 /*
     Events
 */
 bExt.Evt.prototype={
-    
-}
-
-
-
-/*
-    bitly Ext
-    
-        usage:
-            var b = new bExt.Eventer();
-            b.register("name", fn);
-    
-        Eventer
-            
-*/
-bExt.Eventer.prototype={
-    // so it's sorta like adding a prototype?
-    // hmmm, not a fan yet
-    register : function( name, fn_method ) {
-        var fn_type=(typeof fn_method).toLowerCase();
-        if(!fn_method) { return; } // quietly, do nothing
-        if(fn_type === "function") {
-            this.methods[name]=fn_method;
-        } else if (fn_type === "object") {
-            // ghetto ass extend
-            for(var k in fn_method) { this.methods[k]=fn_method[k]; }
-        }
-    },
-    chrome_listen : function( request, sender, sendResponse  ) {
-        try {
-            chrome.extension.onRequest.addListener( this._chrome_listen._scope(this) );
-        } catch(e){ console.log("Chrome JS object not present"); }
-        
-    },
-    // webkit_listen : function() {}
-    _chrome_listen : function( request, sender, sendResponse  ) {
-        var evt_payload = new bExt.Evt( Array.prototype.slice.call( arguments, 0 ) );        
-        this._event_direction( request && request.action, evt_payload );
-    },
-    
-    _event_direction : function( name, payload ) {
-        var fn=this.methods[name];
-        if(fn && (typeof fn).toLowerCase() === "function") {
-            // request, sender, sendResponse
-            // todo, adjust this as needed
-
-            var data = fn.apply(this, payload);
-            if(this.is_chrome) {
-                //payload[2]( data ); // call sendResponse
-            }
-        }
-    },
-    
-    _mklist : function(lst_or_str) {
-        if(lst_or_str && (typeof lst_or_str).toLowerCase() === "string" ) {
-            return [lst_or_str]
-        }
-        return lst_or_str
-    },
-    
-    _add_js : function( tab_id, script_list) {
-        script_list=this._mklist(script_list);
-        for(var i=0; i<script_list.length; i++) {
-            chrome.tabs.executeScript( tab_id, { file: script_list[i] });
-        }
-    },
-    
-    _add_css : function(tab_id, styles_list) {
-        // todo, for loop like the add js one, but points to css inject
-        styles_list=this._mklist( styles_list );        
-        for(var i=0; i<styles_list.length; i++) {
-            chrome.tabs.insertCSS( tab_id, {file : styles_list[i]})
+    /*
+        usage
+            new bExt.Evt( request, sender, sendResponse );
+    */
+    // bExt.Evt.callback
+    callback : function( data ) {
+        var cb=this.__cb;
+        if(this.__finished){  return; }
+        this.__finished=true;
+        if(cb && (typeof cb).toLowerCase() === "function") {
+            cb( data || {} );
         }
     }
 }
+
+
+
 
 /*  EOF */

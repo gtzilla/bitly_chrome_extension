@@ -25,7 +25,14 @@
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
         <!-- //*this file does NOT appear in GIT, you will have to manually add the correct credentials* -->
         <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>  
+        
         <script type="text/javascript" src="js/bExt/bExt.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.Eventer.js"></script>        
+        <script type="text/javascript" src="js/bExt/utilities/utils.js"></script>                
+        
+        <script type="text/javascript" src="js/bExt/listeners_chrome.js"></script>        
+        
+        
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/bg_common.js"></script>
@@ -163,27 +170,8 @@
         console.log("new structure bExt.Eventer");
         var bitly_listen=new bExt.Eventer();
         
-        var chrome_actions={
-            "page_loaded" : function(r, s, sr) {
-                // incomplete
-                // NO
-                // it has to be access wrappers
-                // no straight calling CHROME
-                // generic, plz
-                console.log("the brain hears you in bitly_listen");
-                this._add_js( s.tab.id, "js/content_plugins/bitly.enhance_twitter.js" );
-                
-                
-                this._add_js( s.tab.id, "js/content_plugins/bitly.urlexpander.js" );                
-                return;
-            },
-            "share" : function() {
-                console.log("share share")
-            }
-        }
-        
-        bitly_listen.register(null, chrome_actions);
-        
+        // see js/bExt/listeners_chrome.js
+        bitly_listen.register(null, listeners_chrome);
         bitly_listen.chrome_listen();
         
         
@@ -193,7 +181,7 @@
             var act = request.action;
             switch( act ) {
                 
-                case "page_loaded":
+                case "aaa_page_loaded":
                     
                     var user_data = localfetch("user_data");
                     /*
@@ -245,6 +233,7 @@
                     sharing_resync_linked_account( sendResponse );
                 break;
                 
+                // manage the sharing account active flag
                 case "activate_account":
                     var user_share_accounts = localfetch("share_accounts"),
                         accounts = user_share_accounts && user_share_accounts.share_accounts,
