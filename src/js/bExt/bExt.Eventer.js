@@ -5,6 +5,7 @@
 //  Created by gregory tomlinson on 2011-04-08.
 //  Copyright 2011 the public domain. All rights reserved.
 // 
+if(!bExt) { var bExt={}; }
 bExt.Eventer=function() {
     this.methods={
         'default' : function() {
@@ -101,6 +102,5 @@ bExt.Eventer.prototype={
 // move this elsewhere
 Function.prototype._scope = function( scope ) {
     var self=this;
-    console.log(this)
     return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
 }

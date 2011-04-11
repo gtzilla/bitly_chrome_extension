@@ -18,6 +18,12 @@ HTML_BASE="${CWD}/../src"
 
 # java -jar $COMPILER --js
 BUILD_FILES="background.html options.html popup.html notification.html metrics.html trending.html"
+# todo
+# compress css
+# move the graphics
+# move the content_plugins
+# move the manifest
+# zip foler
 for ext_file in $BUILD_FILES
 do
     python compress_html.py  "${HTML_BASE}/${ext_file}"

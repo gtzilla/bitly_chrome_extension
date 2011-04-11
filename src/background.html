@@ -27,10 +27,12 @@
         <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>  
         
         <script type="text/javascript" src="js/bExt/bExt.js"></script>
-        <script type="text/javascript" src="js/bExt/bExt.Eventer.js"></script>        
+        <script type="text/javascript" src="js/bExt/bExt.Evt.js"></script>  
+        <script type="text/javascript" src="js/bExt/bExt.Eventer.js"></script>  
+              
         <script type="text/javascript" src="js/bExt/utilities/utils.js"></script>                
         
-        <script type="text/javascript" src="js/bExt/listeners_chrome.js"></script>        
+        <script type="text/javascript" src="js/bExt/bExt.bg_listeners_chrome.js"></script>        
         
         
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
@@ -40,7 +42,19 @@
         
         <script type="text/javascript" src="js/libs/common.js"></script>
         <script type="text/javascript" src="js/libs/bitNote.js"></script>
-        <script type="text/javascript" charset="utf-8" src="js/libs/expand_thirdparty.js"></script>
+        
+        <script type="text/javascript" charset="utf-8">
+            // restart...
+            bExt.init_api();
+            console.log("new structure bExt.Eventer");
+            var bitly_listen=new bExt.Eventer();
+
+            // see js/bExt/listeners_chrome.js
+            bitly_listen.register(null, bExt.bg_listeners_chrome);
+            bitly_listen.chrome_listen();            
+        </script>
+        
+        
         <script type="text/javascript" charset="utf-8">
 
         
@@ -167,12 +181,7 @@
           
           
 
-        console.log("new structure bExt.Eventer");
-        var bitly_listen=new bExt.Eventer();
-        
-        // see js/bExt/listeners_chrome.js
-        bitly_listen.register(null, listeners_chrome);
-        bitly_listen.chrome_listen();
+
         
         
         
@@ -181,9 +190,11 @@
             var act = request.action;
             switch( act ) {
                 
-                case "aaa_page_loaded":
+                case "page_loaded":
                     
-                    var user_data = localfetch("user_data");
+                    
+
+                    var user_data = bExt.info.get("user_data"); //localfetch("user_data");
                     /*
                         Makes determination if used is logged in, toggles 'popup' behavior accordingly
                             Default popup behavior is to load options.html, login page

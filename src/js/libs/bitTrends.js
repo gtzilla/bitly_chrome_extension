@@ -153,7 +153,7 @@
                     attributes : {
                         bit_position : el_position,
                         bit_hash : bit_trend_item.user_hash,
-                        style : 'top:' + el_position +'px;',
+                        style : 'top:' + el_position +'px;'
 
                     },
                     content : _drawItem( bit_trend_item )                
@@ -281,7 +281,7 @@
                 attributes : {
                     bit_position : (i*height),
                     bit_hash : url.user_hash,
-                    style : 'top:' + i*height +'px;',
+                    style : 'top:' + i*height +'px;'
 
                 },
                 content : _drawItem( url )                
