@@ -9,10 +9,10 @@ if(!bExt) { var bExt={}; }
 bExt.Eventer=function() {
     this.methods={
         'default' : function() {
-            console.log('no listener assigned')
+            console.log('no listener assigned');
         }
     }
-    this.is_chrome=true;
+    this.is_chrome=( chrome && chrome.tabs ) ? true : false;
     // common events
     this.common_actions=["page_loaded", "share"]
 }
@@ -40,6 +40,11 @@ bExt.Eventer.prototype={
             for(var k in fn_method) { this.methods[k]=fn_method[k]; }
         }
     },
+    
+    trigger : function( name, payload ) {
+        var evt_payload = new bExt.Evt( payload );
+        this._event_direction( name, evt_payload );        
+    },
     chrome_listen : function( request, sender, sendResponse  ) {
         try {
             chrome.extension.onRequest.addListener( this._chrome_listen._scope(this) );
@@ -48,29 +53,21 @@ bExt.Eventer.prototype={
     },
     // webkit_listen : function() {}
     _chrome_listen : function( request, sender, sendResponse  ) {
-
-        // var args=Array.prototype.slice.call( arguments, 0 );
         var evt_payload = new bExt.Evt( request, sender, sendResponse );
-        //.call( bExt.Evt, arguments );
-        
-        
         /*
             request.action is not chrome specific
                 we add 'action' so we have fewer listeners
             
             This is PARTY channel, anything inside chrome can listen
         */
-        this._event_direction( request && request.action || "default", evt_payload );
+        this._event_direction( request && request.action, evt_payload );
     },
     
     _event_direction : function( name, evt ) {
-        var fn=this.methods[name];
+        if(!name) { return; }
+        var data, fn=this.methods[name];
         if(fn && (typeof fn).toLowerCase() === "function") {
-            // request, sender, sendResponse
-            // todo, adjust this as needed
-
-            var data = fn.call(this, evt);
-            // callback(data);
+            data = fn.call(this, evt);
         }
     },
     
@@ -82,14 +79,40 @@ bExt.Eventer.prototype={
         return lst_or_str
     },
     
-    _add_js : function( tab_id, script_list) {
+    open_page : function( page_name ) {
+        if(this.is_chrome && page_name) {
+            this._open_chrome_page( page_name );
+        } else {
+            console.log("not chrome browser")
+        }
+    },
+    _open_chrome_page : function( page_name ) {
+        var url =  chrome.extension.getURL(page_name),
+            curr_tab, i=0, createTab=true, self=this,
+            params = { 'selected' : true, 'url' : url };
+        
+        chrome.tabs.getAllInWindow(null, function(tab_array) {
+
+           for(; curr_tab=tab_array[i]; i++) {
+
+               if( self.url === url ) {
+                   createTab=false;
+                   chrome.tabs.update( self.tab_id, params);
+                   break;
+               }
+           }
+           if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL( page_name ) }); }
+        });        
+    },
+    
+    add_js : function( tab_id, script_list) {
         script_list=this._mklist(script_list);
         for(var i=0; i<script_list.length; i++) {
             chrome.tabs.executeScript( tab_id, { file: script_list[i] });
         }
     },
     
-    _add_css : function(tab_id, styles_list) {
+    add_css : function(tab_id, styles_list) {
         // todo, for loop like the add js one, but points to css inject
         styles_list=this._mklist( styles_list );        
         for(var i=0; i<styles_list.length; i++) {
@@ -98,9 +121,3 @@ bExt.Eventer.prototype={
     }
 }
 
-// todo,
-// move this elsewhere
-Function.prototype._scope = function( scope ) {
-    var self=this;
-    return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
-}

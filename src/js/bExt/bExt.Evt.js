@@ -5,14 +5,36 @@
 //  Created by gregory tomlinson on 2011-04-11.
 //  Copyright 2011 the public domain. All rights reserved.
 // 
-if(!bExt) { var bExt={}; }
+// if(!bExt) { var bExt={}; }
 bExt.Evt=function(request, sender, callback) {
     // an Ext Event Wrapper / Representation
     this.__finished=false;
-    this.url=sender.tab && sender.tab.url;
-    this.domain_host=bExt.match_host( this.url );
-    this.tab_id=sender && sender.tab && sender.tab.id || null;
-    this.__cb=callback && (typeof callback === "function") && callback || function(){};
+    console.log(sender)
+    if(arguments.length > 1) {
+         this.original_args=arguments;
+         
+         this.short_url=request && request.short_url;
+         
+         this.url=sender && sender.tab && sender.tab.url;
+         
+         this.long_url=request && request.long_url;
+         
+         this.is_http=this._find_http();
+         
+         this.page=request && request.page_name;
+         
+         this.domain_host=bExt.match_host( this.url );
+         
+         this.tab_id=sender && sender.tab && sender.tab.id || null;
+         
+         this.__cb=callback && (typeof callback === "function") && callback || function(){};
+         
+    } else {
+        var data=arguments[0];
+        if(data.callback){ 
+            this.__cb=data.callback
+        }
+    }
     // return this;
 }
 
@@ -23,6 +45,11 @@ bExt.Evt.prototype={
             new bExt.Evt( request, sender, sendResponse );
     */
     // bExt.Evt.callback
+    _find_http : function() {
+        var url = this.url || this.long_url || "";
+        return ((url.trim()).indexOf("http") === 0) || false;
+    },
+    
     callback : function( data ) {
         var cb=this.__cb;
         if(this.__finished){  return; }

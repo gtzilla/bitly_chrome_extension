@@ -80,10 +80,11 @@ function findPos(obj) {
     return [curleft, curtop];
 }
 
-function brainResponse(jo) {    
+function brainResponse(jo) { 
+    console.log("brain response")   
     // start looking for more
     run_find_more_links();
-    
+    console.log("jo", jo)
     var links =  document.getElementsByTagName("a"), 
         href, bit_key, user_hash, bit_result, 
         possible_keywords = [], matched_results = [],
@@ -101,7 +102,6 @@ function brainResponse(jo) {
         bit_container_elem.addEventListener('click', function(e) {
             var clss = e.target.className, link_box = _id("always_for_this_domain"), params = {};
             if(e.target.parentNode === link_box) {
-                //bg.add_no_expand_domain( document.location.host );
                 e.preventDefault();                
                 params = {'action' : 'add_no_expand_domain_and_reload', 'domain_host' : document.location.host }
                 chrome.extension.sendRequest(params, function(){} );                
@@ -124,7 +124,7 @@ function brainResponse(jo) {
             
             if(clss === "bitly_home_promo") {
                 e.preventDefault()
-                chrome.extension.sendRequest({'action' : 'open_options' }, open_options_callback );
+                chrome.extension.sendRequest({'action' : 'open_page', 'page_name' : 'options.html' }, function(){} );
             }
         });
         
@@ -140,8 +140,6 @@ function brainResponse(jo) {
     
     for(var i=0; i<matches_links.length; i++) {
        
-        //expanded_elements.push( matches_links[i].elem )
-        // get the relative position of this element so it's not always calculated
         (function( result, elem_num  ) {
             var html = '', el = matches_links[elem_num].elem, 
                 // positions = findPos( el ),
@@ -298,9 +296,7 @@ function callBrain( final_matches ) {
     
     return;
 }
-function open_options_callback() {
-    
-}
+
 
 
 function init() {

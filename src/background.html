@@ -24,39 +24,42 @@
         <!-- compress and build these?????? -->
         <script type="text/javascript" src="js/bitlyapi-v3.0.js"></script>
         <!-- //*this file does NOT appear in GIT, you will have to manually add the correct credentials* -->
-        <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>  
+        <script type="text/javascript" src="js/bitly_oauth_credentials.js"></script>
         
         <script type="text/javascript" src="js/bExt/bExt.js"></script>
-        <script type="text/javascript" src="js/bExt/bExt.Evt.js"></script>  
-        <script type="text/javascript" src="js/bExt/bExt.Eventer.js"></script>  
-              
-        <script type="text/javascript" src="js/bExt/utilities/utils.js"></script>                
-        
-        <script type="text/javascript" src="js/bExt/bExt.bg_listeners_chrome.js"></script>        
+        <script type="text/javascript" src="js/bExt/bExt.Evt.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.Eventer.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.hovercard.js"></script>
+        <script type="text/javascript" src="js/bExt/utilities/utils.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.bg_listeners_chrome.js"></script>
         
         
         <script type="text/javascript" src="js/sqldb-v1.0.js"></script>
         <script type="text/javascript" src="js/libs/md5.js"></script>
         <script type="text/javascript" src="js/libs/bg_common.js"></script>
-        <script type="text/javascript" src="js/libs/bg_getset_common.js"></script>        
+        <script type="text/javascript" src="js/libs/bg_getset_common.js"></script>
         
         <script type="text/javascript" src="js/libs/common.js"></script>
         <script type="text/javascript" src="js/libs/bitNote.js"></script>
         
         <script type="text/javascript" charset="utf-8">
             // restart...
-            bExt.init_api();
+            var api_success = bExt.init_api();
+            if(!api_success) {
+                console.log("user is logged out");
+            }
+            bExt.init_db();
             console.log("new structure bExt.Eventer");
-            var bitly_listen=new bExt.Eventer();
-
+            bExt.events=new bExt.Eventer();
+            
             // see js/bExt/listeners_chrome.js
-            bitly_listen.register(null, bExt.bg_listeners_chrome);
-            bitly_listen.chrome_listen();            
+            bExt.events.register(null, bExt.bg_listeners_chrome);
+            bExt.events.chrome_listen();
         </script>
         
         
         <script type="text/javascript" charset="utf-8">
-
+        
         
         // for use with expand_and_meta
         
@@ -91,19 +94,19 @@
             chrome.browserAction.setPopup({ "popup" : ""});
             return;
         }
-                
 
         
 
         
         
-        // calls bit.ly, so has to say here for a moment until we clear up dependencies 
+        
+        // calls bit.ly, so has to say here for a moment until we clear up dependencies
         // the ISSUE
         // is that user credentials are getting stored POORLY
         // this makes it required to ask the bitly object for information
         // while this makes sense, it's a global object
-        // .... 
-
+        // ....
+        
         // Start the App controls
         function init_api() {
             // get from local storage?
@@ -142,28 +145,28 @@
                 bitly -- the global variable and interface to the bit.ly API
                             Options like, user Auth Key, oAuthToken are stored here
                         
-                        Make methods available to api.bitly.com 
-                        
+                        Make methods available to api.bitly.com
+                
                 bit_db -- the global variable for the SQL Lite interface
                 
-                trends_worker -- a long running worker process that checks 
+                trends_worker -- a long running worker process that checks
                                     for currently trending USER links
                                     This is a 'short' poll SSL interface
-                                    
+                
                 domains_list  -- bit.ly what label domains to check against to avoid unneeded lookups
                                     Resolves issues with incorrectly expanding non bit.ly domains
         
         */
         logger("Initialize bit.ly extension");
-        // the bit.ly API connector, db interface and other global variables        
-        var bitly=init_api(), bit_db=init_db(), 
-            trends_worker, domains_list, 
+        // the bit.ly API connector, db interface and other global variables
+        var bitly=init_api(), bit_db=init_db(),
+            trends_worker, domains_list,
             auto_expand_urls = true, enhance_twitter_com=true, context_menu_added=false, notify_on_context_menu=false,
             // for google tracking, when that's ready
             _gaq = _gaq || [];
         
         // Initialize Cache Items
-        expire_old_blacklist();        
+        expire_old_blacklist();
         trends_worker = new Worker("js/workers/realtime_data.js");
         trends_worker.onmessage = trends_worker_message_event;
         
@@ -179,9 +182,9 @@
         */
           
           
-          
 
 
+        
         
         
         
@@ -190,36 +193,36 @@
             var act = request.action;
             switch( act ) {
                 
-                case "page_loaded":
-                    
+                case "aaa_page_loaded":
                     
 
+                    
                     var user_data = bExt.info.get("user_data"); //localfetch("user_data");
                     /*
                         Makes determination if used is logged in, toggles 'popup' behavior accordingly
                             Default popup behavior is to load options.html, login page
                     */
-
+                    
                     if(user_data && user_data.x_login && user_data.x_apiKey) {
                         if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
-
-                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});                        
+                            
+                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});
                         }
-
+                        
                         if(!bitly.is_authenticated() || !auto_expand_urls) return; // the bail out...
                         var injectTabs = sender.tab && sender.tab.url,
                             no_expand_list = get_no_expand_domains();
-
+                        
                         // only support http || https domains
                         if(injectTabs && injectTabs.indexOf("http") === 0 &&
                             no_expand_list.indexOf( request.domain_host ) === -1) {
-
+                                
                                 chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
                                 chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});
-                        }                    
-                    }                    
-                    
+                        }
+                    }
 
+                
                 break;
                 
                 /*
@@ -265,7 +268,7 @@
                 /*
                     Core bit.ly, clicks, expands shortens etc
                 */
-                case "expand_and_meta":
+                case "aaa_expand_and_meta":
                     
                     parse_domains( request.short_url )
                     var sUrl = (typeof request.short_url !== "string") ? request.short_url : [request.short_url],
@@ -276,7 +279,7 @@
                 
                 break;
                 
-                case "shorten_and_select":
+                case "aaa_shorten_and_select":
                     logger("Shorten request");
                     if(request.long_url.indexOf("http") === 0) {
                         chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
@@ -285,7 +288,7 @@
                     bitly.shorten( request.long_url, sendResponse );
                 break;
                 
-                case "shorten":
+                case "aaa_shorten":
                     console.log("shorten these..");
                     // see if this is an object..
                     // loop over it
@@ -293,7 +296,7 @@
                     // loop over HUGE whitelist set, check smaller 'long url' domains -- common method for doing this?
                     // shorten them, get a response, send back
                     if(request.long_url) {
-                        bitly.shorten( request.long_url, sendResponse );                        
+                        bitly.shorten( request.long_url, sendResponse );
                     }
                 break;
                 
@@ -301,15 +304,15 @@
                     get_realtime_metrics( sendResponse );
                 break;
                 
-                case "expand":
+                case "aaa_expand":
                     bitly.expand( request.short_url, sendResponse );
                 break;
                 
-                case "lookup":
+                case "aaa_lookup":
                     bitly.lookup( request.long_url, sendResponse );
                 break;
                 
-                case "page_select":
+                case "aaa_page_select":
                     if(request.long_url.indexOf("http") === 0) {
                         chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
                     }
@@ -319,7 +322,7 @@
                 /*
                     Misc Actions
                 */
-                case "open_options":
+                case "aaa_open_options":
                     // this is primary used for content scripts
                     get_chrome_page("options.html");
                 break;
@@ -346,7 +349,7 @@
         function browser_action_listener( curr_tab ) {
             // if popup is NOT set, this event will be triggered
             get_chrome_page("options.html");
-        }        
+        }
         chrome.extension.onRequest.addListener(actions_listeners);
         if( !chrome.browserAction.onClicked.hasListener( browser_action_listener ) ) {
             chrome.browserAction.onClicked.addListener( browser_action_listener );

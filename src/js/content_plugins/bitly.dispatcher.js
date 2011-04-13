@@ -1,5 +1,5 @@
 (function() {
-    function dispatch_callback(jo) {}
+    function dispatch_callback(jo) { console.log("dispatch success") }
     function init() {
         var body, h = document.location && document.location.host, 
             d_hosts=["bit.ly", "bitly.org", "j.mp", "bitly.net", "bitly.tv", "blog.bit.ly", "bitly.pro", "bitly.com"];

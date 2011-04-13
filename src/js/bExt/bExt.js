@@ -14,19 +14,13 @@ var bExt={
     // bExt.match_host
     'api' : null,
     'db' : null,
+    'events' : null,
     match_host : function(url_str) {
-        var matches = url_str.match(/^http(?:s)?:\/\/([^/]{2,})\/.*$/i);
+        var matches = url_str && url_str.trim().match(/^http(?:s)?:\/\/([^/]{2,})\/.*$/i);
         return matches && matches.pop();
-    },
-    // bExt.Evt
-    Evt : function(request, sender, callback) {
-        // an Ext Event Wrapper / Representation
-        this.__finished=false;
-        this.url=sender.tab && sender.tab.url;
-        this.domain_host=bExt.match_host( this.url );
-        this.tab_id=sender && sender.tab && sender.tab.id || null;
-        this.__cb=callback && (typeof callback === "function") && callback || function(){};
-        // return this;
+    },    
+    init_db : function() {
+        bExt.db=sqlDB("bitly_local_db");
     },
     
     init_api : function() {
@@ -44,22 +38,7 @@ var bExt={
 
         return true;
     },
-    
-    'hovercard' : {
-        'blacklist' : function() {
-            var hv = bExt.info.get("hovercard");
-            
-            if(!hv.blacklist) {
-                hv.blacklist = ["bit.ly", "j.mp"];
-                bExt.info.set("hovercard", hv);
-            }            
-        },
-        'allow' : function() {
-            var hv = bExt.info.get("hovercard");
-            return hv.show_card
-        }
-    },
-    
+        
     // bExt.user    
     'info' : {
         /*
@@ -109,7 +88,12 @@ var bExt={
 }
 
 
-
+// todo,
+// move this elsewhere
+Function.prototype._scope = function( scope ) {
+    var self=this;
+    return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
+}
 
 
 
