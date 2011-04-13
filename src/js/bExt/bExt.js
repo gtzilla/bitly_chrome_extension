@@ -15,7 +15,17 @@ var bExt={
     'api' : null,
     'db' : null,
     'events' : null,
+    'share' : null,
+    
+    'Sharing' : function() {
+        /*
+            Share a little Share
+                Handle Sharing
+        */
+    },
+        
     match_host : function(url_str) {
+        // todo, weakness, not all URLs start with HTTP/HTTPs 
         var matches = url_str && url_str.trim().match(/^http(?:s)?:\/\/([^/]{2,})\/.*$/i);
         return matches && matches.pop();
     },    
@@ -78,12 +88,6 @@ var bExt={
             } catch(e){ return false; }
             return true;            
         }
-    },
-    
-    'sharing' : {
-        'sync' : function( callback ) {
-            
-        }
     }
 }
 
@@ -93,6 +97,12 @@ var bExt={
 Function.prototype._scope = function( scope ) {
     var self=this;
     return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
+}
+
+
+
+bExt.Sharing.prototype={
+    
 }
 
 

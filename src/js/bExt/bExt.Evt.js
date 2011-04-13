@@ -9,7 +9,6 @@
 bExt.Evt=function(request, sender, callback) {
     // an Ext Event Wrapper / Representation
     this.__finished=false;
-    console.log(sender)
     if(arguments.length > 1) {
          this.original_args=arguments;
          
