@@ -73,9 +73,10 @@ var bExt={
         'set' : function(k,v) {
             this.__data[k]=v;
             try{
-                return window.localStorage.setItem( k, window.JSON.stringify( v ) );
+                window.localStorage.setItem( k, window.JSON.stringify( v ) );
+                return true;
             } catch(e) {}
-            return;            
+            return false;   
         },
         '__data' : {},
         'load_cache' : function() {
@@ -84,9 +85,10 @@ var bExt={
         
         'clear' : function(itemKey) {
             try {
-                return window.localStorage.removeItem( itemKey )
+                window.localStorage.removeItem( itemKey );
+                return true;
             } catch(e){ return false; }
-            return true;            
+            return false;            
         }
     }
 }
