@@ -15,6 +15,7 @@
         <link rel="stylesheet" href="qunit/qunit.css" type="text/css" />
         <script type="text/javascript" src="qunit/qunit.js"></script>                
         <script type="text/javascript" src="../src/js/bExt/bExt.js"></script>
+        <script type="text/javascript" src="../src/js/bExt/bExt.hovercard.js"></script>        
         <script type="text/javascript" charset="utf-8">
             /*
                 TEST 
@@ -24,16 +25,24 @@
             //bExt.match_host()
             test('bExt.match_host()', function() {
                 ok(bExt.match_host( "http://foo.com/ddhdhdh" ), 'http://foo.com/ddhdhdh host match' );
+                
                 ok(!bExt.match_host( "ftp://fakefake" ), 'ftp://fakefake does not  match' );
-                ok(!bExt.match_host( "http://fakefake" ), 'http://fakefake host match' );
+                
+                ok(bExt.match_host( "http://fakefake" ), 'http://fakefake host match' );
+                
                 ok(bExt.match_host( "https://fakefake.com" ), 'https://fakefake.com does not  match' );
+                
                 ok(bExt.match_host( "http://fakefake.com/666/ttt/rrr/dd,d,d,d.html" ), 'http://fakefake.com/666/ttt/rrr/dd,d,d,d.html host match' );                
             });
             
-            
+            /*
+                bExt.info
+            */
             test( "bExt.info get/set/clear()", function() {
                 ok(bExt.info.set("foo", {"bar" : true } ), 'set the value of foo' );
+                
                 ok(bExt.info.get("foo"), 'get the vaue of foo');
+                
                 ok(bExt.info.clear("foo"), 'clear the vaue of foo');                
             });
         </script>

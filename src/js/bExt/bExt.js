@@ -26,7 +26,7 @@ var bExt={
         
     match_host : function(url_str) {
         // todo, weakness, not all URLs start with HTTP/HTTPs 
-        var matches = url_str && url_str.trim().match(/^http(?:s)?:\/\/([^/]{2,})\/.*$/i);
+        var matches = url_str && url_str.trim().match(/^http(?:s)?:\/\/([^/]{2,})\/?.*$/i);
         return matches && matches.pop();
     },    
     init_db : function() {

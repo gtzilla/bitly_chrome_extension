@@ -12,6 +12,11 @@
     
         Visual display on DOM pages
             -- Interaction and storage controls
+            
+            
+    Requires:
+        SQLLite / bitDB
+        bitlyAPI
 */ 
 bExt.hovercard={
     '__data' : {},
@@ -60,11 +65,9 @@ bExt.hovercard={
         
     'md5domains' : function( url_list, callback ) {
         if(bExt.hovercard.__data['bitly_domains']) {
-            
             bExt.hovercard._md5domains( url_list, callback );
             return;
         }
-
         bExt.hovercard.get_domains(function(data) {
             bExt.hovercard._md5domains( url_list, callback ); 
         });
