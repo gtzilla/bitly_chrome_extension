@@ -49,7 +49,8 @@
                     
                     if(callback) callback(db_value)
                 }, function(tx, error) {
-                    console.log("error", error, tx)
+                    console.log("error", error, tx);
+                    throw (error.message || "");
                 });
             })
         },

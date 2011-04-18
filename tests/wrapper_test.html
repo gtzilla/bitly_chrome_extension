@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<html>
+
+<!--
+    http://unlicense.org/
+    author: gregory tomlinson
+-->
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bitly api</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="qunit/qunit.css" type="text/css" />
+        <script type="text/javascript" src="qunit/qunit.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            /*
+                TEST
+                    -- bExt.hovercard  
+            
+            */
+            var api;
+            (function(window, undefined) {
+                var document = window.document;                
+                var wRap=(function(){
+                    //
+                    var wRap=function( the_name  ) {
+                        return new wRap.fn.init( the_name, rootwRap );
+                    }, 
+                    // ref
+                    rootwRap;
+                    
+                    wRap.fn=wRap.prototype={
+                        constructor : wRap,
+                        init : function( the_name, rootwRap ) {
+                            // console.log(wRap())
+                            return this
+                            console.log(rootwRap, "the root..")                            
+                            if(!the_name) {
+                                return this;
+                            }
+                            if(the_name.nodeType) {
+                                this.context=this[0]=the_name;
+                                return this;
+                            }
+                            if(typeof the_name === "string") {
+                                return this;                                
+                            } 
+
+
+                        },
+                        
+                        length : 0,
+                        splice : function() {
+                            console.log("slice");
+                            return;
+                        }
+                    }
+                
+                    wRap.fn.init.prototype=wRap.fn;
+                    // console.log(wRap.fn.init.prototype)
+                    // rootwRap=wRap(document);
+                    return wRap;
+                })();
+                
+                
+                wRap.extend = wRap.fn.extend = function() {
+                    console.log(wRap, "do an exteend");
+                    if(arguments.length > 1) {
+                        console.log("overload me")
+                    }
+                    var target=this, copy=arguments[0] || {};
+                    for(var name in copy) {
+                        target[ name ] = copy[name];
+                    }
+                
+                    // hrm well this correctly references this as wRap
+                }
+            
+                // wRap.extend({
+                //     alpha : function() {
+                //         console.log("I am the alpga");
+                //     }
+                // });
+            
+                // wRap.alpha()
+            
+                window.wRap=window.hmmm=wRap;
+            })(window);
+            
+            console.log("outside the test", wRap("oooops"));
+            
+            test('test how jquery "works"', function() {
+                var a;
+                ok(a=wRap("haha"));
+                console.log(a);
+                
+            });
+            
+           
+            
+        </script>
+    </head>
+    <body>
+        <h1 id="qunit-header">QUnit Test Suite</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+    </body>
+</html>

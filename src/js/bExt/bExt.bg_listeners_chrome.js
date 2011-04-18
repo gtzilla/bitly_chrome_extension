@@ -79,6 +79,7 @@ bExt.bg_listeners_chrome = {
     },
     
     "page_select" : function( evt ) {
+        console.log("evt page select", evt)
         if(evt.is_http) {
             this.add_js(evt.tab_id, "js/content_plugins/getSelected.js");
             evt.callback();

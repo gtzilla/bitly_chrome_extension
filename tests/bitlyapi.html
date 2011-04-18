@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+
+<!--
+    http://unlicense.org/
+    author: gregory tomlinson
+-->
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bitly api</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="qunit/qunit.css" type="text/css" />
+        <script type="text/javascript" src="qunit/qunit.js"></script>
+        <script type="text/javascript" src="../src/js/bitly_oauth_credentials.js"></script>
+        <script type="text/javascript" src="../src/js/bitlyapi-v3.0.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            /*
+                TEST
+                    -- bExt.hovercard  
+            
+            */
+            var api;
+            test('start api and db instance', function() {
+                // setup for tests
+                ok(api=bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature ), "create bit api reference" )
+                console.log(api, "obj")
+            });
+            
+            asyncTest('auth in', function() {
+                
+                api.auth("exttestaccount", "whatever", function(jo) {
+                    console.log("jo")
+                    ok(jo.status_code==200, "signed in success")
+                });
+                
+                setTimeout(function() {
+                    start();
+                }, 2000);
+                
+            });
+            
+
+            // 
+            // 
+            // 
+            // 
+            // test('hovercard methods', 2, function() {
+            //     //todo
+            //     // add test for hovercard expand short urls
+            //     // ... scrape some tweets??
+            //     // bExt.hovercard
+            //     ok(bExt.hovercard.blacklist(), "blacklist of no expand hosts");
+            //     ok(bExt.hovercard.get_domains(function(data) {
+            //         console.log(data, "data get_domains")
+            //     }))
+            //     // same( {}, {}, 'passes, objects have the same content');
+            // });
+        </script>
+    </head>
+    <body>
+        <h1 id="qunit-header">QUnit Test Suite</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+    </body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+
+<!--
+    http://unlicense.org/
+    author: gregory tomlinson
+-->
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bitly api</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="qunit/qunit.css" type="text/css" />
+        <script type="text/javascript" src="qunit/qunit.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            /*
+                TEST
+                    -- bExt.hovercard  
+            
+            */
+
+(function( window, undefined ) {
+    //http://blog.buymeasoda.com/does-calling-the-jquery-function-return-an-ob
+    var document = window.document;
+    var jQy = (function() {
+        
+        var jQy = function( selector, context ) {
+                // The jQy object is actually just the init constructor 'enhanced'
+                return new jQy.fn.init( selector, context, rootjQy );
+            },
+            rootjQy;
+            
+            
+        jQy.fn = jQy.prototype = {
+            constructor: jQy,
+            init: function( selector, context, rootjQy ) {
+                var match, elem, ret, doc;
+                return this;
+            },
+            splice : function(){},
+            length : 0
+        };
+        
+        jQy.fn.init.prototype = jQy.fn;
+        
+        return jQy; 
+    })();
+
+window.jQy = window.$ = jQy;
+
+})(window);
+                
+
+            
+            test('test how jQy "works"', function() {
+                var a;
+                ok(a=jQy());
+                console.log(a);
+                
+            });
+            
+           
+            
+        </script>
+    </head>
+    <body>
+        <h1 id="qunit-header">QUnit Test Suite</h1>
+        <h2 id="qunit-banner"></h2>
+        <div id="qunit-testrunner-toolbar"></div>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+    </body>
+</html>

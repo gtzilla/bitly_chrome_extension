@@ -30,7 +30,11 @@ var bExt={
         return matches && matches.pop();
     },    
     init_db : function() {
-        bExt.db=sqlDB("bitly_local_db");
+        try {
+            bExt.db=sqlDB("bitly_local_db");            
+        } catch(e) {return false;}
+        return true;
+
     },
     
     init_api : function() {

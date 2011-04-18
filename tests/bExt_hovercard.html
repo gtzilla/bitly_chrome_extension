@@ -22,27 +22,40 @@
         <script type="text/javascript" charset="utf-8">
             /*
                 TEST
-                    -- bExt.match_host()
+                    -- bExt.hovercard  
             
-            */
-            //bExt.match_host()
-            // test('bExt.match_host()', function() {
-            //     ok(bExt.match_host( "http://foo.com/ddhdhdh" ), 'http://foo.com/ddhdhdh host match' );
-            //
-            //     ok(!bExt.match_host( "ftp://fakefake" ), 'ftp://fakefake does not  match' );
-            //
-            //     ok(bExt.match_host( "http://fakefake" ), 'http://fakefake host match' );
-            //
-            //     ok(bExt.match_host( "https://fakefake.com" ), 'https://fakefake.com does not  match' );
-            //
-            //     ok(bExt.match_host( "http://fakefake.com/666/ttt/rrr/dd,d,d,d.html" ), 'http://fakefake.com/666/ttt/rrr/dd,d,d,d.html host match' );
-            // });
+            */            
+            test('start api and db instance', function() {
+                // setup for tests
+                bExt.info.clear("user_data", "remove any residual localstore");
+                
+                ok(!bExt.init_api(), "start bitly api instance w/o credentials");
+                ok(bExt.init_db(), "start bitly sql storage instance");                
+            });
             
-            /*
-                bExt.info
-            */
-            test('test', function() {
-                same( {}, {}, 'passes, objects have the same content');
+            test('test setting user credentials for bitly api', function() {
+                var user_creds={ 
+                    "x_login":"gtdev",
+                    "x_apiKey":"R_d3aea0669127aad90dfc711955da6d00",
+                    "access_token":"91c9e6336e3081da5ca00b78f2c1cfd94594b7f0"
+                }
+                ok(bExt.info.set("user_data", user_creds), "start bitly sql storage instance");
+                ok(bExt.init_api(), "start bitly api instance w/ credentials");
+            });   
+            
+            
+            
+            
+            test('hovercard methods', 2, function() {
+                //todo
+                // add test for hovercard expand short urls
+                // ... scrape some tweets??
+                // bExt.hovercard
+                ok(bExt.hovercard.blacklist(), "blacklist of no expand hosts");
+                ok(bExt.hovercard.get_domains(function(data) {
+                    console.log(data, "data get_domains")
+                }))
+                // same( {}, {}, 'passes, objects have the same content');
             });
         </script>
     </head>

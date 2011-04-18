@@ -4,7 +4,7 @@
             api.bitly.com
 */
 
-(function() {
+(function(window) {
 
 // TODO
 // move this info to settings file
@@ -33,7 +33,12 @@ var bitlyAPI = function( client_id, client_secret, settings  ) {
     host = (settings && settings.host) || host;
     // setting.url = {} will override the 'urls={ ... }'
     urls = extend({}, urls, (settings && settings.urls) );
-    return new BitApi( client_id, client_secret )
+    return new BitApi( client_id, client_secret );
+    // return new bitlyAPI.init(client_id, client_secret);
+    
+    /*
+        change this name to BitApi, call this.init( client_id, client_sig )
+    */
 }
 window.bitlyAPI = bitlyAPI;
 // TODO
@@ -66,7 +71,55 @@ BitApi.prototype = {
         this.set_oauth_credentials( client_id, client_secret );
         return this;
     },
+    
+    /*
+    */
+    auth : function( username, password, callback ) {
+        // call the set credentials  when this is run
+        var self = this,
+            params = extend( {}, this.oauth_client, {'x_auth_username': username, 'x_auth_password': password } );
         
+        ajaxRequest({
+            'url' : ssl_host + urls.oauth,
+            'type' : "POST",
+            'data' : params,
+            'success' : function( url_param_string ) {
+                var oauth_info = parse_oauth_response( url_param_string );
+                if(!oauth_info) {
+                    console.log('error during oauth');
+                    errors.push({'error' : 'auth', 'data' : url_param_string })
+                    oauth_info = { 'error' : 'unknown issue with auth' }
+                } else {
+                    //
+                    self.set_credentials( oauth_info.login, oauth_info.apiKey, oauth_info.access_token );
+                }
+
+                
+                if(callback) callback( oauth_info );
+            }
+        });
+    
+    },    
+    
+    set_oauth_credentials : function( client_id, client_secret ) {
+        this.oauth_client.client_id = client_id;
+        this.oauth_client.client_secret = client_secret;
+    },
+    
+    set_credentials : function( login, apiKey, access_token) {
+        // set as default
+        this.bit_request.login = login;
+        this.bit_request.apiKey = apiKey;
+        this.bit_request.access_token = access_token;
+    },
+    
+    is_authenticated : function() {
+        return (!!(this.bit_request.login && this.bit_request.apiKey && this.bit_request.access_token)) || false;
+    },
+    //////**************////////    
+    
+    
+    
     shorten : function( long_url, callback ) {
         var params = extend({}, this.bit_request, { 'longUrl' : long_url } );
         delete params.access_token
@@ -237,33 +290,6 @@ BitApi.prototype = {
         bitlyRequest( ssl_host + urls.share, params, callback);
     },
     
-    auth : function( username, password, callback ) {
-        // call the set credentials  when this is run
-        var self = this,
-            params = extend( {}, this.oauth_client, {'x_auth_username': username, 'x_auth_password': password } );
-        
-        ajaxRequest({
-            'url' : ssl_host + urls.oauth,
-            'type' : "POST",
-            'data' : params,
-            'success' : function( url_param_string ) {
-                var oauth_info = parse_oauth_response( url_param_string );
-                if(!oauth_info) {
-                    console.log('error during oauth');
-                    errors.push({'error' : 'auth', 'data' : url_param_string })
-                    oauth_info = { 'error' : 'unknown issue with auth' }
-                } else {
-                    //
-                    self.set_credentials( oauth_info.login, oauth_info.apiKey, oauth_info.access_token );
-                }
-
-                
-                if(callback) callback( oauth_info );
-            }
-        });
-    
-    },
-    
     set_domain : function( api_domain ) {
         // to REALLY change things.. sanity check
         var types = ["bit.ly", "j.mp", "bitly.com"];
@@ -279,22 +305,6 @@ BitApi.prototype = {
     
     get_domain : function() {
         return this.bit_request.domain;
-    },
-    
-    set_oauth_credentials : function( client_id, client_secret ) {
-        this.oauth_client.client_id = client_id;
-        this.oauth_client.client_secret = client_secret;
-    },
-    
-    set_credentials : function( login, apiKey, access_token) {
-        // set as default
-        this.bit_request.login = login;
-        this.bit_request.apiKey = apiKey;
-        this.bit_request.access_token = access_token;
-    },
-    
-    is_authenticated : function() {
-        return (!!(this.bit_request.login && this.bit_request.apiKey && this.bit_request.access_token)) || false;
     },
     
     remove_credentials : function() {
@@ -469,7 +479,7 @@ function ajaxRequest( obj ) {
 }
     
 
-})();
+})(window);
 
 
 /*

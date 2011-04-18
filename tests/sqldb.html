@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+
+<!--
+    http://unlicense.org/
+    author: gregory tomlinson
+-->
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>bExt SQLLite Wrapper Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="qunit/qunit.css" type="text/css" />
+        <script type="text/javascript" src="qunit/qunit.js"></script>                
+        <script type="text/javascript" src="../src/js/sqldb-v1.0.js"></script>   
+        <script type="text/javascript" charset="utf-8">
+            var db_name="my_tests", db;
+            test('bExt.match_host()', function() {
+                ok(function(){
+                    db=sqlDB(db_name);
+                    return db;
+                }, 'http://foo.com/ddhdhdh host match' );
+                
+                ok(db.create_table(function(){
+                    return true
+                }))
+            });
+            
+        </script>
+    </head>
+    <body>
+        <h1 id="qunit-header">QUnit Test Suite</h1>  
+        <p>Aka no 'new', only static</p>
+        <h2 id="qunit-banner"></h2>  
+        <div id="qunit-testrunner-toolbar"></div>  
+        <h2 id="qunit-userAgent"></h2>  
+        <ol id="qunit-tests"></ol>
+    </body>
+</html>
