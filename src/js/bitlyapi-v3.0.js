@@ -40,9 +40,9 @@ var bitlyAPI = function( client_id, client_secret, settings  ) {
         change this name to BitApi, call this.init( client_id, client_sig )
     */
 }
+
 window.bitlyAPI = bitlyAPI;
-// TODO
-// check to make sure there is no NameSpace collision
+
 function BitApi( client_id, client_secret ) {
     return this.init( client_id, client_secret  );
 }
@@ -73,6 +73,7 @@ BitApi.prototype = {
     },
     
     /*
+        Authentication for bitly API
     */
     auth : function( username, password, callback ) {
         // call the set credentials  when this is run
@@ -115,12 +116,16 @@ BitApi.prototype = {
     },
     
     is_authenticated : function() {
-        return (!!(this.bit_request.login && this.bit_request.apiKey && this.bit_request.access_token)) || false;
+        return this.bit_request.login && this.bit_request.login!==""&&
+                 this.bit_request.apiKey &&  this.bit_request.apiKey !== "" &&
+                 this.bit_request.access_token && this.bit_request.access_token !== "" || false;
     },
     //////**************////////    
     
     
-    
+    /*
+        URL methods and Queries
+    */
     shorten : function( long_url, callback ) {
         var params = extend({}, this.bit_request, { 'longUrl' : long_url } );
         delete params.access_token
@@ -160,9 +165,6 @@ BitApi.prototype = {
                     final_results[ item_hash ] = items[i];
                 } else {
                     // merge in new values
-                    // if I was using jQuery, I would just call $.extend({}, obj1, obj2)
-                    // TODO
-                    // see if extend will work here...
                     store = final_results[ item_hash ]
                     for(var k in items[i]) {
                         if( store[k] ) continue;
@@ -197,25 +199,6 @@ BitApi.prototype = {
         internal_multiget( host + urls.clicks, 'shortUrl', params, callback );
     },
     
-    // clicks_by_url : function( long_urls, callback ) {
-    //     this.count+=1;
-    //     // todo
-    //     // not working
-    //     var request_count = 2, lookup_urls, lookup_url, i=0;
-    //     function sticher( jo ) {
-    //         request_count -= 1;
-    //         
-    //         if(jo.lookup) {
-    //             for( ; lookup_url=jo.lookup[i]; i++) {
-    //                 console.log(lookup_url.url, "implement clicks call, make only one clicks call...")
-    //             }
-    //         }
-    //     }
-    //     
-    //     this.lookup(long_urls, sticher);
-    // },
-
-    
     info : function( short_urls, callback ) {
         this.count+=1;
         var params = { 'login' : this.bit_request.login,
@@ -232,19 +215,6 @@ BitApi.prototype = {
         internal_multiget( host + urls.lookup, 'url', params, callback );
     },
     
-    realtime_clicks_by_minutes : function( shortUrls, callback ) {
-        // http://api.bitly.net/v3/clicks_by_minute?
-        //login=XXXXXXX&apiKey=XXXXXXXXXXXXXXXXXXXXXXX&shortUrl=http://stk.ly/b45q7L
-        var params = {}
-        
-        this.count+=1;
-        var params = { 'login' : this.bit_request.login,
-                        'apiKey' : this.bit_request.apiKey,
-                        'shortUrl' : shortUrls };
-        internal_multiget( host + urls.clicks_by_minute, 'url', params, callback );        
-    },
-    
-
     /*
         SSL Hosts (HTTPS)
     */
@@ -280,7 +250,7 @@ BitApi.prototype = {
     },
     
     bitly_domains : function( callback )  {
-        //
+        // md5
         var params = { 'access_token' : this.bit_request.access_token }
         bitlyRequest( ssl_host + urls.domains, params, callback);
     },
@@ -318,7 +288,10 @@ BitApi.prototype = {
 
 }
 
-
+/*
+    Private Helper functions
+    
+*/
 function extend() {
     var target = arguments[0] || {}, length = arguments.length, i=0, options, name, src, copy;
     for( ; i<length; i++) {
@@ -338,7 +311,7 @@ function extend() {
 
 function parse_oauth_response( url_string ) {
     //access_token=4bf1cbe01cf1a4806da981c7bf452a28ba2194c6&login=exttestaccount&apiKey=R_0d3f58015f6030b3183d9fbce2f4723b
-    // maybe a regex here instead would be faster?
+    // todo, test a regex here and compare to split?
     var items = ( url_string && typeof url_string === "string" ) && url_string.split("&"),
         response = {}, i=0, params;
     if(!items) {
@@ -426,8 +399,7 @@ function bitlyRequest( api_url, params, callback, error_callback ) {
 }
 
 function ajaxRequest( obj ) {
-    // outside of the ext, this lib needs JSONP
-    // 7/25/2010 - for google chrome ext
+    // outside of the ext, this lib needs CORS support from the browser
     var xhr = new XMLHttpRequest(),
         message, ajax_url, post_data=null;
         

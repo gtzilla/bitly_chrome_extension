@@ -22,25 +22,23 @@
                     -- bExt.hovercard  
             
             */
-            var api;
+            var api, user_creds={ 
+                "x_login":"gtdev",
+                "x_apiKey":"R_d3aea0669127aad90dfc711955da6d00",
+                "access_token":"91c9e6336e3081da5ca00b78f2c1cfd94594b7f0"
+            };
+            
             test('start api and db instance', function() {
                 // setup for tests
-                ok(api=bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature ), "create bit api reference" )
-                console.log(api, "obj")
+                ok(api=bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature ), "create bit api reference" );
             });
             
-            asyncTest('auth in', function() {
+            asyncTest('authenticate bitly via CORS', function() {
                 
                 api.auth("exttestaccount", "whatever", function(jo) {
                     console.log("jo")
                     ok(jo.status_code==200, "signed in success")
                 });
-                user_creds={ 
-                    "x_login":"gtdev",
-                    "x_apiKey":"R_d3aea0669127aad90dfc711955da6d00",
-                    "access_token":"91c9e6336e3081da5ca00b78f2c1cfd94594b7f0"
-                }
-                
                 
                 setTimeout(function() {
                     start();
@@ -49,8 +47,15 @@
             });
             
             
+            /*
+            
+                Set User Credentials
+            */
+            
             test('set user data', function() {
                 ok(api.set_credentials( user_creds.x_login, user_creds.x_apiKey, user_creds.access_token), "Apply usercredentials");
+                ok(api.is_authenticated(), "user is logged in");
+
             });
             
             
