@@ -312,6 +312,8 @@ BitApi.prototype = {
         delete this.bit_request.login;
         delete this.bit_request.apiKey;
         delete this.bit_request.access_token;
+        
+        return true;
     }
 
 }

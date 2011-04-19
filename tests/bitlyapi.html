@@ -122,9 +122,13 @@
                     console.log(jo, "realtime");
                 });
                 
+                
+                // bitly md5 domains list
                 api.bitly_domains(function(jo) {
-                    ok(jo.length > 10);
-                })
+                    ok(jo.length > 10, "bitly md5 domains");
+                });
+                
+
                 
                 
                 
@@ -132,6 +136,13 @@
                     start();
                     
                 }, 2000);
+            });
+            
+            test("Set the API domain", function() {
+                // the api domain
+                ok( api.set_domain("j.mp"), "set to j.mp" );
+                ok(api.get_domain()=="j.mp", "the api domain");
+                ok( api.set_domain("bit.ly"), "set back to bitly" );                
             })
             
 
