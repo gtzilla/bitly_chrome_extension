@@ -22,7 +22,7 @@ bExt.Evt=function(request, sender, callback) {
          
          this.page=request && request.page_name;
          
-         this.domain_host=bExt.match_host( this.url );
+         this.domain_host=bExt.match_host( this.url || this.long_url );
          
          this.tab_id=sender && sender.tab && sender.tab.id || null;
          

@@ -81,10 +81,10 @@ function findPos(obj) {
 }
 
 function brainResponse(jo) { 
-    console.log("brain response")   
     // start looking for more
-    run_find_more_links();
-    console.log("jo", jo)
+    run_find_more_links(); 
+    
+    
     var links =  document.getElementsByTagName("a"), 
         href, bit_key, user_hash, bit_result, 
         possible_keywords = [], matched_results = [],
@@ -96,14 +96,13 @@ function brainResponse(jo) {
         bit_container_elem.addEventListener('mouseover', function(e) {
             clearTimeout(timeout_link);
             expander_visible = true;
-            // hmmmmmmmmm
         });
         bit_container_elem.addEventListener('mouseout', closeBitlyUrlExpanderBox);
         bit_container_elem.addEventListener('click', function(e) {
             var clss = e.target.className, link_box = _id("always_for_this_domain"), params = {};
             if(e.target.parentNode === link_box) {
                 e.preventDefault();                
-                params = {'action' : 'add_no_expand_domain_and_reload', 'domain_host' : document.location.host }
+                params = {'action' : 'add_prohibited_host', 'domain_host' : document.location.host }
                 chrome.extension.sendRequest(params, function(){} );                
                 return;
             }

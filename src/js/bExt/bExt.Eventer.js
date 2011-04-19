@@ -107,8 +107,6 @@ bExt.Eventer.prototype={
     
     add_js : function( tab_id, script_list) {
         script_list=this._mklist(script_list);
-        
-        console.log(script_list, "script", tab_id)
         for(var i=0; i<script_list.length; i++) {
             chrome.tabs.executeScript( tab_id, { file: script_list[i] });
         }

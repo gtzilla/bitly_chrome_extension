@@ -29,16 +29,10 @@ var host = "http://api.bitly.com",
     
     ///user/(clicks|country|referrers), /user/realtime_links
 var bitlyAPI = function( client_id, client_secret, settings  ) {
-    
+    // update the local variables
     host = (settings && settings.host) || host;
-    // setting.url = {} will override the 'urls={ ... }'
     urls = extend({}, urls, (settings && settings.urls) );
     return new BitApi( client_id, client_secret );
-    // return new bitlyAPI.init(client_id, client_secret);
-    
-    /*
-        change this name to BitApi, call this.init( client_id, client_sig )
-    */
 }
 
 window.bitlyAPI = bitlyAPI;
@@ -65,7 +59,9 @@ BitApi.prototype = {
     },
     
     version : "3.0",
-    count : 0, // internal request counter, this is the number of times certain methods are called
+    
+    // private request counter
+    count : 0, 
     
     init : function(  client_id, client_secret ) {
         this.set_oauth_credentials( client_id, client_secret );

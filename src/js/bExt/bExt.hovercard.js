@@ -38,6 +38,27 @@ bExt.hovercard={
         });       
     },
     
+    add_prohibited : function( prohibited_host ) {
+        
+        var prohibited=bExt.hovercard.get_prohibited();
+        
+        if(prohibited.indexOf( prohibited_host ) > -1 ) { return; }
+        prohibited.push(prohibited_host);
+        bExt.info.set("no_expand_domains", prohibited);
+        
+        return true;
+    },
+    
+    get_prohibited : function() {
+        var prohibited = bExt.info.get("no_expand_domains");
+        if(!prohibited) {
+            prohibited = ["bit.ly", "j.mp", "bitly.com"];
+            bExt.info.set("no_expand_domains", prohibited);
+        }
+        return prohibited;
+    },
+    
+    
     'get_domains' : function( callback ) {
         // todo, setup expire
         var md5_domains_list=[]

@@ -32,6 +32,15 @@ bExt.bg_listeners_chrome = {
     'open_page' : function( evt ) {
         this.open_page( evt && evt.page_name || null );
     },
+    "add_prohibited_host" : function( evt ) {
+        // from URL expander Content Plugin
+        if(evt.domain_host) {
+            bExt.hovercard.add_prohibited( evt.domain_host );
+            this.open_page("options.html");            
+        }
+        evt.callback({});
+    },
+        
     'expand_and_meta' : function( evt ) {
         bExt.hovercard.md5domains( this._mklist( evt.short_url ), function( clean_urls_list ) {
             bExt.api.expand_and_meta( clean_urls_list, evt.callback._scope(evt) );            
@@ -77,7 +86,7 @@ bExt.bg_listeners_chrome = {
         bExt.api.shorten( evt.long_url, evt.callback._scope(evt) );        
 
     },
-    
+
     "page_select" : function( evt ) {
         console.log("evt page select", evt)
         if(evt.is_http) {
@@ -85,5 +94,7 @@ bExt.bg_listeners_chrome = {
             evt.callback();
         }        
     }
+    
+
 
 }
