@@ -54,7 +54,7 @@
             });
             
             
-            asyncTest('the methods', function() {
+            asyncTest('Methods, Shorten Expand (single and multiple), Expand and meta', function() {
                 
                 var short_list=["http://gt-co.de/i9nx8s", "http://gt-co.de/i4Ca2I"];
                  
@@ -85,6 +85,11 @@
                     }
                 });
                 
+                api.expand_and_meta(short_list, function(jo) {
+                    console.log("expand and meta", jo)
+                    ok(jo.list_results.length == short_list.length, "expand and meta same lengths");
+                });
+                
                 
                 setTimeout(function(){
                     start();
@@ -92,7 +97,7 @@
             });
             
             
-            asyncTest('more, the methods', function() {
+            asyncTest('Info, Lookup, Realtime, bitly md5 domains', function() {
                 
                 var short_list=["http://gt-co.de/i9nx8s", "http://gt-co.de/i4Ca2I"];
                                 
@@ -129,6 +134,10 @@
                 });
                 
 
+                api.share_accounts(function(jo) {
+                    console.log("share accounts", jo)
+                    ok(jo.share_accounts.length == 4, "the number of share accoutns of this user is 4")
+                })
                 
                 
                 
