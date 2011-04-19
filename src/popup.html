@@ -1,108 +1,92 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" manifest="cache-manifest">
-    
     <head>
-        <title>bitly | Shorten, Share &amp; Track your links</title>
+        <title>
+            bitly | Shorten, Share &amp; Track your links
+        </title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
         <link rel="stylesheet" href="css/popup.css" type="text/css" charset="utf-8" />
     </head>
     <body class="popup_body">
         <div id="container">
-            
             <div id="top">
                 <div id="TopInner">
                     <div id="trending_box">
                         <img src="s/graphics/loader_trend_12_12.gif" border="0" alt="" height="12" width="12" />
                     </div>
-                    
                     <div class="bitly_shorten_box_meta_links">
-                        <a class="options_page" id="options_page" href="options.html">options</a>
-
-                    </div>                    
+                        <a class="options_page" id="options_page" href="options.html" name="options_page">options</a>
+                    </div>
                 </div>
-            </div> <!-- end #top -->
-            
+            </div><!-- end #top -->
             <div id="middle">
-                
-
-                
                 <form action="#" id="bitly_bento_submit" method="get" accept-charset="utf-8">
-                      
-                      <div class="bentoShareBoxContainer">
-                          <textarea id="bento_share" name="bento_share"></textarea>
-                          <div id="loading_short_url">
-                              <img src="s/graphics/loader_58_58.gif" border="0" alt="0" />
-                          </div>
-                          
-                      </div>
-                      <div id="sharing">
-                          <div id="sharing_accounts_display"></div>
-                          
-                          
-                          <div class="action_controls">
-                            
-                                <div id="share_controls" style="display:none;">
-
-                                        <div id="sharing_buttons_box">
-                                        <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button">
-                                        </div>
-                                        <div id="share_loading_graphic">
-                                            <img src="s/graphics/loader_share_30_30.gif" height="30" width="30" border="0" alt="" />
-                                        </div>
-
-                                 </div>
-                                 
-                                 <!-- <div class="watchContainerOuter">
-                                    <a href="#" class="watchLinkButton">Watch</a>
-                                 </div>                                  -->
-                                 
-                                 <div class="copyContainerOuter" id="copy_elements_wrapper">
-                                         <div id="hidden_sharing_box">
-                                             <textarea id="bitly_short_url_area" name=""></textarea>
-                                        </div>                                        
-                                       <div class="copyContainer">
-                                           <div class="copy_link_button_container">
-                                               <a href="#" id="copy_link_button">Copy Link</a>                                        
-                                           </div>
-                                     </div>
-                                 </div><!-- end .copyContainerOuter -->    
-                                 
-                                 
-                            
-                                  <div id="message_box" style="display:none;"></div>
-                                  <div class="hr"><hr /></div>
-                             </div>
-                             <div class="hr"><hr /></div>
-                          </div>
-                          
-                          
-                               
-                
+                    <div class="bentoShareBoxContainer">
+                        <textarea id="bento_share" name="bento_share">
+</textarea>
+                        <div id="loading_short_url">
+                            <img src="s/graphics/loader_58_58.gif" border="0" alt="0" />
+                        </div>
+                    </div>
+                    <div id="sharing">
+                        <div id="sharing_accounts_display"></div>
+                        <div class="action_controls">
+                            <div id="share_controls" style="display:none;">
+                                <div id="sharing_buttons_box">
+                                    <input class="activeButtons mediumSizeButton" type="submit" name="share_button" value="Share" id="share_button" />
+                                </div>
+                                <div id="share_loading_graphic">
+                                    <img src="s/graphics/loader_share_30_30.gif" height="30" width="30" border="0" alt="" />
+                                </div>
+                            </div>
+                            <div class="copyContainerOuter" id="copy_elements_wrapper">
+                                <div id="hidden_sharing_box">
+                                    <textarea id="bitly_short_url_area" name="">
+</textarea>
+                                </div>
+                                <div class="copyContainer">
+                                    <div class="copy_link_button_container">
+                                        <a href="#" id="copy_link_button" name="copy_link_button">Copy Link</a>
+                                    </div>
+                                </div>
+                            </div><!-- end .copyContainerOuter -->
+                            <div id="message_box" style="display:none;"></div>
+                            <div class="hr">
+                                <hr />
+                            </div>
+                        </div>
+                        <div class="hr">
+                            <hr />
+                        </div>
+                    </div>
                 </form>
-
-                
-
-            
-            </div> <!-- END #middle -->
-            
+            </div><!-- END #middle -->
             <div id="bottom">
-
-                <div id="char_count_box">
-                    
-                </div>
-            
-            </div> <!-- end #bottom -->
+                <div id="char_count_box"></div>
+            </div><!-- end #bottom -->
+        </div><!-- end #container -->
+        <script type="text/javascript" src="js/jquery-1.5.2.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.js"></script>
+        <script type="text/javascript" src="js/libs/fastFrag.js"></script>        
+        <script type="text/javascript" src="js/bExt/bExt.popup.js"></script>
+        <script type="text/javascript" src="js/libs/common.js"></script>
         
-        </div> <!-- end #container -->
-        
-        
-        <script type="text/javascript" src="js/libs/common.js"></script>                          
         <script type="text/javascript" charset="utf-8">
+            bExt.popup.open({
+                url_clipboard : "#bitly_short_url_area"
+            });
+        </script>
+        
+        
+        <script type="text/javascript" charset="utf-8">
+//<![CDATA[
             
             // get the current document location
             
             function actions_listeners( request, sender, sendResponse) {
+                console.log(request, sender, sendResponse)
                 // this is an extenion listener, not a DOM listener.
                 if(!request.action || request.action !== "page_selection") return;
                 var selected_text = (request.selection || "").trim();
@@ -145,19 +129,6 @@
                 if(short_url && short_url.trim() !== "") {
                     bg.trends_watch_and_alert();
                 }
-     
-                
-                // if(short_url === "") {
-                //     _q('.watchContainerOuter').style.display="none";
-                // } else {
-                //     for( ; watch=watched[i]; i++) {
-                //         if(watch.short_url === short_url) {
-                //             _q('.watchLinkButton').innerText="Watched";
-                //         }
-                //     }                    
-                // }
-                
-
                 
                 setTimeout(function() {
                     update_char_count();
@@ -167,7 +138,7 @@
             function share_callback(jo) {
                 console.log(jo, "share");
                 if(jo.status_code === 403 ) {
-                    var share_message = "Error, not signed in <a class='open_options_page' href='#'>Sign In</a> now"
+                    var share_message = "Error, not signed in <a class='open_options_page' href='#'>Sign In<\/a> now"
                     display_share_response_message(share_message);
                     return;                    
                 } else if( jo.error ) {
@@ -231,7 +202,7 @@
                 
                 active_account_list = [];
                 if(accounts.length > 0 ) {
-                    html += '<span class="share_account_header">Active:</span>'
+                    html += '<span class="share_account_header">Active:<\/span>'
                     html += '<ul id="share_accounts">'
                     for( ; account=accounts[i]; i++) {
                         status = (account.active) ? "on" : "off";
@@ -241,10 +212,10 @@
                             html += '<img class="account_icon" id="'+ account.account_id + '"';
                             html += ' title="' + (account.account_name || account.account_login) + '" '
                             html += ' src="s/graphics/'+account.account_type+'-'+status+'.png" border="0" alt="" />'
-                        html += '</li>'
+                        html += '<\/li>'
                     }
-                    html += '</ul>';
-                    html += '<div class="hr"><hr /></div>'
+                    html += '<\/ul>';
+                    html += '<div class="hr"><hr /><\/div>'
                     _id("share_controls").style.display="block";
                 } 
                 
@@ -266,7 +237,7 @@
                     total_clicks+=realtime.clicks;
                 }
                 if(total_clicks>0) {
-                    message = "<span class='trend_hed'>Trending</span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links</a>";
+                    message = "<span class='trend_hed'>Trending<\/span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links<\/a>";
                 } else {
                     message = "No trending links, have you shared any recently?";
                 }
@@ -314,11 +285,12 @@
                }, stash_item = stash[ curr_tab.id ];
                current_title = curr_tab.title;
 
-               if( stash_item && stash_item.long_url === curr_tab.url && stash_item.short_url && stash_item.text !== "" ) {
-                   update_share_box( stash_item.text, stash_item.short_url );
-                   message.action = 'page_select';
-                   delete message.title;
-                   chrome.extension.sendRequest(message, function(){});
+               if( stash_item && stash_item.long_url === curr_tab.url && 
+                   stash_item.short_url && stash_item.text !== "" ) {
+                       update_share_box( stash_item.text, stash_item.short_url );
+                       message.action = 'page_select';
+                       delete message.title;
+                       chrome.extension.sendRequest(message, function(){});
                } else {
                    chrome.extension.sendRequest( message, shorten_complete_callback );                   
                }
@@ -418,18 +390,16 @@
             },false);            
             
 
-/*
-    // images = _id("share_accounts").getElementsByTagName("img")
-    // for(var i=0, img; img=images[i]; i++) {
-    //     console.log(i, "second loop")
-    // }
-*/
+        /*
+        // images = _id("share_accounts").getElementsByTagName("img")
+        // for(var i=0, img; img=images[i]; i++) {
+        //     console.log(i, "second loop")
+        // }
+        */
             
             chrome.extension.onRequest.addListener(actions_listeners);
-        
-        </script>
 
-      
-    
+        //]]>
+        </script>
     </body>
 </html>
