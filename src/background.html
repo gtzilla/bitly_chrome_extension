@@ -193,38 +193,38 @@
             var act = request.action;
             switch( act ) {
                 
-                case "aaa_page_loaded":
-                    
-
-                    
-                    var user_data = bExt.info.get("user_data"); //localfetch("user_data");
-                    /*
-                        Makes determination if used is logged in, toggles 'popup' behavior accordingly
-                            Default popup behavior is to load options.html, login page
-                    */
-                    
-                    if(user_data && user_data.x_login && user_data.x_apiKey) {
-                        if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
-                            
-                            chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});
-                        }
-                        
-                        if(!bitly.is_authenticated() || !auto_expand_urls) return; // the bail out...
-                        var injectTabs = sender.tab && sender.tab.url,
-                            no_expand_list = get_no_expand_domains();
-                        
-                        // only support http || https domains
-                        if(injectTabs && injectTabs.indexOf("http") === 0 &&
-                            no_expand_list.indexOf( request.domain_host ) === -1) {
-                                
-                                chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
-                                chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});
-                        }
-                    }
-
-                
-                break;
-                
+                // case "aaa_page_loaded":
+                //     
+                // 
+                //     
+                //     var user_data = bExt.info.get("user_data"); //localfetch("user_data");
+                //     /*
+                //         Makes determination if used is logged in, toggles 'popup' behavior accordingly
+                //             Default popup behavior is to load options.html, login page
+                //     */
+                //     
+                //     if(user_data && user_data.x_login && user_data.x_apiKey) {
+                //         if(enhance_twitter_com && request.domain_host === "twitter.com" ) {
+                //             
+                //             chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.enhance_twitter.js"});
+                //         }
+                //         
+                //         if(!bitly.is_authenticated() || !auto_expand_urls) return; // the bail out...
+                //         var injectTabs = sender.tab && sender.tab.url,
+                //             no_expand_list = get_no_expand_domains();
+                //         
+                //         // only support http || https domains
+                //         if(injectTabs && injectTabs.indexOf("http") === 0 &&
+                //             no_expand_list.indexOf( request.domain_host ) === -1) {
+                //                 
+                //                 chrome.tabs.insertCSS(sender.tab.id, {file : "css/urlexpander.css"})
+                //                 chrome.tabs.executeScript(sender.tab.id, {file: "js/content_plugins/bitly.urlexpander.js"});
+                //         }
+                //     }
+                // 
+                // 
+                // break;
+                // 
                 /*
                     Social Actions, sharing, accounts etc
                 */
@@ -268,55 +268,55 @@
                 /*
                     Core bit.ly, clicks, expands shortens etc
                 */
-                case "aaa_expand_and_meta":
-                    
-                    parse_domains( request.short_url )
-                    var sUrl = (typeof request.short_url !== "string") ? request.short_url : [request.short_url],
-                        expand_url_list =  process_domains( sUrl ),
-                        lngth = expand_url_list.length;
-                    //logger("Attempt expand and find clicks for #" + lngth + " links" )
-                    bitly.expand_and_meta( expand_url_list, sendResponse );
+                // case "aaa_expand_and_meta":
+                //     
+                //     parse_domains( request.short_url )
+                //     var sUrl = (typeof request.short_url !== "string") ? request.short_url : [request.short_url],
+                //         expand_url_list =  process_domains( sUrl ),
+                //         lngth = expand_url_list.length;
+                //     //logger("Attempt expand and find clicks for #" + lngth + " links" )
+                //     bitly.expand_and_meta( expand_url_list, sendResponse );
+                // 
+                // break;
                 
-                break;
+                // case "aaa_shorten_and_select":
+                //     logger("Shorten request");
+                //     if(request.long_url.indexOf("http") === 0) {
+                //         chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
+                //     }
+                //     // could be more selective about shortens, but leaving open for ftp urls etc
+                //     bitly.shorten( request.long_url, sendResponse );
+                // break;
                 
-                case "aaa_shorten_and_select":
-                    logger("Shorten request");
-                    if(request.long_url.indexOf("http") === 0) {
-                        chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
-                    }
-                    // could be more selective about shortens, but leaving open for ftp urls etc
-                    bitly.shorten( request.long_url, sendResponse );
-                break;
-                
-                case "aaa_shorten":
-                    console.log("shorten these..");
-                    // see if this is an object..
-                    // loop over it
-                    // check the white list for this url... ouch expensive... go other way?
-                    // loop over HUGE whitelist set, check smaller 'long url' domains -- common method for doing this?
-                    // shorten them, get a response, send back
-                    if(request.long_url) {
-                        bitly.shorten( request.long_url, sendResponse );
-                    }
-                break;
-                
+                // case "aaa_shorten":
+                //     console.log("shorten these..");
+                //     // see if this is an object..
+                //     // loop over it
+                //     // check the white list for this url... ouch expensive... go other way?
+                //     // loop over HUGE whitelist set, check smaller 'long url' domains -- common method for doing this?
+                //     // shorten them, get a response, send back
+                //     if(request.long_url) {
+                //         bitly.shorten( request.long_url, sendResponse );
+                //     }
+                // break;
+                // 
                 case "realtime_metrics":
                     get_realtime_metrics( sendResponse );
                 break;
                 
-                case "aaa_expand":
-                    bitly.expand( request.short_url, sendResponse );
-                break;
+                // case "aaa_expand":
+                //     bitly.expand( request.short_url, sendResponse );
+                // break;
+                // 
+                // case "aaa_lookup":
+                //     bitly.lookup( request.long_url, sendResponse );
+                // break;
                 
-                case "aaa_lookup":
-                    bitly.lookup( request.long_url, sendResponse );
-                break;
-                
-                case "aaa_page_select":
-                    if(request.long_url.indexOf("http") === 0) {
-                        chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
-                    }
-                break;
+                // case "aaa_page_select":
+                //     if(request.long_url.indexOf("http") === 0) {
+                //         chrome.tabs.executeScript(request.tab_id, {file: "js/content_plugins/getSelected.js"});
+                //     }
+                // break;
                 
                 
                 /*

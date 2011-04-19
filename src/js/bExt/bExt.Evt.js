@@ -24,9 +24,10 @@ bExt.Evt=function(request, sender, callback) {
          
          this.domain_host=bExt.match_host( this.url || this.long_url );
          
-         this.tab_id=sender && sender.tab && sender.tab.id || null;
+         // support for Chrome request Tab ID or sent value (popup)
+         this.tab_id=sender && sender.tab && sender.tab.id || request.tab_id || null;
          
-         this.__cb=callback && (typeof callback === "function") && callback || function(){};
+         this.__cb=callback && (typeof callback === "function") && callback || function(){ this.__finished=true; };
          
     } else {
         var data=arguments[0];
