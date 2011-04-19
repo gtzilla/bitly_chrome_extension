@@ -106,6 +106,24 @@
                             ok(false, "didn't match link");
                         }
                     }                    
+                });
+                
+                
+                api.lookup("http://nytimes.com", function(jo) {
+                    
+                    console.log(jo);
+                    var meta;
+                    ok(jo.lookup.length > 0, "have data")
+                    ok(meta=jo.lookup.pop(), "set meta for lookup");
+                    ok(meta.url=="http://nytimes.com", "valid response")
+                });
+                
+                api.realtime(function(jo) {
+                    console.log(jo, "realtime");
+                });
+                
+                api.bitly_domains(function(jo) {
+                    ok(jo.length > 10);
                 })
                 
                 
