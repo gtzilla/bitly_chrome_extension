@@ -111,6 +111,7 @@ BitApi.prototype = {
         this.bit_request.login = login;
         this.bit_request.apiKey = apiKey;
         this.bit_request.access_token = access_token;
+        return true;
     },
     
     is_authenticated : function() {
@@ -196,23 +197,23 @@ BitApi.prototype = {
         internal_multiget( host + urls.clicks, 'shortUrl', params, callback );
     },
     
-    clicks_by_url : function( long_urls, callback ) {
-        this.count+=1;
-        // todo
-        // not working
-        var request_count = 2, lookup_urls, lookup_url, i=0;
-        function sticher( jo ) {
-            request_count -= 1;
-            
-            if(jo.lookup) {
-                for( ; lookup_url=jo.lookup[i]; i++) {
-                    console.log(lookup_url.url, "implement clicks call, make only one clicks call...")
-                }
-            }
-        }
-        
-        this.lookup(long_urls, sticher);
-    },
+    // clicks_by_url : function( long_urls, callback ) {
+    //     this.count+=1;
+    //     // todo
+    //     // not working
+    //     var request_count = 2, lookup_urls, lookup_url, i=0;
+    //     function sticher( jo ) {
+    //         request_count -= 1;
+    //         
+    //         if(jo.lookup) {
+    //             for( ; lookup_url=jo.lookup[i]; i++) {
+    //                 console.log(lookup_url.url, "implement clicks call, make only one clicks call...")
+    //             }
+    //         }
+    //     }
+    //     
+    //     this.lookup(long_urls, sticher);
+    // },
 
     
     info : function( short_urls, callback ) {

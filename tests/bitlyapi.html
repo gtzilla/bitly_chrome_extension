@@ -35,6 +35,12 @@
                     console.log("jo")
                     ok(jo.status_code==200, "signed in success")
                 });
+                user_creds={ 
+                    "x_login":"gtdev",
+                    "x_apiKey":"R_d3aea0669127aad90dfc711955da6d00",
+                    "access_token":"91c9e6336e3081da5ca00b78f2c1cfd94594b7f0"
+                }
+                
                 
                 setTimeout(function() {
                     start();
@@ -42,26 +48,79 @@
                 
             });
             
+            
+            test('set user data', function() {
+                ok(api.set_credentials( user_creds.x_login, user_creds.x_apiKey, user_creds.access_token), "Apply usercredentials");
+            });
+            
+            
+            asyncTest('the methods', function() {
+                
+                var short_list=["http://gt-co.de/i9nx8s", "http://gt-co.de/i4Ca2I"];
+                 
+                api.shorten("http://google.com/1234", function(jo) {
+                    ok(jo.long_url=="http://google.com/1234", "shortened");
+                    ok(jo.url && jo.url!=="", "non empty shorten");
+                });
+                
+                api.expand("http://bit.ly/gXtGLq", function(jo) {
+                    var meta;
+                    ok(jo.expand.length === 1, "expanded single url");
+                    ok(meta=jo.expand.shift(), "set meta for link");
+                    ok(meta.short_url=="http://bit.ly/gXtGLq");
+                });
+                
+                api.expand(short_list, function(jo) {
+                    ok(jo.expand.length==2, "expand two links");
+                });
+                
+                api.clicks(short_list, function(jo) {
+                    var clicks=jo.clicks;
+                    for(var i=0; i<clicks.length; i++) {
+                        if( short_list.indexOf( clicks[i].short_url ) > -1 ) {
+                            ok(true, "links match")
+                        } else {
+                            ok(false, "didn't match link");
+                        }
+                    }
+                });
+                
+                
+                setTimeout(function(){
+                    start();
+                }, 2000)
+            });
+            
+            
+            asyncTest('more, the methods', function() {
+                
+                var short_list=["http://gt-co.de/i9nx8s", "http://gt-co.de/i4Ca2I"];
+                                
+                api.info(short_list, function(jo) {
+                    console.log("JO clicks by URL", jo);
+                    var clicks=jo.info;
+                    for(var i=0; i<clicks.length; i++) {
+                        if( short_list.indexOf( clicks[i].short_url ) > -1 ) {
+                            ok(true, "links match")
+                        } else {
+                            ok(false, "didn't match link");
+                        }
+                    }                    
+                })
+                
+                
+                
+                setTimeout(function() {
+                    start();
+                    
+                }, 2000);
+            })
+            
 
-            // 
-            // 
-            // 
-            // 
-            // test('hovercard methods', 2, function() {
-            //     //todo
-            //     // add test for hovercard expand short urls
-            //     // ... scrape some tweets??
-            //     // bExt.hovercard
-            //     ok(bExt.hovercard.blacklist(), "blacklist of no expand hosts");
-            //     ok(bExt.hovercard.get_domains(function(data) {
-            //         console.log(data, "data get_domains")
-            //     }))
-            //     // same( {}, {}, 'passes, objects have the same content');
-            // });
         </script>
     </head>
     <body>
-        <h1 id="qunit-header">QUnit Test Suite</h1>
+        <h1 id="qunit-header">bitly Chrome Ext | QUnit Test Suite</h1>
         <h2 id="qunit-banner"></h2>
         <div id="qunit-testrunner-toolbar"></div>
         <h2 id="qunit-userAgent"></h2>
