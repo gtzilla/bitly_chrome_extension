@@ -113,6 +113,7 @@ window.bExt.popup={
         active_stash.set("short_url", jo&&jo.url || "");
         console.log("the active stash internal value", active_stash);
         // do a display update event
+        bExt.popup.update_share( active_stash.display() )
     }
 }
 
@@ -141,6 +142,15 @@ bExt.popup.Stash = function( curr_tab ) {
 }
 bExt.popup.Stash.prototype = {
     // do a better dump
+    display : function() {
+        var txt = (this.__m['text'] || "").trim();
+        if(txt && txt !== "") {
+            return txt;
+        }
+        
+        return this.__m['title'] + " " + this.__m['short_url'];
+    },
+    
     toString : function() {
         return JSON.stringify(this.__m);
     },

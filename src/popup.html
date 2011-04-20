@@ -267,8 +267,14 @@
 
                 
             chrome.tabs.getSelected(null, function( curr_tab) {
+                
+                chrome.extension.sendRequest({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );
+                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+                
+                                
+                return;
                
-               console.log( curr_tab );
+               console.log( "original func", curr_tab );
                
                // we use this for short term memory... - put in bg.localstore() (window.localStorage)
                current_meta = { 'tab_id' : curr_tab.id, 
@@ -299,8 +305,8 @@
                }
 
                
-               chrome.extension.sendRequest({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );
-               chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+               // chrome.extension.sendRequest({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );
+               // chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
 
                 
             
