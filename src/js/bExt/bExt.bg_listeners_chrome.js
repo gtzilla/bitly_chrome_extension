@@ -79,10 +79,11 @@ bExt.bg_listeners_chrome = {
     },
     
     "shorten_and_select" : function( evt ) {
-        console.log("execute this...", evt.is_http)
+        console.log("execute this...", evt.is_http, evt.tab_id)
         if(evt.is_http) {
             this.add_js(evt.tab_id, "js/content_plugins/getSelected.js");
         }
+        console.log("shorten it?", evt)
         bExt.api.shorten( evt.long_url, evt.callback._scope(evt) );        
 
     },

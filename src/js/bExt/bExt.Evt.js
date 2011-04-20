@@ -22,7 +22,7 @@ bExt.Evt=function(request, sender, callback) {
          
          this.page=request && request.page_name;
          
-         this.domain_host=bExt.match_host( this.url || this.long_url );
+         this.domain_host=bExt.match_host(  this.long_url || this.url );
          
          // support for Chrome request Tab ID or sent value (popup)
          this.tab_id=request.tab_id || sender && sender.tab && sender.tab.id || null;
@@ -46,7 +46,7 @@ bExt.Evt.prototype={
     */
     // bExt.Evt.callback
     _find_http : function() {
-        var url = this.url || this.long_url || "";
+        var url = this.long_url || this.url || "";
         return ((url.trim()).indexOf("http") === 0) || false;
     },
     
