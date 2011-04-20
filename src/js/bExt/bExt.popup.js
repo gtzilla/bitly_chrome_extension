@@ -21,7 +21,7 @@ window.bExt.popup={
     init : function( user_settings ) {
         settings=$.extend( true, settings, user_settings ) 
         // copy_to_clipboard("america is cool")
-        var stash = bExt.info.get("stash") || {};
+
         
         // listeners
         addEventListener("unload", bExt.popup.evt_unload );        
@@ -40,12 +40,13 @@ window.bExt.popup={
     _chrome_open : function( curr_tab ) {
         active_stash=new bExt.popup.Stash(curr_tab);
         console.log(curr_tab, "curr_tab")
-        active_stash.update( bExt.popup.stash( curr_tab.id ) || {} );
+        active_stash.update( bExt.popup.find_stash( "url", curr_tab.url  ) || {} );
         bExt.popup.update_share( active_stash.get("text") );
         console.log("active_stash", active_stash, active_stash.get("url"), active_stash.get("id"))
         var s_url=active_stash.get("short_url");
         if(s_url && s_url !== "" ) {
             // get selected, fill out page
+            console.log("have short url for tab id, does long url match?", active_stash)
         } else {
             // shorten this link;
             console.log("shorten me please");            
@@ -74,18 +75,24 @@ window.bExt.popup={
         $(settings.share_box).val( $(settings.share_box).val() + " " +  txt);
     },
     
-    stash : function(key, value) {
-        var stash, all_stash=bExt.info.get("stash");
-        if(arguments.length > 1) {
-            // Perform a Set
-            all_stash[ key ]=value || {};
-            bExt.info.set("stash", all_stash );
-            stash=value;                
-        } else {
-            all_stash = bExt.info.get("stash") || {};
-            stash=all_stash&&all_stash[key];
+    find_stash : function( id, value  ) {
+        var i=0, all_stash=bExt.info.get("popup_history") || [];
+        for( ; i<all_stash.length; i++) {
+            if( all_stash[i][id] === value ) {
+                return all_stash[i];
+            } 
         }
-        return stash;
+        return null;
+    },
+    
+    save_stash : function(id, value, payload) {
+        var i=0, all_stash=bExt.info.get("popup_history") || [];
+        for( ; i<all_stash.length; i++) {
+            if( all_stash[i][id] === value ) {
+                return all_stash[i]=payload;
+            } 
+        }
+        bExt.info.set("popup_history", all_stash);
     },
     
     
@@ -97,7 +104,8 @@ window.bExt.popup={
             text : $(settings.share_box).val(),
             timestamp : (new Date()).getTime()
         });
-        bExt.popup.stash( active_stash && active_stash.id, active_stash );
+        bExt.popup.save_stash( "url", active_stash.get("url"), active_stash.out()  );
+        // bExt.popup.stash( active_stash && active_stash.id, active_stash );
     },
     
     chrome_shorten_callback : function(jo) {
@@ -118,6 +126,7 @@ window.bExt.popup={
         id (tab)
 */
 bExt.popup.Stash = function( curr_tab ) {
+    
     this.__m = { 
         'id' : curr_tab && curr_tab.id, // tab id
         'url': curr_tab && curr_tab.url, 
@@ -126,6 +135,8 @@ bExt.popup.Stash = function( curr_tab ) {
         'title' : curr_tab && curr_tab.title,
         'timestamp' : (new Date()).getTime() 
     };
+    // todo, consider using the base64 of the long URL as the ID...
+    // this is interesting b/c you could move the url to a diff tab
     this.id=curr_tab.id;
 }
 bExt.popup.Stash.prototype = {
@@ -137,13 +148,22 @@ bExt.popup.Stash.prototype = {
         return this.__m[name] || null;
     },
     
+    out : function() {
+        return this.__m;
+    },
+    
     set : function( name, value) {
         this.__m[name]=value;
     },
     update : function( meta_update  ) {
+        
         // pull the latest data into this.__m
         // okay, if we replace this entry... which is fine, we need to make sure more matches
         // the long url must match the curr long url
+        if(this.__m.url !== meta_update.url) {
+            // reset short url, different page
+            meta_update.short_url="";
+        }
         $.extend( this.__m, meta_update );
     }
     
@@ -152,10 +172,6 @@ bExt.popup.Stash.prototype = {
 /*
     Private
 */ 
-
-// function _id() {
-//     return document.getElementById(arguments[0])
-// }
 
 function copy_to_clipboard( short_url ) {
     // todo, use dom
