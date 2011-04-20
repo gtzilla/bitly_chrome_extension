@@ -74,9 +74,12 @@
         <script type="text/javascript" src="js/libs/common.js"></script>
         
         <script type="text/javascript" charset="utf-8">
-            bExt.popup.open({
-                url_clipboard : "#bitly_short_url_area"
-            });
+            bExt.popup.init({
+                url_clipboard : "#bitly_short_url_area",
+                share_box : "#bento_share"
+            })
+            chrome.tabs.getSelected(null, bExt.popup.open );
+            
         </script>
         
         
@@ -372,13 +375,6 @@
             
             });
             
-            // _q(".watchLinkButton").addEventListener('click', function(e) {
-            //     e.preventDefault();
-            //     // get a real value...
-            //     var note_prefs = bg.get_note_preferences();
-            //     e.target.innerHTML = "Watched"
-            //     bg.trends_watch_and_alert();
-            // });
             
             // this totally works, generally onbeforeunload is better, but not working in this ext.
             addEventListener("unload", function(e) {

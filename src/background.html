@@ -191,6 +191,7 @@
         function actions_listeners( request, sender, sendResponse ) {
             if(!request.action) return;
             var act = request.action;
+            console.log(request.action, "sender.tab", sender.tab)
             switch( act ) {
                 
                 // case "aaa_page_loaded":
