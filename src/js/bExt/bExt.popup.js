@@ -17,6 +17,16 @@ var document=window.document,
     }, active_stash;
 
 window.bExt.popup={
+    
+    init : function( user_settings ) {
+        settings=$.extend( true, settings, user_settings ) 
+        // copy_to_clipboard("america is cool")
+        var stash = bExt.info.get("stash") || {};
+        
+        // listeners
+        addEventListener("unload", bExt.popup.evt_unload );        
+    },    
+    
     // Entry Point Function. main
     open : function( curr_tab ) {
         console.log("chrome get tabs calls", settings);
@@ -44,6 +54,7 @@ window.bExt.popup={
                 'long_url' : active_stash.get("url"),
                 'tab_id' : active_stash.get("id")
             }, function(jo) {
+                console.log("phone for short link")
                 bExt.popup.chrome_shorten_callback(jo);
             });
         }
@@ -76,15 +87,6 @@ window.bExt.popup={
         }
         return stash;
     },
-
-    init : function( user_settings ) {
-        settings=$.extend( true, settings, user_settings ) 
-        // copy_to_clipboard("america is cool")
-        var stash = bExt.info.get("stash") || {};
-        
-        // listeners
-        addEventListener("unload", bExt.popup.evt_unload );        
-    },
     
     
     // Events
@@ -100,10 +102,21 @@ window.bExt.popup={
     
     chrome_shorten_callback : function(jo) {
         console.log("shorten complete", jo)
-        
+        active_stash.set("short_url", jo&&jo.url || "");
+        console.log("the active stash internal value", active_stash);
+        // do a display update event
     }
 }
 
+
+/*
+    Represent Current Meta Data
+        
+        text
+        long url
+        short url
+        id (tab)
+*/
 bExt.popup.Stash = function( curr_tab ) {
     this.__m = { 
         'id' : curr_tab && curr_tab.id, // tab id
@@ -123,8 +136,14 @@ bExt.popup.Stash.prototype = {
     get : function(name) {
         return this.__m[name] || null;
     },
+    
+    set : function( name, value) {
+        this.__m[name]=value;
+    },
     update : function( meta_update  ) {
         // pull the latest data into this.__m
+        // okay, if we replace this entry... which is fine, we need to make sure more matches
+        // the long url must match the curr long url
         $.extend( this.__m, meta_update );
     }
     

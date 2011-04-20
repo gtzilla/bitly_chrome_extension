@@ -89,7 +89,7 @@
             // get the current document location
             
             function actions_listeners( request, sender, sendResponse) {
-                console.log(request, sender, sendResponse)
+                // console.log(request, sender, sendResponse)
                 // this is an extenion listener, not a DOM listener.
                 if(!request.action || request.action !== "page_selection") return;
                 var selected_text = (request.selection || "").trim();
