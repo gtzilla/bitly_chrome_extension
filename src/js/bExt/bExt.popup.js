@@ -102,7 +102,7 @@ window.bExt.popup={
         var i=0, all_stash=bExt.info.get("popup_history") || [];
         for( ; i<all_stash.length; i++) {
             if( all_stash[i][id] === value ) {
-                return all_stash[i]=payload;
+                all_stash[i]=payload;
             } 
         }
         bExt.info.set("popup_history", all_stash);
@@ -136,7 +136,6 @@ window.bExt.popup={
         id (tab)
 */
 bExt.popup.Stash = function( curr_tab ) {
-    
     this.__m = { 
         'id' : curr_tab && curr_tab.id, // tab id
         'url': curr_tab && curr_tab.url, 
@@ -212,7 +211,8 @@ bExt.popup.Stash.prototype = {
         char_count : "#char_count_box",
         share_bttn : "#sharing_buttons_box",
         copy_bttn : "#copy_link_button",
-        all_copy_els : "#copy_elements_wrapper"
+        all_copy_els : "#copy_elements_wrapper",
+        opt_page : "#options_page"
     }
     
     bExt.popup.Dompage = function( el_opts ) {
@@ -220,10 +220,15 @@ bExt.popup.Stash.prototype = {
         elem_opts=$.extend(true, {}, elem_opts, el_opts );
         // do a little setup?
         var $copy_bttn=$(elem_opts.copy_bttn);
-        $copy_bttn.bind("click", function(e) {
+        $copy_bttn.click(function(e) {
             e.preventDefault();
             copy_to_clipboard()
-            $(this).text("Copied")
+            $(this).text("Copied");
+        });
+        $(elem_opts.opt_page).click(function(e) {
+            e.preventDefault();
+            console.log("click!")
+            chrome.extension.sendRequest({'action' : 'open_page', 'page_name' : 'options.html' }, function(){} );            
         });
         return this;
     }

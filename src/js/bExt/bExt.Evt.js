@@ -20,7 +20,7 @@ bExt.Evt=function(request, sender, callback) {
          
          this.is_http=this._find_http();
          
-         this.page=request && request.page_name;
+         this.page_name=request && request.page_name;
          
          this.domain_host=bExt.match_host(  this.long_url || this.url );
          

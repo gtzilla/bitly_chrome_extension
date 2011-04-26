@@ -12,7 +12,7 @@ bExt.Eventer=function() {
             console.log('no listener assigned');
         }
     }
-    this.is_chrome=( chrome && chrome.tabs ) ? true : false;
+    this.is_chrome=true;
     // common events
     this.common_actions=["page_loaded", "share"]
 }
@@ -80,7 +80,8 @@ bExt.Eventer.prototype={
     },
     
     open_page : function( page_name ) {
-        if(this.is_chrome && page_name) {
+        console.log(page_name)
+        if(this.is_chrome && page_name !==  "" ) {
             this._open_chrome_page( page_name );
         } else {
             console.log("not chrome browser")
