@@ -74,10 +74,18 @@
         <script type="text/javascript" src="js/libs/common.js"></script>
         
         <script type="text/javascript" charset="utf-8">
-            bExt.popup.init({
-                url_clipboard : "#bitly_short_url_area",
-                share_box : "#bento_share"
-            })
+
+            
+            bExt.popup.page = new bExt.popup.Dompage({
+                preloader : "#loading_short_url",
+                small_preloader : "#share_loading_graphic",
+                textarea : "#bento_share",
+                url_pasteboard : "#bitly_short_url_area",
+                char_count : "#char_count_box",
+                share_bttn : "#sharing_buttons_box"
+            });
+            bExt.popup.init();
+                        
             chrome.tabs.getSelected(null, bExt.popup.open );
             
         </script>
@@ -94,7 +102,7 @@
                 if(!request.action || request.action !== "page_selection") return;
                 var selected_text = (request.selection || "").trim();
                 if(selected_text !== "") {
-                    txtarea.value = txtarea.value + " " + selected_text;
+                    // txtarea.value = txtarea.value + " " + selected_text;
                 }
                 
             }
@@ -104,7 +112,7 @@
                 if( message === "")  { message = current_title + " " + sUrl; }
                 else { message = message + " " + sUrl; }
                 
-                update_share_box( message, sUrl );
+                //update_share_box( message, sUrl );
             }
             
             function update_share_box( message, short_url ) {
@@ -177,7 +185,7 @@
                 message.innerHTML = share_message;
                 message.style.display="block";
                 
-                _id("share_loading_graphic").style.display="none";
+                // _id("share_loading_graphic").style.display="none";
                 _id("sharing_buttons_box").style.display="block";    
                 setTimeout(close_message_box, 4000);                            
             }
@@ -190,7 +198,7 @@
             function close_message_box() {
                 var message = _id("message_box");
                 message.style.display="none";
-                txtarea.innerHTML = stash_text;
+                //txtarea.innerHTML = stash_text;
             }
             
             function copy_to_clipboard() {
@@ -340,13 +348,13 @@
                 if(txt !== "" && active_account_list.length > 0 ) {
                     params.share_text = stash_text = txt;
                     
-                    _id("share_loading_graphic").style.display="block";
+                    // _id("share_loading_graphic").style.display="block";
                     _id("sharing_buttons_box").style.display="none";
                     
                     chrome.extension.sendRequest( params, share_callback );
                 } else {
                     console.log("nothing to share, error the UI")
-                    _id("share_loading_graphic").style.display="none";
+                    // _id("share_loading_graphic").style.display="none";
                     _id("sharing_buttons_box").style.display="block";
                 }
                 console.log(txtarea.value)
@@ -368,11 +376,11 @@
                 }
             });
             
-            _id("copy_link_button").addEventListener('click', function(e) {
-                e.preventDefault();  
-                copy_to_clipboard();            
-                this.innerText = 'Copied';                
-            })
+            // _id("copy_link_button").addEventListener('click', function(e) {
+            //     e.preventDefault();  
+            //     copy_to_clipboard();            
+            //     this.innerText = 'Copied';                
+            // })
 
             open_options_elem.addEventListener('click', function(e) {
                 
@@ -383,13 +391,13 @@
             
             
             // this totally works, generally onbeforeunload is better, but not working in this ext.
-            addEventListener("unload", function(e) {
-                current_meta.text = (txtarea.value).trim();
-                var stash = bg.localfetch("stash") || {}, key = stash[ current_meta.tab_id ];
-                stash[ current_meta.tab_id ] = current_meta;
-                bg.localstore("stash", stash);
-
-            },false);            
+            // addEventListener("unload", function(e) {
+            //     current_meta.text = (txtarea.value).trim();
+            //     var stash = bg.localfetch("stash") || {}, key = stash[ current_meta.tab_id ];
+            //     stash[ current_meta.tab_id ] = current_meta;
+            //     bg.localstore("stash", stash);
+            // 
+            // },false);            
             
 
         /*

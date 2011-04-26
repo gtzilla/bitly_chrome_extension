@@ -11,53 +11,62 @@
 
 var document=window.document, 
     settings={
-        'url_clipboard' : null,
-        'share_box' : null,
         'is_chrome' : true
     }, active_stash;
 
 window.bExt.popup={
-    
-    init : function( user_settings ) {
-        settings=$.extend( true, settings, user_settings ) 
-        // copy_to_clipboard("america is cool")
-
-        
-        // listeners
-        addEventListener("unload", bExt.popup.evt_unload );        
-    },    
-    
-    // Entry Point Function. main
+    /*
+            Entry Point Function. main
+    */
     open : function( curr_tab ) {
+        // called when the popup 'opens'
         console.log("chrome get tabs calls", settings);
         if(settings.is_chrome) {
             bExt.popup._chrome_open(curr_tab);            
         } else {
             console.log("not chrome, implement");
         }
-
     },
+    
+    // Variables / constants
+    
+    page : null,    
+    
+    init : function( user_settings ) {
+        // setup page items
+        settings=$.extend( true, settings, user_settings ) 
+
+        if(!bExt.popup.page) {
+            console.log("load page from init, not called");
+            bExt.popup.page=new bExt.popup.Dompage();
+        }
+        // listeners
+        addEventListener("unload", bExt.popup.evt_unload );        
+    },    
+    
     _chrome_open : function( curr_tab ) {
+        var s_url;
+        
         active_stash=new bExt.popup.Stash(curr_tab);
-        console.log(curr_tab, "curr_tab")
         active_stash.update( bExt.popup.find_stash( "url", curr_tab.url  ) || {} );
-        bExt.popup.update_share( active_stash.get("text") );
+        
         console.log("active_stash", active_stash, active_stash.get("url"), active_stash.get("id"))
-        var s_url=active_stash.get("short_url");
+        s_url=active_stash.get("short_url");
         if(s_url && s_url !== "" ) {
+            
             // get selected, fill out page
-            console.log("have short url for tab id, does long url match?", active_stash)
+            bExt.popup.page.hide_loader(); 
+            bExt.popup.page.set_url( s_url );
+            bExt.popup.page.share_txt( active_stash.display() );
+            bExt.popup.page.counter();
+
         } else {
-            // shorten this link;
-            console.log("shorten me please");            
+            // shorten this link;           
             bExt.popup.phone({
                 'action' : 'shorten_and_select',
                 'long_url' : active_stash.get("url"),
                 'tab_id' : active_stash.get("id")
-            }, function(jo) {
-                console.log("phone for short link")
-                bExt.popup.chrome_shorten_callback(jo);
-            });
+            }, bExt.popup.chrome_shorten_callback );
         }
     },
     
@@ -69,10 +78,14 @@ window.bExt.popup={
         }
     },
     
-    
-    // DOM
-    update_share : function( txt ) {
-        $(settings.share_box).val( $(settings.share_box).val() + " " +  txt);
+    chrome_shorten_callback : function(jo) {
+        active_stash.set("short_url", jo&&jo.url || "");
+        
+        // do a display update event
+        bExt.popup.page.set_url( active_stash.get("short_url") );        
+        bExt.popup.page.hide_loader();        
+        bExt.popup.page.share_txt( active_stash.display() );
+        bExt.popup.page.counter();
     },
     
     find_stash : function( id, value  ) {
@@ -97,25 +110,21 @@ window.bExt.popup={
     
     
     // Events
+    // DOM Event
     evt_unload : function(e) {
         e.preventDefault();
-        console.log("grab the text", $(settings.share_box).val())
         active_stash.update({
-            text : $(settings.share_box).val(),
-            timestamp : (new Date()).getTime()
+            'text' : $(settings.share_box).val(),
+            'timestamp' : (new Date()).getTime()
         });
         bExt.popup.save_stash( "url", active_stash.get("url"), active_stash.out()  );
-        // bExt.popup.stash( active_stash && active_stash.id, active_stash );
-    },
-    
-    chrome_shorten_callback : function(jo) {
-        console.log("shorten complete", jo)
-        active_stash.set("short_url", jo&&jo.url || "");
-        console.log("the active stash internal value", active_stash);
-        // do a display update event
-        bExt.popup.update_share( active_stash.display() )
     }
 }
+
+
+
+
+
 
 
 /*
@@ -147,7 +156,6 @@ bExt.popup.Stash.prototype = {
         if(txt && txt !== "") {
             return txt;
         }
-        
         return this.__m['title'] + " " + this.__m['short_url'];
     },
     
@@ -178,17 +186,89 @@ bExt.popup.Stash.prototype = {
     }
     
 }
+    
+})(window);
+
+
 
 /*
-    Private
-*/ 
+    Representation of the Popup DOM
+        An API of sorts for the popup 
+            HTML interface
 
-function copy_to_clipboard( short_url ) {
-    // todo, use dom
-    $(settings.url_clipboard).select();
-    document.execCommand("copy", false, null);
-}
+        Usage
+        
+            new 
+
+*/
+
+(function(window, undefined) {
+    
+    var elem_opts = {
+        preloader : "#loading_short_url",
+        small_preloader : "#share_loading_graphic",
+        textarea : "#bento_share",
+        url_pasteboard : "#bitly_short_url_area",
+        char_count : "#char_count_box",
+        share_bttn : "#sharing_buttons_box",
+        copy_bttn : "#copy_link_button",
+        all_copy_els : "#copy_elements_wrapper"
+    }
+    
+    bExt.popup.Dompage = function( el_opts ) {
+        // stateful
+        elem_opts=$.extend(true, {}, elem_opts, el_opts );
+        // do a little setup?
+        var $copy_bttn=$(elem_opts.copy_bttn);
+        $copy_bttn.bind("click", function(e) {
+            e.preventDefault();
+            copy_to_clipboard()
+            $(this).text("Copied")
+        });
+        return this;
+    }
+
+    function copy_to_clipboard() {
+        $(elem_opts.url_pasteboard).get(0).select();
+        document.execCommand("copy", false, null);        
+    }
+
+    bExt.popup.Dompage.prototype={
+
+        // DOM
+        copy_url : function() {
+            copy_to_clipboard();
+        },
+        
+        set_url : function( url_value ) {
+            $(elem_opts.all_copy_els).fadeIn();
+            $(elem_opts.url_pasteboard).val( url_value );
+        },
+        
+        share_txt : function( txt ) {
+            var existing_txt=$(elem_opts.textarea).val();
+            if(existing_txt) {
+                txt = existing_txt + " " + txt
+            }
+            $(elem_opts.textarea).val( txt );
+        },
+
+        hide_loader : function() {
+            $(elem_opts.preloader).fadeOut("fast");
+        },
+        
+        counter : function() {
+            setTimeout(function() {
+                var txt = $(elem_opts.textarea).val();
+                $(elem_opts.char_count).html( txt.length + " characters" )
+            }, 10);
+
+        }
+
+    }
     
     
 })(window);
+
+
 
