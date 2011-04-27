@@ -55,6 +55,8 @@ window.bExt.popup={
         active_stash=new bExt.popup.Stash(curr_tab);
         active_stash.update( bExt.popup.find_stash( "url", curr_tab.url  ) || {}, true );
         bExt.popup.save_stash( "url", curr_tab.url, active_stash.out() );
+        console.log("curr tab", curr_tab)
+        console.log("id", active_stash.get("id"))
         s_url=active_stash.get("short_url");
         if(s_url && s_url !== "" ) {
             

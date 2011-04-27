@@ -23,7 +23,7 @@ bExt.Evt=function(request, sender, callback) {
          this.domain_host=bExt.match_host(  this.long_url || this.url );
          
          // support for Chrome request Tab ID or sent value (popup)
-         this.tab_id=request.tab_id || sender && sender.tab && sender.tab.id || null;
+         this.tab_id=request && request.tab_id || sender && sender.tab && sender.tab.id || null;
          
          this.__cb=callback && (typeof callback === "function") && callback || function(){ this.__finished=true; };
          
