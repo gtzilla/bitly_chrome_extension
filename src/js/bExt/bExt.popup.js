@@ -1,15 +1,15 @@
-// 
+//
 //  bExt.popup.js
 //  bitly_chrome_extension
-//  
+//
 //  Created by gregory tomlinson on 2011-04-19.
 //  Copyright 2011 the public domain. All rights reserved.
-// 
+//
 // dependencies: jQuery, fastFrag, bExt
 
 (function(window, undefined){
 
-var document=window.document, 
+var document=window.document,
     settings={
         'is_chrome' : true,
         'auto_copy' : false
@@ -22,7 +22,7 @@ window.bExt.popup={
     open : function( curr_tab ) {
         // called when the popup 'opens'
         if(settings.is_chrome) {
-            bExt.popup._chrome_open(curr_tab);            
+            bExt.popup._chrome_open(curr_tab);
         } else {
             console.log("not chrome, implement");
         }
@@ -30,19 +30,24 @@ window.bExt.popup={
     
     // Variables / constants
     
-    page : null,    
+    page : null,
     
     init : function( user_settings ) {
         // setup page items
-        settings=$.extend( true, settings, user_settings ) 
-
+        settings=$.extend( true, settings, user_settings )
+        
         if(!bExt.popup.page) {
             console.log("load page from init, not called");
             bExt.popup.page=new bExt.popup.Dompage();
         }
         // listeners
-        addEventListener("unload", bExt.popup.evt_unload );        
-    },    
+        if(bExt.is_chrome) {
+            chrome.extension.onRequest.addListener( request_listener );
+        } else {
+            console.log("not chrome, popup has no listener");
+        }
+        addEventListener("unload", bExt.popup.evt_unload );
+    },
     
     _chrome_open : function( curr_tab ) {
         var s_url;
@@ -55,9 +60,14 @@ window.bExt.popup={
             
             // get selected, fill out page
             bExt.popup.page.update( s_url, active_stash.display(), settings.auto_copy );
-
+            bExt.popup.phone({
+                'action' : 'page_select',
+                'long_url' : active_stash.get("url"),
+                'tab_id' : active_stash.get("id")
+            }, function(){} );
+        
         } else {
-            // shorten this link;           
+            // shorten this link;
             bExt.popup.phone({
                 'action' : 'shorten_and_select',
                 'long_url' : active_stash.get("url"),
@@ -68,7 +78,7 @@ window.bExt.popup={
     
     phone : function( message, callback ) {
         if(settings.is_chrome) {
-            chrome.extension.sendRequest( message, callback );   
+            chrome.extension.sendRequest( message, callback );
         } else {
             console.log("implement phone call to get short url back");
         }
@@ -77,8 +87,8 @@ window.bExt.popup={
     chrome_shorten_callback : function(jo) {
         active_stash.set("short_url", jo&&jo.url || "");
         
-        // do a display update event        
-        bExt.popup.page.update( active_stash.get("short_url"), active_stash.display(), settings.auto_copy );        
+        // do a display update event
+        bExt.popup.page.update( active_stash.get("short_url"), active_stash.display(), settings.auto_copy );
     },
     
     stash : function() {
@@ -99,7 +109,7 @@ window.bExt.popup={
             if( all_stash[i][id] === value ) {
                 console.log("found stash", all_stash[i])
                 return all_stash[i];
-            } 
+            }
         }
         return null;
     },
@@ -114,14 +124,14 @@ window.bExt.popup={
             if( all_stash[i][id] === value ) {
                 added=true;
                 all_stash[i]=payload;
-            } 
+            }
         }
         if(!added) {
             all_stash.push(payload);
         }
         // lop off the first 20 (since new are pushed in..)
         if(all_stash.length > 100) {
-           all_stash.splice(0, 20); 
+           all_stash.splice(0, 20);
         }
         bExt.info.set("popup_history", all_stash);
     },
@@ -140,7 +150,16 @@ window.bExt.popup={
 }
 
 
-
+function request_listener(request,sender,sendResponse) {
+    if(!request.action || request.action !== "page_selection") return;
+    var selected_text = (request.selection || "").trim();
+    if(selected_text !== "") {
+        // ummmm
+        // txtarea.value = txtarea.value + " " + selected_text;
+        bExt.popup.page.share_txt( selected_text );
+    }
+    sendResponse({});
+}
 
 
 
@@ -154,13 +173,13 @@ window.bExt.popup={
         id (tab)
 */
 bExt.popup.Stash = function( curr_tab ) {
-    this.__m = { 
+    this.__m = {
         'id' : curr_tab && curr_tab.id, // tab id
-        'url': curr_tab && curr_tab.url, 
+        'url': curr_tab && curr_tab.url,
         'text' : '',
         'short_url' : '',
         'title' : curr_tab && curr_tab.title,
-        'timestamp' : (new Date()).getTime() 
+        'timestamp' : (new Date()).getTime()
     };
     // todo, consider using the base64 of the long URL as the ID...
     // this is interesting b/c you could move the url to a diff tab
@@ -178,9 +197,9 @@ bExt.popup.Stash.prototype = {
     
     basic : function( reset ) {
         if(reset) {
-            this.__m['text']="";            
+            this.__m['text']="";
         }
-
+        
         return this.__m['title'] + " " + this.__m['short_url'];
     },
     
@@ -209,9 +228,9 @@ bExt.popup.Stash.prototype = {
         }
         $.extend( this.__m, meta_update );
     }
-    
+
 }
-    
+
 })(window);
 
 

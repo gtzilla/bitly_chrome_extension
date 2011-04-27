@@ -92,7 +92,6 @@ bExt.bg_listeners_chrome = {
         if(evt.is_http) {
             this.add_js(evt.tab_id, "js/content_plugins/getSelected.js");
         }
-        console.log("shorten it?", evt)
         bExt.api.shorten( evt.long_url, evt.callback._scope(evt) );        
 
     },

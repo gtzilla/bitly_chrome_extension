@@ -87,6 +87,7 @@
             $(elem_opts.url_pasteboard).val( url_value );
         },
         
+        
         share_txt : function( txt ) {
             this.show_reset();
 
