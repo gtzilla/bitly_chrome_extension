@@ -50,31 +50,28 @@ window.bExt.popup={
     },
     
     _chrome_open : function( curr_tab ) {
-        var s_url;
+        var s_url, params={ "action" : ""};
         
         active_stash=new bExt.popup.Stash(curr_tab);
         active_stash.update( bExt.popup.find_stash( "url", curr_tab.url  ) || {}, true );
         bExt.popup.save_stash( "url", curr_tab.url, active_stash.out() );
-        console.log("curr tab", curr_tab)
-        console.log("id", active_stash.get("id"))
+
+        params={
+            'action' : 'page_select',
+            'long_url' : active_stash.get("url"),
+            'tab_id' : active_stash.get("id")
+        }
         s_url=active_stash.get("short_url");
         if(s_url && s_url !== "" ) {
             
             // get selected, fill out page
             bExt.popup.page.update( s_url, active_stash.display(), settings.auto_copy );
-            bExt.popup.phone({
-                'action' : 'page_select',
-                'long_url' : active_stash.get("url"),
-                'tab_id' : active_stash.get("id")
-            }, function(){} );
+            bExt.popup.phone( params, function(){} );
         
         } else {
             // shorten this link;
-            bExt.popup.phone({
-                'action' : 'shorten_and_select',
-                'long_url' : active_stash.get("url"),
-                'tab_id' : active_stash.get("id")
-            }, bExt.popup.chrome_shorten_callback );
+            params.action="shorten_and_select"
+            bExt.popup.phone( params, bExt.popup.chrome_shorten_callback );
         }
     },
     
