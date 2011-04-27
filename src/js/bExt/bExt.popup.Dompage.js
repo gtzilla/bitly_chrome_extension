@@ -72,8 +72,9 @@
         
         show_reset : function() {
             console.log(bExt.popup.stash_txt())
-            var stsh_txt=bExt.popup.stash_txt();
-            if(!this.reset_flag && stsh_txt && stsh_txt !== "" ) {
+            var stsh_txt=bExt.popup.stash_txt(),
+                basic_stash=bExt.popup.basic_stash();
+            if(!this.reset_flag && stsh_txt && stsh_txt !== "" && basic_stash !== stsh_txt ) {
                 this.reset_flag=true;
                 console.log("show the reset");
                 $(elem_opts.reset_bttn).fadeIn("fast");                
@@ -97,7 +98,8 @@
         },
         
         reset_share : function() {
-            $txtarea.val( bExt.popup.basic_stash() );
+            $txtarea.val( bExt.popup.basic_stash( true ) );
+            $(elem_opts.reset_bttn).fadeOut();
         },
         
         get_text : function() {

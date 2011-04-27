@@ -89,8 +89,8 @@ window.bExt.popup={
         return active_stash.get("text");
     },
     
-    basic_stash : function() {
-        return active_stash.basic();
+    basic_stash : function( reset ) {
+        return active_stash.basic( reset  );
     },
     
     find_stash : function( id, value  ) {
@@ -176,8 +176,11 @@ bExt.popup.Stash.prototype = {
         return this.basic();
     },
     
-    basic : function() {
-        this.__m['text']="";
+    basic : function( reset ) {
+        if(reset) {
+            this.__m['text']="";            
+        }
+
         return this.__m['title'] + " " + this.__m['short_url'];
     },
     
