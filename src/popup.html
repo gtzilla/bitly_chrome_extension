@@ -79,7 +79,6 @@
         <script type="text/javascript" charset="utf-8">
         //<![CDATA[
             
-            
             bExt.popup.page = new bExt.popup.Dompage({
                 share_form : "#bitly_bento_submit",
                 preloader : "#loading_short_url",
@@ -96,6 +95,8 @@
                 trending : "#trending_box",
                 message : "#message_box",
             });
+            
+            
             bExt.popup.init({
                 auto_copy : bExt.info.get("auto_copy") || false
             });

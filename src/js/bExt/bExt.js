@@ -59,24 +59,55 @@ window.bExt={
         }
         bExt.api.auth(username, password, function(response) {
             
-            var auth = response;
+            var auth = response, current_user;
             if(auth && auth.login !== "" ) {
-                var current_user = {
+                current_user = {
                     "x_login": auth.login,
                     "x_apiKey": auth.apiKey,
                     "access_token" : auth.access_token
                 }
                 bExt.info.set("user_data", current_user);                
                 bExt.md5_domains();
-                //initilaize_with_signin_info();
                 bExt.trends.init();
                 bExt.set_popup();
             }
             if(callback) { callback(response); }
         
-        });        
+        });
         
+    },
+    
+    sign_out : function() {
+        bExt.api.remove_credentials();
+        // auto_expand_urls = true;
+        // enhance_twitter_com=true;
         
+        bExt._clear_signin_data();
+        bExt.api.set_domain("bit.ly");
+        
+        // bail on worker
+        bExt.trends.exit();
+        
+        chrome.browserAction.setPopup({ "popup" : ""});
+        return;
+    },
+    
+    _clear_signin_data : function() {
+        bExt.info.clear("realtime");
+        bExt.info.clear("note_blacklist");
+        bExt.info.clear("notifications");
+        bExt.info.clear("stash");            
+
+        bExt.info.clear("user_data");
+        bExt.info.clear("share_accounts"); //  we don't store share accounts in SQL
+        bExt.info.clear("no_expand_domains");            
+
+        bExt.db.remove("notifications", delete_sql_handler );
+        bExt.db.remove("no_expand_domains", delete_sql_handler );
+        bExt.db.remove("user_data", delete_sql_handler );
+        bExt.db.remove("domain", delete_sql_handler );
+        bExt.db.remove("auto_expand_urls", delete_sql_handler );
+        bExt.db.remove("enhance_twitter_com", delete_sql_handler );        
     },
     
     add_righclick : function() {
@@ -261,6 +292,15 @@ bExt.trends = {
             bExt.trends.worker.onmessage = bExt.trends.m_evt;            
         }
         setTimeout(bExt.trends.watch, 100);
+    },
+    
+    exit : function() {
+        if(bExt.trends.worker) {
+            bExt.trends.worker.terminate();
+            bExt.trends.worker=null;
+        }
+        
+        return true;
     },
     
     m_evt : function(evt) {
