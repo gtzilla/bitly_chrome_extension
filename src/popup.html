@@ -84,7 +84,9 @@
                 char_count : "#char_count_box",
                 share_bttn : "#sharing_buttons_box"
             });
-            bExt.popup.init();
+            bExt.popup.init({
+                auto_copy : bExt.info.get("auto_copy") || false
+            });
                         
             chrome.tabs.getSelected(null, bExt.popup.open );
             

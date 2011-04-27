@@ -11,7 +11,8 @@
 
 var document=window.document, 
     settings={
-        'is_chrome' : true
+        'is_chrome' : true,
+        'auto_copy' : false,
     }, active_stash;
 
 window.bExt.popup={
@@ -55,10 +56,7 @@ window.bExt.popup={
         if(s_url && s_url !== "" ) {
             
             // get selected, fill out page
-            bExt.popup.page.hide_loader(); 
-            bExt.popup.page.set_url( s_url );
-            bExt.popup.page.share_txt( active_stash.display() );
-            bExt.popup.page.counter();
+            bExt.popup.page.update( s_url, active_stash.display(), settings.auto_copy );
 
         } else {
             // shorten this link;           
@@ -81,11 +79,12 @@ window.bExt.popup={
     chrome_shorten_callback : function(jo) {
         active_stash.set("short_url", jo&&jo.url || "");
         
-        // do a display update event
-        bExt.popup.page.set_url( active_stash.get("short_url") );        
-        bExt.popup.page.hide_loader();        
-        bExt.popup.page.share_txt( active_stash.display() );
-        bExt.popup.page.counter();
+        // do a display update event        
+        bExt.popup.page.update( active_stash.get("short_url"), active_stash.display(), settings.auto_copy );        
+    },
+    
+    stash : function() {
+        return active_stash.display();
     },
     
     find_stash : function( id, value  ) {
@@ -96,6 +95,10 @@ window.bExt.popup={
             } 
         }
         return null;
+    },
+    
+    update_stash : function(stsh_txt) {
+        active_stash.set("text", stsh_txt);
     },
     
     save_stash : function(id, value, payload) {
@@ -114,7 +117,7 @@ window.bExt.popup={
     evt_unload : function(e) {
         e.preventDefault();
         active_stash.update({
-            'text' : $(settings.share_box).val(),
+            'text' : bExt.popup.page.get_text(),
             'timestamp' : (new Date()).getTime()
         });
         bExt.popup.save_stash( "url", active_stash.get("url"), active_stash.out()  );
@@ -204,6 +207,7 @@ bExt.popup.Stash.prototype = {
 (function(window, undefined) {
     
     var elem_opts = {
+        share_form : "#bitly_bento_submit",
         preloader : "#loading_short_url",
         small_preloader : "#share_loading_graphic",
         textarea : "#bento_share",
@@ -215,8 +219,9 @@ bExt.popup.Stash.prototype = {
         opt_page : "#options_page",
         sharing_accnts : "#sharing_accounts_display",
         share_controls : "#share_controls",
-        trending : "#trending_box"
-    }, $txtarea, $counter_elem;
+        trending : "#trending_box",
+        message : "#message_box",
+    }, $txtarea, $counter_elem, active_accounts=[];
     
     bExt.popup.Dompage = function( el_opts ) {
         // stateful
@@ -235,7 +240,19 @@ bExt.popup.Stash.prototype = {
     bExt.popup.Dompage.prototype={
 
         // DOM
+        update : function( s_url, share_txt, auto_copy  ) {
+            this.hide_loader(); 
+            this.set_url( s_url );
+            this.share_txt( share_txt );
+            this.counter();
+            
+            if(auto_copy) {
+                this.copy_url();
+            }            
+        },
+        
         copy_url : function() {
+            $(elem_opts.copy_bttn).text("Copied");
             copy_to_clipboard();
         },
         
@@ -251,6 +268,10 @@ bExt.popup.Stash.prototype = {
             }
             $(elem_opts.textarea).val( txt );
         },
+        
+        get_text : function() {
+            return $txtarea.val();
+        },
 
         hide_loader : function() {
             $(elem_opts.preloader).fadeOut("fast");
@@ -259,7 +280,7 @@ bExt.popup.Stash.prototype = {
         counter : function() {
             setTimeout(function() {
                 var txt = $(elem_opts.textarea).val();
-                $(elem_opts.char_count).html( txt.length + " characters" )
+                $(elem_opts.char_count).html( txt.length + " characters" );
             }, 10);
 
         }
@@ -277,7 +298,7 @@ bExt.popup.Stash.prototype = {
         var $copy_bttn=$(elem_opts.copy_bttn);
         $copy_bttn.click(function(e) {
             e.preventDefault();
-            copy_to_clipboard()
+            copy_to_clipboard();
             $(this).text("Copied");
         });
                 
@@ -291,7 +312,7 @@ bExt.popup.Stash.prototype = {
         $(elem_opts.trending).click(function(e) {
             bExt.popup.phone( {'action' : 'open_page', 'page_name' : 'trending.html' }, function(){} );            
         });
-        
+                
         // additional listeners
         add_sharing_events();
     }
@@ -313,7 +334,32 @@ bExt.popup.Stash.prototype = {
                 params.active = status;
                 bExt.popup.phone( params, list_accounts_callback )
             }            
-        });        
+        }); 
+        
+        $(elem_opts.share_form).bind('submit', function(e) {
+            e.preventDefault();
+            var txt = $txtarea.val(), params = {'action' : 'share' };
+            if(txt !== "" && active_accounts.length > 0 ) {
+                params.share_text = txt;
+                bExt.popup.update_stash( txt );
+                $(elem_opts.small_preloader).fadeIn();
+                $(elem_opts.share_bttn).fadeOut("fast");
+                
+                bExt.popup.phone( params, share_callback );
+                
+            } else {
+                console.log("nothing to share, error the UI");
+                $(elem_opts.share_bttn).fadeIn("fast");
+                $(elem_opts.small_preloader).fadeOut();                
+            }
+        });
+        
+        $(elem_opts.message).click(function(e) {
+            if(e.target.className === "open_options_page") {
+                e.preventDefault();
+                bExt.popup.phone( {'action' : 'open_page', 'page_name' : 'options.html' }, function(){} );
+            }            
+        });
     }
     
     function update_char_count() {
@@ -365,7 +411,12 @@ bExt.popup.Stash.prototype = {
         var li_frag_lst=[];
         if(accounts.length > 0 ) {
             for( ; account=accounts[i]; i++) {
-                li = build_accounts_frag( account );
+
+                if(account.active) {
+                    active_accounts.push( account );
+                }
+                
+                li = build_accounts_frag( account );                
                 li_frag_lst.push(li);
             }
 
@@ -386,7 +437,9 @@ bExt.popup.Stash.prototype = {
             }]);
             
             $(elem_opts.sharing_accnts).html('').append( accnt_frag );
+            $(elem_opts.small_preloader).fadeOut("fast");
             $(elem_opts.share_controls).fadeIn();
+
         } else {
             // Hook, add a teaser or promo for Sharing Connection
             $(elem_opts.sharing_accnts).html( '' );
@@ -410,7 +463,57 @@ bExt.popup.Stash.prototype = {
                 }                
             }
         }
-    }    
+    } 
+    
+    
+    function share_callback(jo) {
+        console.log(jo, "share");
+        if(jo.status_code === 403 ) {
+            var share_message = "Error, not signed in <a class='open_options_page' href='#'>Sign In<\/a> now"
+            
+            display_share_response_message(share_message);
+            return;                    
+        } else if( jo.error ) {
+            var share_message = "Error, during share";
+            
+            
+            display_share_response_message(share_message);
+            return;
+        } else if(jo.share.length <=0) {
+            return;
+        }
+
+        
+        var i=0, accounts=jo && jo.share, 
+            account, success_messages = 0, share_message;
+        
+        for( ; account=accounts[i]; i++) {
+            if(!account.error) { success_messages +=1 } 
+        }
+        
+        if(success_messages>0) {
+            share_message = "Success. Shared your message on " + success_messages;
+            share_message += " of " + accounts.length + " accounts";
+        } else {
+            share_message = "Oops, something went wrong. Didn't share to any accounts."
+        }
+        display_share_response_message( share_message );
+        
+    }   
+    function display_share_response_message( share_message ) {
+        $(elem_opts.small_preloader).fadeOut("fast");        
+        $( elem_opts.message  ).html( share_message ).fadeIn();
+
+        $txtarea.val('');
+        $(elem_opts.share_bttn).fadeIn();
+        setTimeout(close_message_box, 4000);                            
+    }   
+    function close_message_box() {
+        $( elem_opts.message ).fadeOut("fast", function() {
+            $txtarea.val( bExt.popup.stash() );
+        });
+
+    }      
     
     
 })(window);
