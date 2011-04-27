@@ -21,7 +21,6 @@ window.bExt.popup={
     */
     open : function( curr_tab ) {
         // called when the popup 'opens'
-        console.log("chrome get tabs calls", settings);
         if(settings.is_chrome) {
             bExt.popup._chrome_open(curr_tab);            
         } else {
@@ -49,9 +48,8 @@ window.bExt.popup={
         var s_url;
         
         active_stash=new bExt.popup.Stash(curr_tab);
-        active_stash.update( bExt.popup.find_stash( "url", curr_tab.url  ) || {} );
-        
-        console.log("active_stash", active_stash, active_stash.get("url"), active_stash.get("id"))
+        active_stash.update( bExt.popup.find_stash( "url", curr_tab.url  ) || {}, true );
+        bExt.popup.save_stash( "url", curr_tab.url, active_stash.out() );
         s_url=active_stash.get("short_url");
         if(s_url && s_url !== "" ) {
             
@@ -91,6 +89,7 @@ window.bExt.popup={
         var i=0, all_stash=bExt.info.get("popup_history") || [];
         for( ; i<all_stash.length; i++) {
             if( all_stash[i][id] === value ) {
+                console.log("found stash", all_stash[i])
                 return all_stash[i];
             } 
         }
@@ -102,11 +101,15 @@ window.bExt.popup={
     },
     
     save_stash : function(id, value, payload) {
-        var i=0, all_stash=bExt.info.get("popup_history") || [];
+        var i=0, all_stash=bExt.info.get("popup_history") || [], added=false;
         for( ; i<all_stash.length; i++) {
             if( all_stash[i][id] === value ) {
+                added=true;
                 all_stash[i]=payload;
             } 
+        }
+        if(!added) {
+            all_stash.push(payload);
         }
         bExt.info.set("popup_history", all_stash);
     },
@@ -175,12 +178,12 @@ bExt.popup.Stash.prototype = {
     set : function( name, value) {
         this.__m[name]=value;
     },
-    update : function( meta_update  ) {
+    update : function( meta_update, clear_short  ) {
         
         // pull the latest data into this.__m
         // okay, if we replace this entry... which is fine, we need to make sure more matches
         // the long url must match the curr long url
-        if(this.__m.url !== meta_update.url) {
+        if(this.__m.url !== meta_update.url && clear_short) {
             // reset short url, different page
             meta_update.short_url="";
         }
@@ -381,7 +384,8 @@ bExt.popup.Stash.prototype = {
     */
     function realtime_metrics_callback( jo ) {
         if(!jo || !jo.realtime_links || jo.error) {
-            console.log("error");
+            console.log("no realtime links");
+            
         }
         
         var realtimes = jo && jo.realtime_links || [], i=0, realtime, total_clicks=0, message;
