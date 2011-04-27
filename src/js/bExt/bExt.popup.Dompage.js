@@ -181,11 +181,12 @@
         
     */
     function realtime_metrics_callback( jo ) {
-        var realtimes = jo && jo.realtime_links || [], i=0, realtime, total_clicks=0, message;
+        console.log(jo)
+        var realtimes = jo && jo.realtime_links || [], i=0, realtime, total_clicks=0, 
+            message="No trending links, have you shared any recently?";
         
         if(!jo || !jo.realtime_links || jo.error) {
             console.log("no realtime links");  
-            message = "No trending links, have you shared any recently?";              
         }
 
         for( ; realtime=realtimes[i]; i++) {
@@ -194,7 +195,7 @@
         if(total_clicks>0) {
             message = "<span class='trend_hed'>Trending<\/span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links<\/a>";
         }
-        
+        console.log(message)
         $(elem_opts.trending).html( message );        
     }
     

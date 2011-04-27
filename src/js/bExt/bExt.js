@@ -18,6 +18,9 @@ window.bExt={
     'db' : null,
     'events' : null,
     'share' : null,
+    'is_chrome' : chrome&&chrome.tabs ? true : false,
+    'context_menu' : false,
+    
     
     'Sharing' : function() {
         /*
@@ -39,6 +42,111 @@ window.bExt={
 
     },
     
+    set_popup : function() {
+        if(bExt.is_chrome) {
+            chrome.browserAction.setPopup({ "popup" : "popup.html"});
+        } else {
+            console.log("not chrome, didn't set popup");
+        }
+
+    },
+    
+    // bExt.sign_in
+    sign_in : function( username, password, callback ) {
+        
+        if(!bExt._api_instance) {
+            bExt.init_api();
+        }
+        bExt.api.auth(username, password, function(response) {
+            
+            var auth = response;
+            if(auth && auth.login !== "" ) {
+                var current_user = {
+                    "x_login": auth.login,
+                    "x_apiKey": auth.apiKey,
+                    "access_token" : auth.access_token
+                }
+                bExt.info.set("user_data", current_user);                
+                bExt.md5_domains();
+                //initilaize_with_signin_info();
+                bExt.trends.init();
+                bExt.set_popup();
+            }
+            if(callback) { callback(response); }
+        
+        });        
+        
+        
+    },
+    
+    add_righclick : function() {
+        if(!bExt.context_menu) {
+            var params = {
+                'type' : 'normal',
+                'title' : 'Shorten and copy link with bitly',
+                'contexts' : ["link"],
+                'onclick' : _contextmenu_on_link_click,
+                'documentUrlPatterns' : ['http://*/*', 'https://*/*']
+            }
+            // todo, chrome specific
+            if(bExt.is_chrome) {
+                chrome.contextMenus.create(params, function() {});                            
+            } else {
+                console.log("not chrome, no context menu added")
+            }
+
+            bExt.context_menu=true;
+        }
+    },
+    
+    evt_rightclick : function(info, tab) {
+        var long_url = info.linkUrl && info.linkUrl.trim(), expand_meta_data;
+        if(long_url !== "" ) {
+            bExt.api.shorten( info.linkUrl.trim(), function(jo) {
+                if(jo && jo.status_txt && jo.status_txt === "ALREADY_A_BITLY_LINK") {
+                   _util_expand_and_reshorten( long_url  );
+                } else if(jo && jo.url && jo.url !== "") {
+                    // can I get a callback from this? -- check if it's true?
+                    copy_to_clip(jo.url);
+                    contextmenu_inject_pagebanner( tab.id );
+                }
+            }); 
+        }        
+    },
+    
+    evt_button_listen : function( curr_tab ) {
+        if(bExt.is_chrome) {
+            chrome.tabs.create( { 'url' : chrome.extension.getURL( "options.html" ) });                    
+        } else {
+            console.log("didn't open the chrome tab for optiions inoroder to login")
+        }
+
+    },
+    
+    // start the bitly API ref
+    init_api : function() {
+        if(!bitly_oauth_credentials || !bitly_oauth_credentials.client_id) { return false; }
+        
+        // create a new instance
+        if(!bExt._api_instance) {
+            bExt._api_instance=true;
+            bExt.api=new bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature );
+        }
+        
+        var user_data = bExt.info.get("user_data");
+        if(user_data && user_data.x_login && user_data.x_apiKey) {
+            bExt.api.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
+        } else {
+            return false;
+        }
+
+        return true;
+    },
+    
+    md5_domains : function() {
+        bExt.api.bitly_domains( bExt.hovercard.store_md5domains );        
+    },
+    
     // notifications preferences (settings and whatnot)
     note_prefs : function() {
         var default_pref = { 'enabled' : true, 'threshold' : 20, "interval" : 1, "interval_type" : 'hour' };
@@ -50,7 +158,7 @@ window.bExt={
         var r_time = bExt.info.get("realtime"), 
             bit_result, i=0, black_list=[], active_links = [],
             notes_list = [], l_notes = bExt.info.get("notifications") || [],
-            prefs = get_note_preferences();
+            prefs = bExt.note_prefs();
 
         if(short_urls.length <= 0 ) { return; }
         r_time = r_time && r_time.realtime_links || [];
@@ -74,10 +182,10 @@ window.bExt={
             }
 
             l_notes = l_notes.concat(notes_list);
-            notification_set_list( l_notes );
+            bExt.info.set("notifications", l_notes);
 
             if(l_notes.length > 0 ) {
-                notification_display();
+                bitNote.show();
             }
 
             bExt.trends.update_links( black_list, bExt.api.bit_request.access_token );
@@ -86,25 +194,7 @@ window.bExt={
         });        
     },
     
-    // start the bitly API ref
-    init_api : function() {
-        if(!bitly_oauth_credentials || !bitly_oauth_credentials.client_id) { return false; }
-        
-        // create a new instance
-        if(!bExt._api_instance) {
-            bExt._api_instance=true;
-            bExt.api=new bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature );
-        }
-        
-        var user_data = bExt.info.get("user_data");
-        if(user_data && user_data.x_login && user_data.x_apiKey) {
-            bExt.api.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
-        } else {
-            return false;
-        }
 
-        return true;
-    },
     
     //
     
@@ -163,14 +253,17 @@ bExt.trends = {
     worker : null,
     init : function() {
         bExt.trends.expire_links();
-        bExt.trends.worker = new Worker("js/workers/realtime_data.js");
-        bExt.trends.worker.onmessage = bExt.trends.worker.m_evt;
-        bExt.trends.watch();
+        if(!bExt.trends.worker) {
+            console.log("Trends worker created");
+            bExt.trends.worker = new Worker("js/workers/realtime_data.js");
+            bExt.trends.worker.onmessage = bExt.trends.m_evt;            
+        }
+        setTimeout(bExt.trends.watch, 100);
     },
     
     m_evt : function(evt) {
-        var lists, i, black_list=[], prefs=bExt.note_prefs();
-        
+        var lists, i, black_list=[], prefs=bExt.note_prefs(), item;
+        console.log("message calls back");
         if(!evt.data.trending_links) {
             return;
         }
@@ -242,6 +335,38 @@ bExt.trends = {
         bExt.info.set("note_blacklist", new_notes);        
     }
 }
+
+
+function _util_expand_and_reshorten( long_url ) {
+    bExt.api.expand( long_url, function(jo) {
+        expand_meta_data = jo&&jo.expand&&jo.expand.pop();
+        if(!expand_meta_data) { return; } // todo, bubble error??
+        bExt.api.shorten( expand_meta_data.long_url, function(jo) {
+            if(jo && jo.url && jo.url !== "") {
+                copy_to_clip(jo.url);                                    
+            }
+        });
+    });    
+}
+function copy_to_clip( str_value  ) {
+    var txt_area = $("instant_clipboad_copy_space") || document.body.appendChild( fastFrag.create({
+        id : "instant_clipboad_copy_space"
+    }) );
+    try {
+        txt_area.value=str_value;
+        txt_area.select();
+        document.execCommand("copy", false, null);  
+    } catch(e){}            
+}
+
+function contextmenu_inject_pagebanner( tab_id  ) {
+    chrome.tabs.executeScript(tab_id, {
+        file : "js/content_scripts/bitly.contextMenuNotification.js"
+    })
+}
+
+
+
 
 // todo,
 // move this elsewhere

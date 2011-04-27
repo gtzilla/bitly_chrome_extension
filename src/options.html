@@ -510,7 +510,7 @@
                     sign_in_loader_elem.style.display="block";
                     signInButtonContainer_elem.style.display="none";
                     errors_box_elem.style.display="none";
-                    bg.sign_in( username.value, pass.value, function(jo) {                        
+                    bg.bExt.sign_in( username.value, pass.value, function(jo) {                        
                         //console.log(jo)
                         if(jo && !jo.error) {
                             document.location.reload();

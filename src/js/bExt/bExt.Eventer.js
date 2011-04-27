@@ -94,7 +94,7 @@ bExt.Eventer.prototype={
         chrome.tabs.getAllInWindow(null, function(tab_array) {
 
            for(; curr_tab=tab_array[i]; i++) {
-
+               // todo, this is broken
                if( self.url === url ) {
                    createTab=false;
                    chrome.tabs.update( self.tab_id, params);

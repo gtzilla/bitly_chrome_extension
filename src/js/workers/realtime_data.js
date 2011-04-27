@@ -6,7 +6,7 @@
 
 
 
-var ssl_key, black_list=[], ajax_in_action,  timer;
+var ssl_key, black_list=[], ajax_in_action,  timer, counter=0;
 onmessage = function(evt) {
 
     if( evt.data.action === "start") {
@@ -46,7 +46,7 @@ function handle_api_repsonses(jo) {
         postMessage(jo);
     }
     
-    timer = setTimeout(callRemote, 46000);
+    timer = setTimeout(callRemote, 5000);
 
 }
 

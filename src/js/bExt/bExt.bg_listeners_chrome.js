@@ -45,6 +45,10 @@ bExt.bg_listeners_chrome = {
         }
         evt.callback({});
     },
+    
+    "realtime_metrics" : function(evt) {
+        evt.callback( bExt.info.get("realtime") || {} );
+    },
         
     'expand_and_meta' : function( evt ) {
         bExt.hovercard.md5domains( this._mklist( evt.short_url ), function( clean_urls_list ) {

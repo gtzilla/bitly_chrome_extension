@@ -48,10 +48,13 @@
             if(!api_success) {
                 console.log("user is logged out");
                 // set logged out
-                
+                if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
+                    chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
+                }                
             } else {
                 // set logged in...
                 bExt.trends.init();
+                bExt.set_popup();
             }
             bExt.init_db();
             console.log("new structure bExt.Eventer");
@@ -68,25 +71,25 @@
         
         // for use with expand_and_meta
         
-        function sign_in(username, password, callback) {
-            logger("auth attempt for", username)
-            bitly.auth(username, password, function(response) {
-                
-                var auth = response;
-                if(auth && auth.login !== "" ) {
-                    var current_user = {
-                        "x_login": auth.login,
-                        "x_apiKey": auth.apiKey,
-                        "access_token" : auth.access_token
-                    }
-                    save_signedin_user( current_user );
-                    fetch_all_domains();
-                    initilaize_with_signin_info();
-                }
-                if(callback) { callback(response); }
-            
-            });
-        }
+        // function sign_in(username, password, callback) {
+        //     logger("auth attempt for", username)
+        //     bitly.auth(username, password, function(response) {
+        //         
+        //         var auth = response;
+        //         if(auth && auth.login !== "" ) {
+        //             var current_user = {
+        //                 "x_login": auth.login,
+        //                 "x_apiKey": auth.apiKey,
+        //                 "access_token" : auth.access_token
+        //             }
+        //             save_signedin_user( current_user );
+        //             fetch_all_domains();
+        //             initilaize_with_signin_info();
+        //         }
+        //         if(callback) { callback(response); }
+        //     
+        //     });
+        // }
         
         
         function sign_out() {
@@ -190,7 +193,10 @@
 
 
         
-        
+        function browser_action_listener( curr_tab ) {
+            // if popup is NOT set, this event will be triggered
+            get_chrome_page("options.html");
+        }        
         
         
         function actions_listeners( request, sender, sendResponse ) {
@@ -239,7 +245,7 @@
                 
                 break;
                 
-                case "realtime_metrics":
+                case "aaa_realtime_metrics":
                     get_realtime_metrics( sendResponse );
                 break;                
                 
@@ -255,16 +261,13 @@
         */
         
         
-        function browser_action_listener( curr_tab ) {
-            // if popup is NOT set, this event will be triggered
-            get_chrome_page("options.html");
-        }
+
         chrome.extension.onRequest.addListener(actions_listeners);
         
         // add skip the popup check
-        if( !chrome.browserAction.onClicked.hasListener( browser_action_listener ) ) {
-            chrome.browserAction.onClicked.addListener( browser_action_listener );
-        }
+        // if( !chrome.browserAction.onClicked.hasListener( browser_action_listener ) ) {
+        //     chrome.browserAction.onClicked.addListener( browser_action_listener );
+        // }
         
         
         /*
