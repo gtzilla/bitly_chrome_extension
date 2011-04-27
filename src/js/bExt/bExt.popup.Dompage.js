@@ -301,9 +301,9 @@
         var share_message="Error, during share";
         if(jo.status_code === 403 ) {
            share_message  = "Error, not signed in <a class='open_options_page' href='#'>Sign In<\/a> now"
-        } 
-        
-        if(jo.status_code !== 200) {
+           display_share_response_message(share_message);            
+           return;           
+        } else if(jo.status_code) {
             display_share_response_message(share_message);            
             return;
         }
