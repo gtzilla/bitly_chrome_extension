@@ -12,7 +12,7 @@
 var document=window.document, 
     settings={
         'is_chrome' : true,
-        'auto_copy' : false,
+        'auto_copy' : false
     }, active_stash;
 
 window.bExt.popup={
@@ -85,6 +85,14 @@ window.bExt.popup={
         return active_stash.display();
     },
     
+    stash_txt : function() {
+        return active_stash.get("text");
+    },
+    
+    basic_stash : function() {
+        return active_stash.basic();
+    },
+    
     find_stash : function( id, value  ) {
         var i=0, all_stash=bExt.info.get("popup_history") || [];
         for( ; i<all_stash.length; i++) {
@@ -110,6 +118,10 @@ window.bExt.popup={
         }
         if(!added) {
             all_stash.push(payload);
+        }
+        // lop off the first 20 (since new are pushed in..)
+        if(all_stash.length > 100) {
+           all_stash.splice(0, 20); 
         }
         bExt.info.set("popup_history", all_stash);
     },
@@ -161,6 +173,11 @@ bExt.popup.Stash.prototype = {
         if(txt && txt !== "") {
             return txt;
         }
+        return this.basic();
+    },
+    
+    basic : function() {
+        this.__m['text']="";
         return this.__m['title'] + " " + this.__m['short_url'];
     },
     

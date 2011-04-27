@@ -28,6 +28,7 @@
         char_count : "#char_count_box",
         share_bttn : "#sharing_buttons_box",
         copy_bttn : "#copy_link_button",
+        reset_bttn : "#reset_button",
         all_copy_els : "#copy_elements_wrapper",
         opt_page : "#options_page",
         sharing_accnts : "#sharing_accounts_display",
@@ -42,7 +43,7 @@
         // do a little setup?
         $txtarea=$(elem_opts.textarea);
         $counter_elem=$(elem_opts.char_count);
-        add_listeners();
+        add_listeners(this);
         bExt.popup.phone( {'action' : 'share_accounts' }, list_accounts_callback );        
         
         bExt.popup.phone({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );                
@@ -51,7 +52,7 @@
     
     // prototype, duh
     bExt.popup.Dompage.prototype={
-
+        reset_flag : false,
         // DOM
         update : function( s_url, share_txt, auto_copy  ) {
             this.hide_loader(); 
@@ -69,17 +70,34 @@
             copy_to_clipboard();
         },
         
+        show_reset : function() {
+            console.log(bExt.popup.stash_txt())
+            var stsh_txt=bExt.popup.stash_txt();
+            if(!this.reset_flag && stsh_txt && stsh_txt !== "" ) {
+                this.reset_flag=true;
+                console.log("show the reset");
+                $(elem_opts.reset_bttn).fadeIn("fast");                
+            }            
+
+        },
+        
         set_url : function( url_value ) {
             $(elem_opts.all_copy_els).fadeIn();
             $(elem_opts.url_pasteboard).val( url_value );
         },
         
         share_txt : function( txt ) {
+            this.show_reset();
+
             var existing_txt=$(elem_opts.textarea).val();
             if(existing_txt) {
-                txt = existing_txt + " " + txt
+                txt = existing_txt + " " + txt;
             }
             $(elem_opts.textarea).val( txt );
+        },
+        
+        reset_share : function() {
+            $txtarea.val( bExt.popup.basic_stash() );
         },
         
         get_text : function() {
@@ -102,7 +120,7 @@
     
     
     // utilties
-    function add_listeners() {
+    function add_listeners( ) {
         /*
             DOM Event Listeners. 
                 Some send 'chrome' events in order to open the page
@@ -127,13 +145,15 @@
         });
                 
         // additional listeners
-        add_sharing_events();
+        add_sharing_events( );
     }
     
-    function add_sharing_events() {
+    function add_sharing_events( ) {
         //
         $(elem_opts.textarea).bind("keyup", function(e) {
             update_char_count();
+            // hrm
+            bExt.popup.page.show_reset();
         });
         
         
@@ -172,6 +192,11 @@
                 e.preventDefault();
                 bExt.popup.phone( {'action' : 'open_page', 'page_name' : 'options.html' }, function(){} );
             }            
+        });
+        
+        $(elem_opts.reset_bttn).click(function(e) {
+            e.preventDefault();
+            bExt.popup.page.reset_share();
         });
     }
     

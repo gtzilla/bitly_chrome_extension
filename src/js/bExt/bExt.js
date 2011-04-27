@@ -250,7 +250,9 @@ window.bExt={
 */
 
 bExt.trends = {
+    
     worker : null,
+    
     init : function() {
         bExt.trends.expire_links();
         if(!bExt.trends.worker) {

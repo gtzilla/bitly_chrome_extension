@@ -212,7 +212,7 @@
     min-width:460px;    
 }
 
-.copyContainerOuter {
+.copyContainerOuter, .genericButtonBox {
     position:relative;
     float:right;
     display:none;

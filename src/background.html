@@ -193,10 +193,10 @@
 
 
         
-        function browser_action_listener( curr_tab ) {
-            // if popup is NOT set, this event will be triggered
-            get_chrome_page("options.html");
-        }        
+        // function browser_action_listener( curr_tab ) {
+        //     // if popup is NOT set, this event will be triggered
+        //     get_chrome_page("options.html");
+        // }        
         
         
         function actions_listeners( request, sender, sendResponse ) {
@@ -265,9 +265,6 @@
         chrome.extension.onRequest.addListener(actions_listeners);
         
         // add skip the popup check
-        // if( !chrome.browserAction.onClicked.hasListener( browser_action_listener ) ) {
-        //     chrome.browserAction.onClicked.addListener( browser_action_listener );
-        // }
         
         
         /*
