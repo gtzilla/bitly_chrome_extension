@@ -69,28 +69,38 @@
         </div><!-- end #container -->
         <script type="text/javascript" src="js/jquery-1.5.2.js"></script>
         <script type="text/javascript" src="js/bExt/bExt.js"></script>
-        <script type="text/javascript" src="js/libs/fastFrag.js"></script>        
+        <script type="text/javascript" src="js/libs/fastFrag.js"></script>
         <script type="text/javascript" src="js/bExt/bExt.popup.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.popup.Dompage.js"></script>
         <script type="text/javascript" src="js/libs/common.js"></script>
-        
         <script type="text/javascript" charset="utf-8">
-
+        //<![CDATA[
+            
             
             bExt.popup.page = new bExt.popup.Dompage({
+                share_form : "#bitly_bento_submit",
                 preloader : "#loading_short_url",
                 small_preloader : "#share_loading_graphic",
                 textarea : "#bento_share",
                 url_pasteboard : "#bitly_short_url_area",
                 char_count : "#char_count_box",
-                share_bttn : "#sharing_buttons_box"
+                share_bttn : "#sharing_buttons_box",
+                copy_bttn : "#copy_link_button",
+                all_copy_els : "#copy_elements_wrapper",
+                opt_page : "#options_page",
+                sharing_accnts : "#sharing_accounts_display",
+                share_controls : "#share_controls",
+                trending : "#trending_box",
+                message : "#message_box",
             });
             bExt.popup.init({
                 auto_copy : bExt.info.get("auto_copy") || false
             });
-                        
-            chrome.tabs.getSelected(null, bExt.popup.open );
             
-        </script>
+            // Get the currently targeted tab & url
+            chrome.tabs.getSelected(null, bExt.popup.open );
         
+        //]]>
+        </script>
     </body>
 </html>

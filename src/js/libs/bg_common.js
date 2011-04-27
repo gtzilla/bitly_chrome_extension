@@ -436,6 +436,8 @@ function expire_old_blacklist() {
 /*  Trend Worker  | trending worker, trends work */
 // Trending...
 function trends_watch_and_alert() {
+    return;
+    
     console.log("trending interval check started");
     //logger("Watch and Alert for a link has been enabled, notifications");
     if(!bitly.bit_request.access_token) {

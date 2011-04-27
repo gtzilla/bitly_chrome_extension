@@ -1,6 +1,7 @@
 /*
     html5 workers
 
+    time is in milliseconds for all timers
 */
 
 
@@ -45,7 +46,7 @@ function handle_api_repsonses(jo) {
         postMessage(jo);
     }
     
-    timer = setTimeout(callRemote, 28000);
+    timer = setTimeout(callRemote, 46000);
 
 }
 
@@ -60,7 +61,7 @@ function callRemote(){
     
     setTimeout(function() {
         ajax_in_action = ajaxRequest( ssl_key, handle_api_repsonses );          
-    }, 26000);
+    }, 50000);
 
    
 }
