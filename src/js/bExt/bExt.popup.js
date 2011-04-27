@@ -212,32 +212,26 @@ bExt.popup.Stash.prototype = {
         share_bttn : "#sharing_buttons_box",
         copy_bttn : "#copy_link_button",
         all_copy_els : "#copy_elements_wrapper",
-        opt_page : "#options_page"
-    }
+        opt_page : "#options_page",
+        sharing_accnts : "#sharing_accounts_display",
+        share_controls : "#share_controls",
+        trending : "#trending_box"
+    }, $txtarea, $counter_elem;
     
     bExt.popup.Dompage = function( el_opts ) {
         // stateful
         elem_opts=$.extend(true, {}, elem_opts, el_opts );
         // do a little setup?
-        var $copy_bttn=$(elem_opts.copy_bttn);
-        $copy_bttn.click(function(e) {
-            e.preventDefault();
-            copy_to_clipboard()
-            $(this).text("Copied");
-        });
-        $(elem_opts.opt_page).click(function(e) {
-            e.preventDefault();
-            console.log("click!")
-            chrome.extension.sendRequest({'action' : 'open_page', 'page_name' : 'options.html' }, function(){} );            
-        });
+        $txtarea=$(elem_opts.textarea);
+        $counter_elem=$(elem_opts.char_count);
+        add_listeners();
+        bExt.popup.phone( {'action' : 'share_accounts' }, list_accounts_callback );        
+        
+        bExt.popup.phone({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );                
         return this;
     }
-
-    function copy_to_clipboard() {
-        $(elem_opts.url_pasteboard).get(0).select();
-        document.execCommand("copy", false, null);        
-    }
-
+    
+    // prototype, duh
     bExt.popup.Dompage.prototype={
 
         // DOM
@@ -271,6 +265,152 @@ bExt.popup.Stash.prototype = {
         }
 
     }
+    
+    
+    // utilties
+    function add_listeners() {
+        /*
+            DOM Event Listeners. 
+                Some send 'chrome' events in order to open the page
+        */
+        // Copy Button
+        var $copy_bttn=$(elem_opts.copy_bttn);
+        $copy_bttn.click(function(e) {
+            e.preventDefault();
+            copy_to_clipboard()
+            $(this).text("Copied");
+        });
+                
+        // 'chrome' options page / ext settings link
+        $(elem_opts.opt_page).click(function(e) {
+            e.preventDefault();
+            bExt.popup.phone( {'action' : 'open_page', 'page_name' : 'options.html' }, function(){} );
+        });
+        
+        // Open the trending page
+        $(elem_opts.trending).click(function(e) {
+            bExt.popup.phone( {'action' : 'open_page', 'page_name' : 'trending.html' }, function(){} );            
+        });
+        
+        // additional listeners
+        add_sharing_events();
+    }
+    
+    function add_sharing_events() {
+        //
+        $(elem_opts.textarea).bind("keyup", function(e) {
+            update_char_count();
+        });
+        
+        
+        // User Sharing (social netwrorks) display 
+        $(elem_opts.sharing_accnts).click(function(e) {
+            if(e.target.nodeName.toLowerCase() === "img") {
+                var img = e.target, src = img.src,
+                    status = (src.indexOf("on.png") < 0 ),
+                    params = {'action' : 'activate_account'};
+                params.account_id = img.id;
+                params.active = status;
+                bExt.popup.phone( params, list_accounts_callback )
+            }            
+        });        
+    }
+    
+    function update_char_count() {
+        var txt = $txtarea.val();
+        $counter_elem.text( txt.length + " characters" );
+    }    
+
+    // copy to pasteboard / clipboard
+    function copy_to_clipboard() {
+        $(elem_opts.url_pasteboard).get(0).select();
+        document.execCommand("copy", false, null);        
+    }
+    
+    
+    /*
+        Realtime Metrics 
+            -- Preview / Teaser 
+        
+    */
+    function realtime_metrics_callback( jo ) {
+        if(!jo || !jo.realtime_links || jo.error) {
+            console.log("error");
+        }
+        
+        var realtimes = jo && jo.realtime_links || [], i=0, realtime, total_clicks=0, message;
+        for( ; realtime=realtimes[i]; i++) {
+            total_clicks+=realtime.clicks;
+        }
+        if(total_clicks>0) {
+            message = "<span class='trend_hed'>Trending<\/span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links<\/a>";
+        } else {
+            message = "No trending links, have you shared any recently?";
+        }
+        
+        $(elem_opts.trending).html( message );        
+    }
+    /*
+        Sharing
+        
+            Callback & Display
+            
+            display the share ICON buttons 
+            for active / inactive social network sharing accounts
+    */
+    function list_accounts_callback(jo) {
+        var i=0, account, accounts = jo && jo.share_accounts, li, accnt_frag;
+            
+        active_account_list = [];
+        var li_frag_lst=[];
+        if(accounts.length > 0 ) {
+            for( ; account=accounts[i]; i++) {
+                li = build_accounts_frag( account );
+                li_frag_lst.push(li);
+            }
+
+            
+            accnt_frag = fastFrag.create([{
+                type : "span",
+                css : "share_account_header",
+                content : "Active:"
+            },{
+                type : "ul",
+                id : "share_accounts",
+                content : li_frag_lst
+            },{
+                css : "hr",
+                content :{
+                    type : "hr"
+                }
+            }]);
+            
+            $(elem_opts.sharing_accnts).html('').append( accnt_frag );
+            $(elem_opts.share_controls).fadeIn();
+        } else {
+            // Hook, add a teaser or promo for Sharing Connection
+            $(elem_opts.sharing_accnts).html( '' );
+        }
+        
+    }
+    
+    function build_accounts_frag( acct_meta ) {
+        var status = (acct_meta.active) ? "on" : "off";        
+        return {
+            type : "li",
+            content : {
+                type : "img",
+                css : "account_icon",
+                id : acct_meta.account_id,
+                attrs : {
+                    title : acct_meta.account_name || acct_meta.account_login,
+                    src : "s/graphics/" + acct_meta.account_type+'-'+status + ".png",
+                    alt : "",
+                    border : 0
+                }                
+            }
+        }
+    }    
     
     
 })(window);

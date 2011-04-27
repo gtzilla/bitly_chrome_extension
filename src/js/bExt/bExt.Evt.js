@@ -6,22 +6,20 @@
 //  Copyright 2011 the public domain. All rights reserved.
 // 
 // if(!bExt) { var bExt={}; }
+
 bExt.Evt=function(request, sender, callback) {
     // an Ext Event Wrapper / Representation
     this.__finished=false;
     if(arguments.length > 1) {
          this.original_args=arguments;
-         
+         // request settingss
+         this.page_name=request && request.page_name;
+         this.account_id=request && request.account_id;
          this.short_url=request && request.short_url;
+         this.long_url=request && request.long_url;         
          
          this.url=sender && sender.tab && sender.tab.url;
-         
-         this.long_url=request && request.long_url;
-         
          this.is_http=this._find_http();
-         
-         this.page_name=request && request.page_name;
-         
          this.domain_host=bExt.match_host(  this.long_url || this.url );
          
          // support for Chrome request Tab ID or sent value (popup)
@@ -35,7 +33,8 @@ bExt.Evt=function(request, sender, callback) {
             this.__cb=data.callback
         }
     }
-    // return this;
+    
+    return this;
 }
 
 

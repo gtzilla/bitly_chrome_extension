@@ -13,6 +13,11 @@
 
 */
 bExt.bg_listeners_chrome = {
+    /*
+        User Navigated Page Load
+            Hover card / additional action hooks for user preferences
+        
+    */
     "page_loaded" : function( evt ) {
         if( bExt.api.is_authenticated() && evt.is_http ) {
             var hv=bExt.hovercard, hovercard_blacklist=hv.blacklist();
