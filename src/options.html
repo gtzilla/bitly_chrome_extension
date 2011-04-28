@@ -218,7 +218,9 @@
                 
                 
                 var opts_dom = new bExt.Optionspage();
-                opts_dom.basic();
+                // setup the dom
+                opts_dom.twitter();
+                opts_dom.auto_copy();
                 
             </script>
             
@@ -490,7 +492,7 @@
                                     target : "new"
                                 }                                
                             },{
-                                text : " accounts on bit.ly | "
+                                text : " accounts on bitly | "
                             },{
                                 type : "a",
                                 css : "resync",
