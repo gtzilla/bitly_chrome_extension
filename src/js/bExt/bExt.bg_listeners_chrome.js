@@ -69,8 +69,7 @@ bExt.bg_listeners_chrome = {
         bExt.api.bitly_domains( function(jo) {
             var bit_domains = jo.reverse();
             if(jo.status_code === 403) {
-                //sign_out();
-                // trigger a signout event?
+                bExt.sign_out();
                 evt.callback( [] );
                 return;
             }

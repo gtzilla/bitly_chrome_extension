@@ -94,6 +94,9 @@ bExt.hovercard={
         });
     },
     '_md5domains' : function( url_list, callback ) {
+        
+        if(!url_list){ callback([]); }
+        
         var domain, possible, i=0, j=0, final_results=[],
             l=bExt.hovercard.__data['bitly_domains'],
             possible_domains = bExt.hovercard._md5_hosts( url_list ),

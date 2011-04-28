@@ -99,32 +99,6 @@ function initilaize_with_signin_info(){
 
 // Sharing and Social Accounts Connection
 
-function share_message( message, callback) {
-    var a = localfetch("share_accounts"),
-        accounts = a && a.share_accounts || [],
-        i=0, account, share_ids = [], params = {};
-    
-    for( ; account=accounts[i]; i++) {
-        if(account.active) {
-            share_ids.push( account.account_id );
-        }
-    }
-    if(message.trim() === "" || share_ids.length <= 0 ) {
-        callback({'error' : 'no active accounts'})
-        return;
-    }
-    
-    params.account_id = share_ids;
-    params.share_text = message;
-    bitly.share( params, function(jo) {
-        if (jo.status_code === 403) {
-            // issue #8, explicitly sign out!
-            sign_out();
-            jo.error = true;
-        }
-        callback(jo);
-    } );
-}
 ////////////////***********************////////////////////////
 
 ///
@@ -195,7 +169,7 @@ function fetch_all_domains() {
         var bit_domains = jo.reverse(), params = { 'domains' :  bit_domains, 'timestamp' : _now() };
         
         if(jo.status_code === 403) {
-            sign_out();
+            bExt.sign_out();
         } else {
             bit_db.save( "domains_list", params, function() {
                 console.log("storing domains to sql", bit_domains.length)

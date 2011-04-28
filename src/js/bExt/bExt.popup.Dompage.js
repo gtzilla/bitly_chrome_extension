@@ -11,9 +11,9 @@
         An API of sorts for the popup 
             HTML interface
 
-        Usage
-        
-            new 
+        Usage:
+            page = new bExt.popup.Dompage( { .. })
+            page.update( .. )
 
 */
 
@@ -40,12 +40,15 @@
     bExt.popup.Dompage = function( el_opts ) {
         // stateful
         elem_opts=$.extend(true, {}, elem_opts, el_opts );
-        // do a little setup?
+
+        // do a little setup
         $txtarea=$(elem_opts.textarea);
         $counter_elem=$(elem_opts.char_count);
-        add_listeners(this);
-        bExt.popup.phone( {'action' : 'share_accounts' }, list_accounts_callback );        
+        add_listeners();
+        add_sharing_events();
         
+        // grab info
+        bExt.popup.phone( {'action' : 'share_accounts' }, list_accounts_callback );        
         bExt.popup.phone({ 'action' : 'realtime_metrics' }, realtime_metrics_callback );                
         return this;
     }
@@ -146,8 +149,6 @@
             bExt.popup.phone( {'action' : 'open_page', 'page_name' : 'trending.html' }, function(){} );            
         });
                 
-        // additional listeners
-        add_sharing_events( );
     }
     
     function add_sharing_events() {

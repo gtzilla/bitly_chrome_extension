@@ -71,43 +71,6 @@
         
         // for use with expand_and_meta
         
-        // function sign_in(username, password, callback) {
-        //     logger("auth attempt for", username)
-        //     bitly.auth(username, password, function(response) {
-        //         
-        //         var auth = response;
-        //         if(auth && auth.login !== "" ) {
-        //             var current_user = {
-        //                 "x_login": auth.login,
-        //                 "x_apiKey": auth.apiKey,
-        //                 "access_token" : auth.access_token
-        //             }
-        //             save_signedin_user( current_user );
-        //             fetch_all_domains();
-        //             initilaize_with_signin_info();
-        //         }
-        //         if(callback) { callback(response); }
-        //     
-        //     });
-        // }
-        
-        
-        function sign_out() {
-            bitly.remove_credentials();
-            auto_expand_urls = true;
-            enhance_twitter_com=true;
-            
-            reset_local_data();
-            bitly.set_domain("bit.ly");
-            chrome.browserAction.setPopup({ "popup" : ""});
-            return;
-        }
-
-        
-
-        
-        
-        
         // calls bit.ly, so has to say here for a moment until we clear up dependencies
         // the ISSUE
         // is that user credentials are getting stored POORLY
@@ -199,63 +162,7 @@
         //     // if popup is NOT set, this event will be triggered
         //     get_chrome_page("options.html");
         // }        
-        
-        
-        function actions_listeners( request, sender, sendResponse ) {
-            if(!request.action) return;
-            var act = request.action;
-            console.log(request.action, "sender.tab", sender.tab)
-            switch( act ) {
-                
-                /*
-                    Social Actions, sharing, accounts etc
-                */
-                // case "share":
-                //     //share_text
-                //     share_message( (request.share_text || ""),  sendResponse );
-                // break;
-                
-                // case "share_accounts":
-                //     var user_share_accounts = localfetch("share_accounts");
-                //     if(!user_share_accounts) {
-                //         sharing_resync_linked_account( sendResponse );
-                //     } else {
-                //         sendResponse( user_share_accounts )
-                //     }
-                // 
-                // break;
-                
-                // case "re_sync_share_accounts":
-                //     sharing_resync_linked_account( sendResponse );
-                // break;
-                
-                // manage the sharing account active flag
-                // case "activate_account":
-                //     var user_share_accounts = localfetch("share_accounts"),
-                //         accounts = user_share_accounts && user_share_accounts.share_accounts,
-                //         i=0, account, flag=false;
-                //     
-                //     for( ; account=accounts[i]; i++) {
-                //         if(account.account_id === request.account_id) {
-                //             account.active = request.active;
-                //             flag = true;
-                //             break;
-                //         }
-                //     }
-                //     localstore("share_accounts", user_share_accounts);
-                //     sendResponse(user_share_accounts)
-                // 
-                // break;
-                
-                // case "aaa_realtime_metrics":
-                //     get_realtime_metrics( sendResponse );
-                // break;                
-                // 
-            
-            }
-        }
-        
-        
+ 
         /*
             Support for external shortens?
             http://code.google.com/chrome/extensions/extension.html
