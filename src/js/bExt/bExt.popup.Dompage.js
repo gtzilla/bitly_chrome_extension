@@ -71,7 +71,6 @@
         },
         
         show_reset : function() {
-            console.log(bExt.popup.stash_txt())
             var stsh_txt=bExt.popup.stash_txt(),
                 basic_stash=bExt.popup.basic_stash();
             if(!this.reset_flag && stsh_txt && stsh_txt !== "" && basic_stash !== stsh_txt ) {
@@ -151,8 +150,9 @@
         add_sharing_events( );
     }
     
-    function add_sharing_events( ) {
-        //
+    function add_sharing_events() {
+        
+        // Keyup Event Watch for primary text area
         $(elem_opts.textarea).bind("keyup", function(e) {
             update_char_count();
             // hrm
@@ -161,6 +161,7 @@
         
         
         // User Sharing (social netwrorks) display 
+        // Account on / off updates
         $(elem_opts.sharing_accnts).click(function(e) {
             if(e.target.nodeName.toLowerCase() === "img") {
                 var img = e.target, src = img.src,
@@ -172,6 +173,8 @@
             }            
         }); 
         
+        // Share Form Submit
+        // Send message to background via bExt.popup.phone( ... );
         $(elem_opts.share_form).bind('submit', function(e) {
             e.preventDefault();
             var txt = $txtarea.val(), params = {'action' : 'share' };
@@ -190,6 +193,8 @@
             }
         });
         
+        // Open Options Page from the 'message' HTML box
+        // this box appears after certain share events, such as user logged out
         $(elem_opts.message).click(function(e) {
             if(e.target.className === "open_options_page") {
                 e.preventDefault();
@@ -197,6 +202,7 @@
             }            
         });
         
+        // Reset the Share text to the original page title and URL
         $(elem_opts.reset_bttn).click(function(e) {
             e.preventDefault();
             bExt.popup.page.reset_share();
@@ -209,7 +215,7 @@
         
     */
     function realtime_metrics_callback( jo ) {
-        console.log(jo)
+
         var realtimes = jo && jo.realtime_links || [], i=0, realtime, total_clicks=0, 
             message="No trending links, have you shared any recently?";
         
@@ -223,7 +229,6 @@
         if(total_clicks>0) {
             message = "<span class='trend_hed'>Trending<\/span>: " + total_clicks + " clicks on <a class='trending_links' href='#'>" + realtimes.length + " links<\/a>";
         }
-        console.log(message)
         $(elem_opts.trending).html( message );        
     }
     
@@ -298,7 +303,6 @@
     
     
     function share_callback(jo) {
-        console.log(jo, "share");
         var share_message="Error, during share";
         if(jo.status_code === 403 ) {
            share_message  = "Error, not signed in <a class='open_options_page' href='#'>Sign In<\/a> now"
@@ -333,12 +337,13 @@
         $txtarea.val('');
         $(elem_opts.share_bttn).fadeIn();
         setTimeout(close_message_box, 4000);                            
-    }   
+    }
+    
+    // Triggered from setTimeout
     function close_message_box() {
         $( elem_opts.message ).fadeOut("fast", function() {
             $txtarea.val( bExt.popup.stash() );
         });
-
     }      
     
     function update_char_count() {

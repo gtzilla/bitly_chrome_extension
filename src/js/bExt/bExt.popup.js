@@ -42,7 +42,7 @@ window.bExt.popup={
         }
         // listeners
         if(bExt.is_chrome) {
-            chrome.extension.onRequest.addListener( request_listener );
+            chrome.extension.onRequest.addListener( chrome_request_listener );
         } else {
             console.log("not chrome, popup has no listener");
         }
@@ -149,7 +149,7 @@ window.bExt.popup={
 }
 
 
-function request_listener(request,sender,sendResponse) {
+function chrome_request_listener(request,sender,sendResponse) {
     if(!request.action || request.action !== "page_selection") return;
     var selected_text = (request.selection || "").trim();
     if(selected_text !== "") {
@@ -163,72 +163,6 @@ function request_listener(request,sender,sendResponse) {
 
 
 
-/*
-    Represent Current Meta Data
-        
-        text
-        long url
-        short url
-        id (tab)
-*/
-bExt.popup.Stash = function( curr_tab ) {
-    this.__m = {
-        'id' : curr_tab && curr_tab.id, // tab id
-        'url': curr_tab && curr_tab.url,
-        'text' : '',
-        'short_url' : '',
-        'title' : curr_tab && curr_tab.title,
-        'timestamp' : (new Date()).getTime()
-    };
-    // todo, consider using the base64 of the long URL as the ID...
-    // this is interesting b/c you could move the url to a diff tab
-    this.id=curr_tab.id;
-}
-bExt.popup.Stash.prototype = {
-    // do a better dump
-    display : function() {
-        var txt = (this.__m['text'] || "").trim();
-        if(txt && txt !== "") {
-            return txt;
-        }
-        return this.basic();
-    },
-    
-    basic : function( reset ) {
-        if(reset) {
-            this.__m['text']="";
-        }
-        
-        return this.__m['title'] + " " + this.__m['short_url'];
-    },
-    
-    toString : function() {
-        return JSON.stringify(this.__m);
-    },
-    get : function(name) {
-        return this.__m[name] || null;
-    },
-    
-    out : function() {
-        return this.__m;
-    },
-    
-    set : function( name, value) {
-        this.__m[name]=value;
-    },
-    update : function( meta_update, clear_short  ) {
-        
-        // pull the latest data into this.__m
-        // okay, if we replace this entry... which is fine, we need to make sure more matches
-        // the long url must match the curr long url
-        if(this.__m.url !== meta_update.url && clear_short) {
-            // reset short url, different page
-            meta_update.short_url="";
-        }
-        $.extend( this.__m, meta_update );
-    }
-
-}
 
 })(window);
 
