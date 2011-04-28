@@ -98,32 +98,7 @@ function initilaize_with_signin_info(){
 ////////////////***********************////////////////////////
 
 // Sharing and Social Accounts Connection
-function sharing_resync_linked_account( callback ) {
-    // get fresh from sever
-    var account, accounts, i=0;
-    logger("resync linked accounts from bit.ly");
-    bitly.share_accounts( function(response) {
-        // no SQL cache, don't keep it that long
-        if (response.status_code === 403) {
-            // issue #8, explicitly sign out!
-            sign_out();
-            response.error = true;
-            callback(response)
-            return;
-        }
-        
-        accounts = response && response.share_accounts;
-        if(accounts) {
-            
-            for( ; account=accounts[i]; i++) {
-                account.active=true;
-            }
-            localstore("share_accounts", response);
-        }
-        callback(response);
-    
-    });
-}
+
 function share_message( message, callback) {
     var a = localfetch("share_accounts"),
         accounts = a && a.share_accounts || [],

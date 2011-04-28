@@ -83,8 +83,21 @@ bExt.bg_listeners_chrome = {
         }        
     },
     
-    "share" : function() {
-        console.log("share share");
+    "share" : function( evt ) {
+        bExt.share.send( (evt.share_text || ""),  evt.callback._scope(evt) );
+    },
+    
+    "share_accounts" : function( evt ) {
+        bExt.share.accounts( evt.callback._scope(evt) );
+    },
+    
+    "re_sync_share_accounts" : function( evt ) {
+        bExt.share.sync( evt.callback._scope(evt) )
+    },
+    
+    "activate_account" : function( evt ) {
+        // Turn accounts on/off for sharing
+        bExt.share.toggle( evt.callback._scope(evt) );
     },
     
     "shorten_and_select" : function( evt ) {

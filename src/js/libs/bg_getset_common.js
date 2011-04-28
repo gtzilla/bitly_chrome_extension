@@ -203,14 +203,16 @@ function set_domain_list_from_cache() {
 
     });
 }
+
+
 function initialize_data_from_local_cache() {
-    set_current_bitly_user_from_cache();
+    // set_current_bitly_user_from_cache();
     set_domain_list_from_cache();
-    set_auto_expand_from_cache();
+    //set_auto_expand_from_cache();
     set_api_domain_from_cache();
     set_no_expand_domains_from_cache();
-    set_auto_copy_from_cache();
-    notification_sets_from_cache();
+    //set_auto_copy_from_cache();
+    //notification_sets_from_cache();
     set_enhance_twitter_com_from_cache();    
 }
 

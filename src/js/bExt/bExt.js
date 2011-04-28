@@ -17,17 +17,9 @@ window.bExt={
     'api' : null,
     'db' : null,
     'events' : null,
-    'share' : null,
     'is_chrome' : chrome&&chrome.tabs ? true : false,
     'context_menu' : false,
     
-    
-    'Sharing' : function() {
-        /*
-            Share a little Share
-                Handle Sharing
-        */
-    },
         
     match_host : function(url_str) {
         // todo, weakness, not all URLs start with HTTP/HTTPs 
@@ -96,7 +88,8 @@ window.bExt={
         bExt.info.clear("realtime");
         bExt.info.clear("note_blacklist");
         bExt.info.clear("notifications");
-        bExt.info.clear("stash");            
+        bExt.info.clear("stash");
+        bExt.info.clear("popup_history");
 
         bExt.info.clear("user_data");
         bExt.info.clear("share_accounts"); //  we don't store share accounts in SQL
@@ -390,6 +383,7 @@ function _util_expand_and_reshorten( long_url ) {
         });
     });    
 }
+
 function copy_to_clip( str_value  ) {
     var txt_area = $("instant_clipboad_copy_space") || document.body.appendChild( fastFrag.create({
         id : "instant_clipboad_copy_space"
@@ -402,9 +396,15 @@ function copy_to_clip( str_value  ) {
 }
 
 function contextmenu_inject_pagebanner( tab_id  ) {
-    chrome.tabs.executeScript(tab_id, {
-        file : "js/content_scripts/bitly.contextMenuNotification.js"
-    })
+    
+    if(bExt.is_chrome) {
+        chrome.tabs.executeScript(tab_id, {
+            file : "js/content_scripts/bitly.contextMenuNotification.js"
+        });
+    } else {
+        console.log("not chrome, context menu not injected");
+    }
+
 }
 
 
@@ -418,10 +418,102 @@ Function.prototype._scope = function( scope ) {
 }
 
 
-
-bExt.Sharing.prototype={
+window.bExt.cache = {
+    
+    // handle loading the local cache on application start
+    // todo, add methods in signout here... 
     
 }
+
+/*
+    Sharing
+
+*/
+window.bExt.share = {
+    
+    // get the current Social Network Accounts associated w/ bitly account
+    // 'cache' this data into localstorage to speed up requests
+    accounts : function( callback ) {
+        var user_share_accounts = bExt.info.get("share_accounts");
+        if(!user_share_accounts) {
+            bExt.share.sync( callback );
+        } else {
+            callback( user_share_accounts )
+        }        
+    },
+    
+    // toggle specific social accounts on and off
+    toggle : function( callback  ) {
+        var user_share_accounts = bExt.info.get("share_accounts"),
+            accounts = user_share_accounts && user_share_accounts.share_accounts,
+            i=0, account, flag=false;
+        
+        for( ; account=accounts[i]; i++) {
+            if(account.account_id === request.account_id) {
+                account.active = request.active;
+                flag = true;
+                break;
+            }
+        }
+        bExt.info.set("share_accounts", user_share_accounts);
+        callback(user_share_accounts);
+    },
+    
+    // Get the latest Social Accounts from remote bitly
+    sync : function( callback ) {
+        var account, accounts, i=0;
+        bExt.api.share_accounts( function( jo ) {
+            if (jo.status_code === 403) {
+                
+                bExt.sign_out(); // issue #8, explicitly sign out!
+                jo.error = true;
+                callback(jo)
+                return;
+            }
+
+            accounts = jo && jo.share_accounts;
+            if(accounts) {
+                for( ; account=accounts[i]; i++) {
+                    account.active=true;
+                }
+                bExt.info.set("share_accounts", jo);
+            }
+            callback(jo);
+
+        });        
+    },
+    
+    send : function( message, callback ) {
+        var a = bExt.info.get("share_accounts"),
+            accounts = a && a.share_accounts || [],
+            i=0, account, share_ids = [], params = {};
+
+        for( ; account=accounts[i]; i++) {
+            if(account.active) {
+                share_ids.push( account.account_id );
+            }
+        }
+        if(message.trim() === "" || share_ids.length <= 0 ) {
+            callback({'error' : 'no active accounts'})
+            return;
+        }
+
+        params.account_id = share_ids;
+        params.share_text = message;
+        
+        // make the HTTP remote request
+        bExt.api.share( params, function(jo) {
+            if (jo.status_code === 403) {
+                // issue #8, explicitly sign out!
+                bExt.sign_out();
+                jo.error = true;
+            }
+            callback(jo);
+        });
+    }
+    
+}
+
 
 })(window);
 

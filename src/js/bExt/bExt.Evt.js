@@ -17,6 +17,7 @@ bExt.Evt=function(request, sender, callback) {
          this.account_id=request && request.account_id;
          this.short_url=request && request.short_url;
          this.long_url=request && request.long_url;         
+         this.share_text=request && request.share_text;
          
          this.url=sender && sender.tab && sender.tab.url;
          this.is_http=this._find_http();

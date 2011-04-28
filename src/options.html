@@ -3,7 +3,7 @@
 
 <!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
     <head>
-        <title>bitly Extension Settings</title>
+        <title>Settings | bitly Extension</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="keywords" content="bit.ly" />
         <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8" />
@@ -208,6 +208,7 @@
         
             
             <!-- <script type="text/javascript" src=""></script> -->
+            <script type="text/javascript" src="js/bExt/bExt.js"></script>
             <script type="text/javascript" src="js/libs/common.js"></script>
             <script type="text/javascript" src="js/libs/fastFrag.js"></script>            
             <script type="text/javascript" src="js/libs/logFormat.js"></script>
@@ -558,7 +559,7 @@
                     api_domains_elem.style.display="block";
                     _id("auto_expand_container").style.display="block";
                     
-                    if( bg.get_url_expansion() ) {
+                    if( bExt.info.get("auto_expand_urls") ) {
                         url_expand_input.checked=true;
                         // show domains
                         display_no_expand_domains();
@@ -636,7 +637,8 @@
                         url_expand_input.checked=false;
                         no_expand_domains_box_elem.innerHTML = "";
                     }
-                    bg.set_url_expansion( e.target.checked );
+                    // bg.set_url_expansion( e.target.checked );
+                    bExt.info.set("auto_expand_urls", e.target.checked);
                 });
                 auto_copy_elem.addEventListener("change", function(e) {
                     bg.set_auto_copy(e.target.checked);

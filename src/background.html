@@ -179,6 +179,8 @@
         // trends_worker.onmessage = trends_worker_message_event;
         
         // derive items from cache
+        
+        
         initialize_data_from_local_cache();
         
         
@@ -208,47 +210,47 @@
                 /*
                     Social Actions, sharing, accounts etc
                 */
-                case "share":
-                    //share_text
-                    share_message( (request.share_text || ""),  sendResponse );
-                break;
+                // case "share":
+                //     //share_text
+                //     share_message( (request.share_text || ""),  sendResponse );
+                // break;
                 
-                case "share_accounts":
-                    var user_share_accounts = localfetch("share_accounts");
-                    if(!user_share_accounts) {
-                        sharing_resync_linked_account( sendResponse );
-                    } else {
-                        sendResponse( user_share_accounts )
-                    }
+                // case "share_accounts":
+                //     var user_share_accounts = localfetch("share_accounts");
+                //     if(!user_share_accounts) {
+                //         sharing_resync_linked_account( sendResponse );
+                //     } else {
+                //         sendResponse( user_share_accounts )
+                //     }
+                // 
+                // break;
                 
-                break;
-                
-                case "re_sync_share_accounts":
-                    sharing_resync_linked_account( sendResponse );
-                break;
+                // case "re_sync_share_accounts":
+                //     sharing_resync_linked_account( sendResponse );
+                // break;
                 
                 // manage the sharing account active flag
-                case "activate_account":
-                    var user_share_accounts = localfetch("share_accounts"),
-                        accounts = user_share_accounts && user_share_accounts.share_accounts,
-                        i=0, account, flag=false;
-                    
-                    for( ; account=accounts[i]; i++) {
-                        if(account.account_id === request.account_id) {
-                            account.active = request.active;
-                            flag = true;
-                            break;
-                        }
-                    }
-                    localstore("share_accounts", user_share_accounts);
-                    sendResponse(user_share_accounts)
+                // case "activate_account":
+                //     var user_share_accounts = localfetch("share_accounts"),
+                //         accounts = user_share_accounts && user_share_accounts.share_accounts,
+                //         i=0, account, flag=false;
+                //     
+                //     for( ; account=accounts[i]; i++) {
+                //         if(account.account_id === request.account_id) {
+                //             account.active = request.active;
+                //             flag = true;
+                //             break;
+                //         }
+                //     }
+                //     localstore("share_accounts", user_share_accounts);
+                //     sendResponse(user_share_accounts)
+                // 
+                // break;
                 
-                break;
-                
-                case "aaa_realtime_metrics":
-                    get_realtime_metrics( sendResponse );
-                break;                
-                
+                // case "aaa_realtime_metrics":
+                //     get_realtime_metrics( sendResponse );
+                // break;                
+                // 
             
             }
         }
@@ -262,7 +264,7 @@
         
         
 
-        chrome.extension.onRequest.addListener(actions_listeners);
+        //chrome.extension.onRequest.addListener(actions_listeners);
         
         // add skip the popup check
         
