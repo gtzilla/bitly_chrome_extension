@@ -45,7 +45,40 @@ window.bExt.Optionspage.prototype={
             .append( this.twitter() )
             .append( this.trends() )
             .append( this.hovercard_domains() )
-            .append( this.context_menu() );
+            .append( this.context_menu() )
+            .append( this.api_domains() );
+    },
+    
+    api_domains : function() {
+        var frag_lst=[], meta_list=[], main_frag,
+            prime_meta = new bExt.OptionMeta({
+                title : "API Domains",
+                desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
+            }),
+            apis_lst=["bit.ly", "j.mp", "bitly.com"];
+        
+        for(var i=0; i<apis_lst.length; i++) {
+            // don't use complete object [new bExt.OptionMeta] here, overkill
+            meta_list.push({
+                value : apis_lst[i]
+            });
+        }
+        
+        for(var i=0; i<meta_list.length; i++) {
+            frag_lst.push( _single_radio_frag( meta_list[i] ) );
+        }
+
+        main_frag = single_check_frag( prime_meta.out() );
+
+        // replace the checkbox & label with the radio's list
+        console.log(main_frag.content);
+        main_frag.content.splice(2,1);
+        main_frag.content = main_frag.content.concat(frag_lst);
+
+        // return frag_lst;
+        
+        return fastFrag.create( main_frag );
+                
     },
     
     trends : function() {
@@ -70,7 +103,7 @@ window.bExt.Optionspage.prototype={
             desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
         }),
         meta_frag = single_check_frag( opts_page_meta.out()  )
-        var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() ) );
+        var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() || [] ) );
         
         
         meta_frag.content=meta_frag.content.concat( domains_frag );
@@ -201,41 +234,62 @@ function trends_structure() {
 
 function hovercard_blist_domains( structured_items ) {
     return [{
-        type : "h4",
-        content : 'Except These Domains:'
-    },{
-        type : "ul",
-        css : "no_expand_domains_list",
-        content : structured_items
-    },{
-        id : "new_no_expand_domain"
-    },{
+        id : "no_expand_domains_box",
         content : [{
-            type : "a",
-            id : "add_no_expand_domain_form",
-            content : "Add domain host",
-            attributes : {
-                href : "#"
-            }
+            type : "h4",
+            content : 'Except These Domains:'
         },{
-            text : " | "
+            type : "ul",
+            css : "no_expand_domains_list",
+            content : structured_items
         },{
-            type : "a",
-            content : "Remove selected",
-            id : "remove_no_expand_domains",
-            attributes : {
-                href : "#"
-            }
+            id : "new_no_expand_domain"
         },{
-            type : "p",
-            css : "no_domains_note",
-            content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
+            content : [{
+                type : "a",
+                id : "add_no_expand_domain_form",
+                content : "Add domain host",
+                attributes : {
+                    href : "#"
+                }
+            },{
+                text : " | "
+            },{
+                type : "a",
+                content : "Remove selected",
+                id : "remove_no_expand_domains",
+                attributes : {
+                    href : "#"
+                }
+            },{
+                type : "p",
+                css : "no_domains_note",
+                content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
+            }]
         }]
-    }];
+    }]
+}
+
+function _single_radio_frag( meta ) {
+    return {
+        css : "bentoOptions",
+        content : [{
+            type : "input",
+            attrs : {
+                type : "radio",                
+                name : "api_choice",
+                value : meta.value  
+            }
+        },{
+            type : "label",
+            content : "Use " + meta.value + " API"
+        }]
+    }
 }
 
 function single_check_frag( meta ) {
     /*
+        window.bExt.OptionMeta
         meta = {
             title : "",
             desc : "",
