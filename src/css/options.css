@@ -1,5 +1,15 @@
 
 
+/*
+
+    Options Page Powered via JS
+    
+*/
+
+.field_type_checkbox input[type=checkbox]  {
+    margin-right:5px;
+}
+
 
 
 #bento_options_display {

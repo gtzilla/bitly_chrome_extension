@@ -53,7 +53,7 @@
                     
 
                     
-<!--                     <div class="options_container">
+                    <div class="options_container">
                         <h3>Auto Copy Short Urls</h3>
                         <p>Automatically copy short urls to my clipboard when popup opens</p>
                         <div>
@@ -71,7 +71,7 @@
                             <label for="enhance_twitter">Enhance Twitter</label>
                         
                         </div>
-                    </div> -->                    
+                    </div>                    
                     
                     <div class="options_container">
                         <h3>Trend Notifications</h3>
@@ -217,12 +217,14 @@
             <script type="text/javascript" charset="utf-8">
                 
                 
-                var opts_dom = new bExt.Optionspage();
+                var opts_dom = new bExt.Optionspage({
+                    box : "#signedin_info_contents"
+                });
                 // setup the dom
                 
                 
-                $('#middle').append( opts_dom.auto_copy() );
-                $('#middle').append( opts_dom.twitter() );                
+                $('#signedin_info_contents').append( opts_dom.auto_copy() );
+                $('#signedin_info_contents').append( opts_dom.twitter() );                
 
 
                 

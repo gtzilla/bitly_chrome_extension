@@ -16,8 +16,13 @@
         
         As or ver Chrome Ext ver 1, the sign in screen shared the same page as this page.
 */
-window.bExt.Optionspage = function() {
-    
+
+var settings={
+    box : "#signedin_info_contents"
+}
+window.bExt.Optionspage = function( opts_els ) {
+    settings=$.extend(true, {}, settings, opts_els );
+    console.log("up")
     console.log("built!");
     return this;
 }
@@ -120,12 +125,14 @@ function single_check_frag( meta ) {
             type : "p",
             content : meta.desc
         },{
+            css : "field_type_" + meta.type,
             content : [{
                 type : "input",
                 id : meta.id,
                 attrs : {
                     name : meta.id,
-                    type : meta.type
+                    type : meta.type,
+                    value : ""
                 }
             },{
                 type : "label",
@@ -181,7 +188,8 @@ window.bExt.OptionMeta.prototype = {
         title : null,
         label : null,
         type : "checkbox",
-        desc : null
+        desc : null,
+        value : ""
     }
 }
     
