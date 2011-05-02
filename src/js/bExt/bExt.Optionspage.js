@@ -44,6 +44,7 @@ window.bExt.Optionspage.prototype={
         $box.append( this.auto_copy() )
             .append( this.twitter() )
             .append( this.trends() )
+            .append( this.hovercard_domains() )
             .append( this.context_menu() );
     },
     
@@ -99,7 +100,7 @@ window.bExt.Optionspage.prototype={
             desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
         }),
         meta_frag = single_check_frag( opts_page_meta.out()  )
-        var domains_frag = hovercard_blist_domains( [] );
+        var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() ) );
     },
     
     auto_copy : function() {
