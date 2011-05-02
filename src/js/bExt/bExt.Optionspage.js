@@ -57,37 +57,7 @@ window.bExt.Optionspage.prototype={
         });
         
         frag=single_check_frag( opts_page_meta.out() );
-        var trend_frag_details = [{
-            css : "smallInputContainer notificationInnerContainer",
-            content : [{
-                type : "form",
-                id : "notifications_form",
-                attrs : {
-                    action : "#",
-                    method : "get",
-                    "accept-charset" : "utf-8"
-                },
-                content : [{
-                    type : "label",
-                    content : "Default Click Threshold"
-                }, {
-                    type : "input",
-                    attrs : {
-                        type : "text",
-                        value : 20
-                    }
-                }, {
-                    type : "input",
-                    attrs : {
-                        value : "Update",
-                        type : "submit"
-                    }
-                }]
-            },{
-                type : "p",
-                content : "Note: Threshold can be any integer from 5-5,000"
-            }]
-        }];
+        var trend_frag_details = trends_structure();
         frag.content=frag.content.concat(trend_frag_details);
         return fastFrag.create( frag );
     },
@@ -101,6 +71,10 @@ window.bExt.Optionspage.prototype={
         }),
         meta_frag = single_check_frag( opts_page_meta.out()  )
         var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() ) );
+        
+        
+        meta_frag.content=meta_frag.content.concat( domains_frag );
+        return fastFrag.create( meta_frag );
     },
     
     auto_copy : function() {
@@ -138,6 +112,13 @@ window.bExt.Optionspage.prototype={
     }
 }
 
+
+
+/*
+    Utilities  / Extra Methods
+    
+        not publicly exposed by default
+*/
 function build( opts_meta ) {
     var frag = single_check_frag( opts_meta.out() );
     return fastFrag.create( frag );    
@@ -180,6 +161,42 @@ function _nohovercard_domains( d_list  ) {
         });
         
     }
+    
+    return structured_items;
+}
+
+function trends_structure() {
+    return [{
+        css : "smallInputContainer notificationInnerContainer",
+        content : [{
+            type : "form",
+            id : "notifications_form",
+            attrs : {
+                action : "#",
+                method : "get",
+                "accept-charset" : "utf-8"
+            },
+            content : [{
+                type : "label",
+                content : "Default Click Threshold"
+            }, {
+                type : "input",
+                attrs : {
+                    type : "text",
+                    value : 20
+                }
+            }, {
+                type : "input",
+                attrs : {
+                    value : "Update",
+                    type : "submit"
+                }
+            }]
+        },{
+            type : "p",
+            content : "Note: Threshold can be any integer from 5-5,000"
+        }]
+    }];
 }
 
 function hovercard_blist_domains( structured_items ) {
@@ -254,17 +271,6 @@ function single_check_frag( meta ) {
             }]
         }]
     }
-    
-    // <div class="options_container">
-    //     <h3>Twitter Enhance</h3>
-    //     <p>Display a shorten button on twitter.com when I enter a long URL</p>
-    //     <div>
-    //         <input type="checkbox" name="enhance_twitter" value="" id="enhance_twitter">
-    //         <label for="enhance_twitter">Enhance Twitter</label>
-    //     
-    //     </div>
-    // </div>    
-    
 }
 
 
