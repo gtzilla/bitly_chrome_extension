@@ -83,26 +83,11 @@ bExt.Eventer.prototype={
         if(this.is_chrome && page_name !==  "" ) {
             this._open_chrome_page( page_name );
         } else {
-            console.log("not chrome browser");
+            console.log("not chrome browser, no no name specificed", page_name);
         }
     },
     _open_chrome_page : function( page_name ) {
-        var url =  chrome.extension.getURL(page_name),
-            curr_tab, i=0, createTab=true, self=this,
-            params = { 'selected' : true, 'url' : url };
-        
-        chrome.tabs.getAllInWindow(null, function(tab_array) {
-
-           for(; curr_tab=tab_array[i]; i++) {
-               // todo, this is broken
-               if( self.url === url ) {
-                   createTab=false;
-                   chrome.tabs.update( self.tab_id, params);
-                   break;
-               }
-           }
-           if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL( page_name ) }); }
-        });        
+       bExt.open_page( page_name  );
     },
     
     add_js : function( tab_id, script_list) {

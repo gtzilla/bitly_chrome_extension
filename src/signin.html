@@ -104,7 +104,10 @@
                 bg.bExt.sign_in( username.val(), pass.val(), function(jo) {                        
                     //console.log(jo)
                     if(jo && !jo.error) {
-                        document.location.reload();
+                        console.log("worked!")
+                        document.location=chrome.extension.getURL( "options.html" );
+                        
+                        // document.location.reload();
                         return;
                     } else if(jo && jo.status_code === 401) {
                         // set diff default text here

@@ -34,6 +34,27 @@ window.bExt={
 
     },
     
+    open_page : function( page_name ) {
+        if(!bExt.is_chrome) { console.log("not chrome"); return; }
+        
+        var url =  chrome.extension.getURL(page_name),
+            curr_tab, i=0, createTab=true, self=this,
+            params = { 'selected' : true, 'url' : url };
+        
+        chrome.tabs.getAllInWindow(null, function(tab_array) {
+
+           for(; curr_tab=tab_array[i]; i++) {
+               // todo, this is broken
+               if( self.url === url ) {
+                   createTab=false;
+                   chrome.tabs.update( self.tab_id, params);
+                   break;
+               }
+           }
+           if(createTab) { chrome.tabs.create( { 'url' : chrome.extension.getURL( page_name ) }); }
+        });        
+    },
+    
     set_popup : function() {
         if(bExt.is_chrome) {
             chrome.browserAction.setPopup({ "popup" : "popup.html"});
