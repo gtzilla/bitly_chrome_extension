@@ -25,7 +25,7 @@
             
             <div id="middle">
 
-                <div id="signedout_info_contents" >
+                <div id="signedout_info_contents">
                     <form id="signin_form" action="#" method="get" accept-charset="utf-8">
                         
                         <div id="errors_box" class="chrome_page_errors_box" style="display:none;"></div>
@@ -69,8 +69,72 @@
     
             <script type="text/javascript" charset="utf-8" src="js/jquery-1.5.2.js"></script>
             <script type="text/javascript" charset="utf-8" src="js/libs/fastFrag.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/bExt/bExt.js"></script>            
             <script type="text/javascript">
-            $("signin_form").addEventListener('submit', signin_form_event);
+            
+            
+            var bg = chrome.extension.getBackgroundPage(),
+                login_attempt_count=0;
+            
+            console.log("party");
+            
+            
+            function signin_form_event( e ){
+                console.log("start")
+                e.preventDefault();
+                login_attempt_count+=1;
+                // validate form
+                var username = $("#username"),
+                    pass = $("#password"),
+                    error_message_text = "Sorry, your username and password don't match";
+                if(username.value === "" ||  pass.value === "") {
+                    console.log("all fields required")
+                    errors_box_elem.html("All fields required"); 
+                    errors_box_elem.css("display", "block");
+                    return;
+                }
+
+                var sign_in_loader_elem = $("#sign_in_loader"),
+                    errors_box_elem = $("#errors_box"),
+                    signInButtonContainer_elem = $("#signInButtonContainer");
+
+                sign_in_loader_elem.css("display", "block");
+                signInButtonContainer_elem.css("display", "none");
+                errors_box_elem.css("display", "none");
+                bg.bExt.sign_in( username.val(), pass.val(), function(jo) {                        
+                    //console.log(jo)
+                    if(jo && !jo.error) {
+                        document.location.reload();
+                        return;
+                    } else if(jo && jo.status_code === 401) {
+                        // set diff default text here
+                    } else {
+                        error_message_text = "An error occurred trying to sign in"
+                    }
+                    
+                    if(login_attempt_count > 5) {
+                        alert("It looks like you found some type of bug, please email us at support@bit.ly with your username.");
+                        document.location.reload();                            
+                    } else if(login_attempt_count > 3) {
+                        alert("Please contact us at support@bit.ly, there appears to be a problem");
+                    }
+                    
+                    
+                    sign_in_loader_elem.css("display", "none");
+                    signInButtonContainer_elem.css("display", "block");
+                    errors_box_elem.html( error_message_text );
+                    errors_box_elem.css("display", "block");
+                    console.log("Failed sign in")
+                    // bg.logger("Failed sign in attempt: " + JSON.stringify( jo ) );
+                
+                });
+            
+            }            
+            
+            $("#signin_form").bind('submit', signin_form_event);
+            
+            
+            
             </script>
       
     </body>

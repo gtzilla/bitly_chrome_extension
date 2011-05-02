@@ -242,9 +242,7 @@
                     user_data = bg.localfetch("user_data"),
                     auto_copy_elem = _id("auto_copy_short_urls"),
                     enhance_twitter_input = _id("enhance_twitter"),
-                    errors_box_elem = _id("errors_box"),
-                    signInButtonContainer_elem = _id("signInButtonContainer"),
-                    sign_in_loader_elem = _id("sign_in_loader"),
+                    
                     logging_box_elem = _id("logging_box"),
                     elem, header = _id("bitly_options"),
                     shares_elem = _id("share_accounts"),
@@ -516,52 +514,52 @@
                 
                 // events
                 
-                function signin_form_event( e ){
-                    e.preventDefault();
-                    login_attempt_count+=1;
-                    // validate form
-                    var username = _id("username"),
-                        pass = _id("password"),
-                        error_message_text = "Sorry, your username and password don't match";
-                    if(username.value === "" ||  pass.value === "") {
-                        console.log("all fields required")
-                        errors_box_elem.innerHTML = "All fields required"
-                        errors_box_elem.style.display="block";
-                        return;
-                    }
-
-                    sign_in_loader_elem.style.display="block";
-                    signInButtonContainer_elem.style.display="none";
-                    errors_box_elem.style.display="none";
-                    bg.bExt.sign_in( username.value, pass.value, function(jo) {                        
-                        //console.log(jo)
-                        if(jo && !jo.error) {
-                            document.location.reload();
-                            return;
-                        } else if(jo && jo.status_code === 401) {
-                            // set diff default text here
-                        } else {
-                            error_message_text = "An error occurred trying to sign in"
-                        }
-                        
-                        if(login_attempt_count > 5) {
-                            alert("It looks like you found some type of bug, please email us at support@bit.ly with your username.");
-                            document.location.reload();                            
-                        } else if(login_attempt_count > 3) {
-                            alert("Please contact us at support@bit.ly, there appears to be a problem");
-                        }
-                        
-                        
-                        sign_in_loader_elem.style.display="none";
-                        signInButtonContainer_elem.style.display="block";
-                        errors_box_elem.innerHTML = error_message_text;
-                        errors_box_elem.style.display="block";
-                        console.log("Failed sign in")
-                        bg.logger("Failed sign in attempt: " + JSON.stringify( jo ) );
-                    
-                    });
-                
-                }
+                // function signin_form_event( e ){
+                //     e.preventDefault();
+                //     login_attempt_count+=1;
+                //     // validate form
+                //     var username = _id("username"),
+                //         pass = _id("password"),
+                //         error_message_text = "Sorry, your username and password don't match";
+                //     if(username.value === "" ||  pass.value === "") {
+                //         console.log("all fields required")
+                //         errors_box_elem.innerHTML = "All fields required"
+                //         errors_box_elem.style.display="block";
+                //         return;
+                //     }
+                // 
+                //     sign_in_loader_elem.style.display="block";
+                //     signInButtonContainer_elem.style.display="none";
+                //     errors_box_elem.style.display="none";
+                //     bg.bExt.sign_in( username.value, pass.value, function(jo) {                        
+                //         //console.log(jo)
+                //         if(jo && !jo.error) {
+                //             document.location.reload();
+                //             return;
+                //         } else if(jo && jo.status_code === 401) {
+                //             // set diff default text here
+                //         } else {
+                //             error_message_text = "An error occurred trying to sign in"
+                //         }
+                //         
+                //         if(login_attempt_count > 5) {
+                //             alert("It looks like you found some type of bug, please email us at support@bit.ly with your username.");
+                //             document.location.reload();                            
+                //         } else if(login_attempt_count > 3) {
+                //             alert("Please contact us at support@bit.ly, there appears to be a problem");
+                //         }
+                //         
+                //         
+                //         sign_in_loader_elem.style.display="none";
+                //         signInButtonContainer_elem.style.display="block";
+                //         errors_box_elem.innerHTML = error_message_text;
+                //         errors_box_elem.style.display="block";
+                //         console.log("Failed sign in")
+                //         bg.logger("Failed sign in attempt: " + JSON.stringify( jo ) );
+                //     
+                //     });
+                // 
+                // }
                 
                 /*
                      Determine which 'display' to show user. Signed In || Sign In
