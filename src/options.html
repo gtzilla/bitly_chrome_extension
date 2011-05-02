@@ -222,9 +222,9 @@
                 });
                 // setup the dom
                 
-                
-                $('#signedin_info_contents').append( opts_dom.auto_copy() );
-                $('#signedin_info_contents').append( opts_dom.twitter() );                
+                opts_dom.assemble();
+                // $('#signedin_info_contents').append( opts_dom.auto_copy() );
+                // $('#signedin_info_contents').append( opts_dom.twitter() );                
 
 
                 
@@ -610,8 +610,8 @@
                         //     display_user_watched_links();
                         // }
                             
-                        _q('.notificationInnerContainer').style.display=show_watch_check;
-                        _q('[type=text]', notifications_form).value = note_prefs.threshold || 20;                        
+                        // _q('.notificationInnerContainer').style.display=show_watch_check;
+                        // _q('[type=text]', notifications_form).value = note_prefs.threshold || 20;                        
                     } 
 
                     
@@ -721,25 +721,25 @@
                 });
                 
                 
-                notifications_form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    var thres = _q("[type=text]", this), safe_value;
-                    console.log(thres.value);
-                    safe_value = get_safe_threshold( thres.value );
-                    // todo
-                    // error handle, more than 0 clicks
-                    bg.set_note_preferences( { 'enabled': true, 'threshold' : safe_value } );                    
-
-                })
-                
-                watch_urls.addEventListener('change', function(e) {
-                    bg.set_note_preferences( { 'enabled': e.target.checked } );
-                    var shown = "none"
-                    if(e.target.checked) {
-                        shown="block";
-                    }
-                    _q('.notificationInnerContainer').style.display=shown;                    
-                });
+                // notifications_form.addEventListener('submit', function(e) {
+                //     e.preventDefault();
+                //     var thres = _q("[type=text]", this), safe_value;
+                //     console.log(thres.value);
+                //     safe_value = get_safe_threshold( thres.value );
+                //     // todo
+                //     // error handle, more than 0 clicks
+                //     bg.set_note_preferences( { 'enabled': true, 'threshold' : safe_value } );                    
+                // 
+                // })
+                // 
+                // watch_urls.addEventListener('change', function(e) {
+                //     bg.set_note_preferences( { 'enabled': e.target.checked } );
+                //     var shown = "none"
+                //     if(e.target.checked) {
+                //         shown="block";
+                //     }
+                //     _q('.notificationInnerContainer').style.display=shown;                    
+                // });
                 
                 api_form_elem.addEventListener('change', function(e) {
                     //e.target,

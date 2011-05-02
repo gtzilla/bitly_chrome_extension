@@ -14,16 +14,14 @@
     
         Controls User Meta Data Settings and Configuration
         
-        As or ver Chrome Ext ver 1, the sign in screen shared the same page as this page.
 */
 
 var settings={
     box : "#signedin_info_contents"
 }
+
 window.bExt.Optionspage = function( opts_els ) {
     settings=$.extend(true, {}, settings, opts_els );
-    console.log("up")
-    console.log("built!");
     return this;
 }
 
@@ -31,15 +29,33 @@ window.bExt.Optionspage.prototype={
     
     __lst : [],
     
+    // make this appear as an array
+    length : 0,
+    splice : function() {
+        
+    },
+    
+    
+    assemble : function() {
+        var $box=$(settings.box);
+        
+        // get users data, append Elements as needed
+        
+        $box.append( this.auto_copy() )
+            .append( this.twitter() )
+            .append( this.trends() )
+            .append( this.context_menu() );
+    },
+    
     trends : function() {
         
         var frag, opts_page_meta = new bExt.OptionMeta({
             title : "Trend Notifications",
             label : "Enable Notifications",
             desc : "Automatically notify me when my link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour."
-        });        
+        });
         
-        frag=single_check_frag( opts_page_meta );
+        frag=single_check_frag( opts_page_meta.out() );
         var trend_frag_details = [{
             css : "smallInputContainer notificationInnerContainer",
             content : [{
@@ -70,9 +86,20 @@ window.bExt.Optionspage.prototype={
                 type : "p",
                 content : "Note: Threshold can be any integer from 5-5,000"
             }]
-        }]
+        }];
         frag.content=frag.content.concat(trend_frag_details);
-        fastFrag.create( frag );
+        return fastFrag.create( frag );
+    },
+    
+    hovercard_domains : function() {
+        
+        var opts_page_meta = new bExt.OptionMeta({
+            title : "Auto Expand Links",
+            label : "Show Link Preview",
+            desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
+        }),
+        meta_frag = single_check_frag( opts_page_meta.out()  )
+        var domains_frag = hovercard_blist_domains( [] );
     },
     
     auto_copy : function() {
@@ -83,6 +110,15 @@ window.bExt.Optionspage.prototype={
         });        
         
         return build( opts_page_meta );       
+    },
+    
+    context_menu : function() {
+        var opts_page_meta = new bExt.OptionMeta({
+            title : "Context Menu Notifications",
+            label : "Show Success Notification",
+            desc : "On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs"
+        });    
+        return build( opts_page_meta );            
     },
     
     twitter : function() {
@@ -104,6 +140,80 @@ window.bExt.Optionspage.prototype={
 function build( opts_meta ) {
     var frag = single_check_frag( opts_meta.out() );
     return fastFrag.create( frag );    
+}
+
+
+function _nohovercard_domains( d_list  ) {
+    var i=0, domain, disble_box="disabled", 
+        structured_items=[];
+    for( ; domain=d_list[i]; i++) {
+        // note
+        // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
+        if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
+        else { disble_box = false; }
+        
+        structured_items.push({
+            type : "li",
+            content : [{
+                type : "input",
+                id : 'no_expand_d_'+i,
+                css : "no_expand_check",
+                attributes: {
+                    type : "checkbox",
+                    value : domain,
+                    name : "no_expand_domain",
+                    disabled : disble_box
+                }
+            },{
+                type : "label",
+                content : domain,
+                attributes : {
+                    'for' : 'no_expand_d_'+i
+                }
+            },{
+                css : "hr",
+                content : {
+                    type : "hr"
+                }
+            }]
+        });
+        
+    }
+}
+
+function hovercard_blist_domains( structured_items ) {
+    return [{
+        type : "h4",
+        content : 'Except These Domains:'
+    },{
+        type : "ul",
+        css : "no_expand_domains_list",
+        content : structured_items
+    },{
+        id : "new_no_expand_domain"
+    },{
+        content : [{
+            type : "a",
+            id : "add_no_expand_domain_form",
+            content : "Add domain host",
+            attributes : {
+                href : "#"
+            }
+        },{
+            text : " | "
+        },{
+            type : "a",
+            content : "Remove selected",
+            id : "remove_no_expand_domains",
+            attributes : {
+                href : "#"
+            }
+        },{
+            type : "p",
+            css : "no_domains_note",
+            content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
+        }]
+    }];
 }
 
 function single_check_frag( meta ) {
@@ -180,6 +290,15 @@ window.bExt.OptionMeta.prototype = {
             this.__m.label=this.__m.title;
         }
     },
+    
+    get : function( name ) {
+        return this.__m[ name ];
+    },
+    
+    set : function( name, value ) {
+        return this.__m[name]=value;
+    },
+    
     out : function() {
         return this.__m;
     },
