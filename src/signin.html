@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+
+<!--
+    http://unlicense.org/
+    author: gregory tomlinson
+-->
+
+<!-- MIME TYPE Guidlines and references: http://hixie.ch/advocacy/xhtml -->
+    <head>
+        <title>Sign In | bitly Extension Settings</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="awesome" />
+        <meta name="description" content="" />
+        <link rel="stylesheet" href="css/basic.css" type="text/css" charset="utf-8">
+        <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8">        
+        <link rel="stylesheet" href="css/options.css" type="text/css" charset="utf-8">                
+    </head>
+    <body>
+        <div id="container">
+
+            <div id="top">
+
+            </div> <!-- end #top -->
+            
+            <div id="middle">
+
+                <div id="signedout_info_contents" >
+                    <form id="signin_form" action="#" method="get" accept-charset="utf-8">
+                        
+                        <div id="errors_box" class="chrome_page_errors_box" style="display:none;"></div>
+                        
+                        <div class="inputContainer">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" value="" id="username">
+                        </div>
+
+
+                        
+                        <div class="inputContainer">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" value="" id="password">
+                        </div>
+                        
+                        <div id="signInContainer">
+                            <div id="signInButtonContainer">
+                                <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Sign In" id="some_name">
+                            </div>
+                            <div style="display:none;" id="sign_in_loader">
+                                <img src="s/graphics/loader_signin_30_30.gif" height="30" width="30" border="0" alt="" />
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="meta_graph">
+                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_up">Get an account</a></p>
+                        </div>
+                    
+                    </form>
+                </div>
+
+            </div> <!-- END #middle -->
+        
+            <div id="bottom">
+
+            </div> <!-- end #bottom -->
+            
+        </div> <!-- end #container -->
+    
+            <script type="text/javascript" charset="utf-8" src="js/jquery-1.5.2.js"></script>
+            <script type="text/javascript" charset="utf-8" src="js/libs/fastFrag.js"></script>
+            <script type="text/javascript">
+            $("signin_form").addEventListener('submit', signin_form_event);
+            </script>
+      
+    </body>
+</html>

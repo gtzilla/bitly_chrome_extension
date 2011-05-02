@@ -139,9 +139,13 @@ window.bExt={
     },
     
     evt_button_listen : function( curr_tab ) {
-        if(bExt.is_chrome) {
-            chrome.tabs.create( { 'url' : chrome.extension.getURL( "options.html" ) });                    
-        } else {
+        // The Event for the 'popup' When popup is NOT enable
+        var udata = bExt.info.get("user_data");
+        if(bExt.is_chrome && udata && udata.x_login ) {
+            console.log("is the no shorten on??")
+        } else if(bExt.is_chrome) {
+            
+            chrome.tabs.create( { 'url' : chrome.extension.getURL( "signin.html" ) });
             console.log("didn't open the chrome tab for optiions inoroder to login")
         }
 
