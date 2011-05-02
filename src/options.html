@@ -53,7 +53,7 @@
                     
 
                     
-                    <div class="options_container">
+<!--                     <div class="options_container">
                         <h3>Auto Copy Short Urls</h3>
                         <p>Automatically copy short urls to my clipboard when popup opens</p>
                         <div>
@@ -71,7 +71,7 @@
                             <label for="enhance_twitter">Enhance Twitter</label>
                         
                         </div>
-                    </div>                    
+                    </div> -->                    
                     
                     <div class="options_container">
                         <h3>Trend Notifications</h3>
@@ -219,8 +219,12 @@
                 
                 var opts_dom = new bExt.Optionspage();
                 // setup the dom
-                opts_dom.twitter();
-                opts_dom.auto_copy();
+                
+                
+                $('#middle').append( opts_dom.auto_copy() );
+                $('#middle').append( opts_dom.twitter() );                
+
+
                 
             </script>
             
@@ -583,17 +587,17 @@
                         url_expand_input.checked=false;
                     }
                     
-                    if(bg.get_enhance_twitter()) {
-                        enhance_twitter_input.checked=true;
-                    } else {
-                        enhance_twitter_input.checked=false;
-                    }
+                    // if(bg.get_enhance_twitter()) {
+                    //     enhance_twitter_input.checked=true;
+                    // } else {
+                    //     enhance_twitter_input.checked=false;
+                    // }
                     
-                    if( bg.get_auto_copy() ) {
-                        auto_copy_elem.checked=true;
-                    } else {
-                        auto_copy_elem.checked=false;
-                    }
+                    // if( bg.get_auto_copy() ) {
+                    //     auto_copy_elem.checked=true;
+                    // } else {
+                    //     auto_copy_elem.checked=false;
+                    // }
                     set_api_radio_button();
                     
                     if( note_prefs ) {
@@ -656,19 +660,19 @@
                     // bg.set_url_expansion( e.target.checked );
                     bExt.info.set("auto_expand_urls", e.target.checked);
                 });
-                auto_copy_elem.addEventListener("change", function(e) {
-                    bg.set_auto_copy(e.target.checked);
-                });
+                // auto_copy_elem.addEventListener("change", function(e) {
+                //     bg.set_auto_copy(e.target.checked);
+                // });
                 
-                enhance_twitter_input.addEventListener('change', function(e) {
-                    if(e.target.checked) {
-                        
-                    } else {
-                        enhance_twitter_input.checked=false;
-                    }
-                    
-                    bg.set_enhance_twitter_com( e.target.checked );
-                });
+                // enhance_twitter_input.addEventListener('change', function(e) {
+                //     if(e.target.checked) {
+                //         
+                //     } else {
+                //         enhance_twitter_input.checked=false;
+                //     }
+                //     
+                //     bg.set_enhance_twitter_com( e.target.checked );
+                // });
                 
                 no_expand_domains_box_elem.addEventListener('click', function(e) {
                     var t = e.target, inputs, input, i=0, removed_count = 0, p;

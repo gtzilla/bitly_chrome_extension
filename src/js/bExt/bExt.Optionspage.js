@@ -153,9 +153,8 @@ function single_check_frag( meta ) {
 
 window.bExt.OptionMeta = function( meta_obj  ) {
     this.__m=$.extend( true, this.__m, meta_obj );
-
-    this.set_id();
     this.set_label();
+    this.set_id();
 
     return this;
 }
@@ -163,9 +162,11 @@ window.bExt.OptionMeta = function( meta_obj  ) {
 window.bExt.OptionMeta.prototype = {
     
     set_id : function() {
-        if(!this.__m.id) {
+        if(!this.__m.id && this.__m.title !== this.__m.label ) {
             this.__m.id=(this.__m.title + "_" + this.__m.label).replace(/[^a-z0-9]/gi, "_").toLowerCase();
-        }        
+        } else {
+            this.__m.id=(this.__m.title).replace(/[^a-z0-9]/gi, "_").toLowerCase();
+        }
     },
     set_label : function() {
         if(!this.__m.label) {
