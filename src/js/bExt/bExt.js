@@ -20,7 +20,10 @@ window.bExt={
     'is_chrome' : chrome&&chrome.tabs ? true : false,
     'context_menu' : false,
     
-        
+    /*
+        TODO: Handle Upgrades / New Installs better
+            DB Space, Setting Defaults etc
+    */
     match_host : function(url_str) {
         // todo, weakness, not all URLs start with HTTP/HTTPs 
         var matches = url_str && url_str.trim().match(/^http(?:s)?:\/\/([^/]{2,})\/?.*$/i);
@@ -448,6 +451,30 @@ window.bExt.cache = {
     // handle loading the local cache on application start
     // todo, add methods in signout here... 
     
+}
+
+window.bExt.config = {
+    /*
+        Twitter Button
+        
+        Right Click Button
+        
+        Auto Copy Button
+        
+        Context Menu Notifications
+        
+        Hovercard / link expander
+    */
+    twitter_bttn : function() {
+        var existing = bExt.info.get("enhance_twitter_com");
+        if(existing === null || existing === undefined )  {
+            console.log("it doesn't EXIST???");
+            existing=true;
+            bExt.info.set("enhance_twitter_com", existing);            
+        }
+        return existing;
+        
+    }
 }
 
 /*

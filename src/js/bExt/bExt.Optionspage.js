@@ -45,7 +45,7 @@ window.bExt.Optionspage.prototype={
     },
     
     assemble : function() {
-        var $box=$(settings.box);
+        var $box=$(settings.box), lst;
         
         // get users data, append Elements as needed
         
@@ -55,9 +55,9 @@ window.bExt.Optionspage.prototype={
             .append( this.hovercard_domains() )
             .append( this.context_menu() )
             .append( this.api_domains() );
-            
-        var lst = this.__lst;
         
+        //  Assign DOM Events for OptionsMeta Objects list
+        lst = this.__lst;
         for(var i=0; i<this.__lst.length; i++) {
             if(lst[i].event_method !== null ) {
                $( "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
@@ -154,11 +154,12 @@ window.bExt.Optionspage.prototype={
     twitter : function() {
         var opts_page_meta = this.build_meta({
             title : "Twitter Enhance",
+            enabled : bExt.config.twitter_bttn(),
             label : "Enhance Twitter",
             desc : "Display a shorten button on twitter.com when I enter a long URL"
         });  
         
-        
+        opts_page_meta.event_method=bExt.option_evts.twitter;
         return build( opts_page_meta );
     },
     
@@ -359,12 +360,23 @@ function single_check_frag( meta ) {
 }
 
 
+/*
+    Options Event
+
+*/
 window.bExt.option_evts = {
     
     auto_copy : function( e ) {
         var chkd = $(e.target).attr("checked");
         console.log(chkd, "chkd");
         bExt.info.set("auto_copy", chkd);
+    },
+    
+    twitter : function(e) {
+        var chkd = $(e.target).attr("checked");
+        console.log("twitter working");
+        bExt.info.set("enhance_twitter_com", chkd );
+        
     }
     
 }
