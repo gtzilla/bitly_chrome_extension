@@ -71,13 +71,14 @@ window.bExt.Optionspage.prototype={
                 title : "API Domains",
                 desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
             }),
-            apis_lst=["bit.ly", "j.mp", "bitly.com"];
+            apis_lst=["bit.ly", "j.mp", "bitly.com"],
+            user_selected_domain = bExt.info.get("domain") || "bit.ly";
         
         for(var i=0; i<apis_lst.length; i++) {
             // don't use complete object [new bExt.OptionMeta] here, overkill
             meta_list.push({
                 value : apis_lst[i],
-                enabled : false
+                enabled : ( apis_lst[i] === user_selected_domain ) ? true : false
             });
         }
         
@@ -292,15 +293,19 @@ function hovercard_blist_domains( structured_items ) {
 }
 
 function _single_radio_frag( meta ) {
+    var radio_params = {
+        type : "radio",                
+        name : "api_choice",
+        value : meta.value        
+    }
+    if(meta.enabled) {
+        radio_params.checked=true;
+    }
     return {
         css : "bentoOptions",
         content : [{
             type : "input",
-            attrs : {
-                type : "radio",                
-                name : "api_choice",
-                value : meta.value  
-            }
+            attrs : radio_params
         },{
             type : "label",
             content : "Use " + meta.value + " API"
