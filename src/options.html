@@ -212,17 +212,17 @@
             <script type="text/javascript" src="js/libs/fastFrag.js"></script>
             <script type="text/javascript" src="js/bExt/bExt.js"></script>
             <script type="text/javascript" src="js/bExt/bExt.hovercard.js"></script>
-            <script type="text/javascript" src="js/bExt/bExt.Optionspage.js"></script>
+            <script type="text/javascript" src="js/bExt/bExt.options_page.js"></script>
             <script type="text/javascript" charset="utf-8">
                 
                 
-                var opts_dom = new bExt.Optionspage({
+                var opts_dom = bExt.options_page.init({
                     box : "#signedin_info_contents"
                 });
                 // setup the dom
                 
                 // todo, add the init app scripts pieces
-                opts_dom.assemble();
+                bExt.options_page.assemble();
                 // $('#signedin_info_contents').append( opts_dom.auto_copy() );
                 // $('#signedin_info_contents').append( opts_dom.twitter() );                
 

@@ -1,5 +1,5 @@
 // 
-//  bExt.Optionspage.js
+//  bExt.options_page.js
 //  bitly_chrome_extension
 //  
 //  Created by gregory tomlinson on 2011-04-28.
@@ -22,14 +22,14 @@ var settings={
     is_chrome : (chrome&&chrome.tabs) ? true : false
 };
 
-window.bExt.Optionspage = function( opts_els ) {
-    settings=$.extend(true, {}, settings, opts_els );
-    var udata = bExt.info.get("user_data");
-    console.log("this user", udata);
-    return this;
-}
-
-window.bExt.Optionspage.prototype={
+window.bExt.options_page={
+    
+    //bExt.options_page.init
+    init : function( opts_els ) {
+        settings=$.extend(true, {}, settings, opts_els );
+        var udata = bExt.info.get("user_data");
+        console.log("this user", udata);        
+    },
     
     __lst : [],
     
@@ -44,7 +44,7 @@ window.bExt.Optionspage.prototype={
         
         // javascript fun, this is a reference. Objects are PASS BY REFERENCE
         // we can always access them, it's NOT A copy unless we go to serious lengths to ensure it.
-        this.__lst.push(m);
+        bExt.options_page.__lst.push(m);
         return m;
     },
     
@@ -53,17 +53,17 @@ window.bExt.Optionspage.prototype={
         
         // get users data, append Elements as needed
         
-        $box.append( this.services() )
-            .append( this.auto_copy() )
-            .append( this.twitter() )
-            .append( this.trends() )
-            .append( this.hovercard_domains() )
-            .append( this.context_menu() )
-            .append( this.api_domains() );
+        $box.append( bExt.options_page.services() )
+            .append( bExt.options_page.auto_copy() )
+            .append( bExt.options_page.twitter() )
+            .append( bExt.options_page.trends() )
+            .append( bExt.options_page.hovercard_domains() )
+            .append( bExt.options_page.context_menu() )
+            .append( bExt.options_page.api_domains() );
         
         //  Assign DOM Events for OptionsMeta Objects list
-        lst = this.__lst;
-        for(var i=0; i<this.__lst.length; i++) {
+        lst = bExt.options_page.__lst;
+        for(var i=0; i<bExt.options_page.__lst.length; i++) {
             if(lst[i].event_method !== null ) {
                $( lst[i].el_selector || "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
@@ -72,7 +72,7 @@ window.bExt.Optionspage.prototype={
     
     api_domains : function() {
         var frag_lst=[], meta_list=[], main_frag,
-            prime_meta = this.build_meta({
+            prime_meta = bExt.options_page.build_meta({
                 title : "API Domains",
                 desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
             }),
@@ -105,7 +105,7 @@ window.bExt.Optionspage.prototype={
     
     trends : function() {
         
-        var frag, opts_page_meta = this.build_meta({
+        var frag, opts_page_meta = bExt.options_page.build_meta({
             title : "Trend Notifications",
             label : "Enable Notifications",
             desc : "Automatically notify me when my link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour."
@@ -118,7 +118,7 @@ window.bExt.Optionspage.prototype={
     },
     
     services : function() {
-        var opts_page_meta = this.build_meta({
+        var opts_page_meta = bExt.options_page.build_meta({
             title : "Sharing Services",
             desc : "Share your links using the below external social network account(s):"
         }), frag=sharing_frag_container( opts_page_meta.out() );
@@ -135,7 +135,7 @@ window.bExt.Optionspage.prototype={
     
     hovercard_domains : function() {
         
-        var opts_page_meta = this.build_meta({
+        var opts_page_meta = bExt.options_page.build_meta({
             title : "Auto Expand Links",
             label : "Show Link Preview",
             enabled : bExt.hovercard.allow(),
@@ -154,7 +154,7 @@ window.bExt.Optionspage.prototype={
     
     auto_copy : function() {
         
-        var opts_page_meta = this.build_meta({
+        var opts_page_meta = bExt.options_page.build_meta({
             title : "Auto Copy Short Urls",
             enabled : bExt.info.get("auto_copy"),
             desc : "Automatically copy short urls to my clipboard when popup opens"
@@ -168,7 +168,7 @@ window.bExt.Optionspage.prototype={
     },
     
     context_menu : function() {
-        var opts_page_meta = this.build_meta({
+        var opts_page_meta = bExt.options_page.build_meta({
             title : "Context Menu Notifications",
             label : "Show Success Notification",
             desc : "On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs"
@@ -177,7 +177,7 @@ window.bExt.Optionspage.prototype={
     },
     
     twitter : function() {
-        var opts_page_meta = this.build_meta({
+        var opts_page_meta = bExt.options_page.build_meta({
             title : "Twitter Enhance",
             enabled : bExt.config.twitter_bttn(),
             label : "Enhance Twitter",
@@ -189,7 +189,7 @@ window.bExt.Optionspage.prototype={
     },
     
     basic : function() {
-        console.log("basic: window.bExt.Optionspage");
+        console.log("basic: window.bExt.options_page");
     }
 }
 
@@ -451,7 +451,7 @@ function list_accounts_callback(response) {
         document.location.reload();
     }
     
-    console.log("show repsonse for sharing services", response)
+    // console.log("show repsonse for sharing services", response);
     var accounts = response && response.share_accounts, i=0,
         account, html = "", status, structure, structure_items=[];
     
@@ -486,47 +486,10 @@ function list_accounts_callback(response) {
         })
     }
     
-    
-    // structure = {
-    //     id : "share_accounts",
-    //     content : [{
-    //         type : "h3",
-    //         content : "Services"
-    //     },{
-    //         type : "p",
-    //         content : "Share your links on:"
-    //     }, {
-    //         type : "ul",
-    //         content : structure_items
-    //     },{
-    //         css : "meta_graph",
-    //         content : {
-    //             type : "p",
-    //             content : [{
-    //                 type : "a",
-    //                 css : "add_or_remove",
-    //                 content : "Add or remove",
-    //                 attributes : {
-    //                     href : "http://bit.ly/a/account",
-    //                     target : "new"
-    //                 }                                
-    //             },{
-    //                 text : " accounts on bitly | "
-    //             },{
-    //                 type : "a",
-    //                 css : "resync",
-    //                 content : "Refresh account list",
-    //                 attributes : {
-    //                     href : "#"
-    //                 } 
-    //             }]
-    //         }
-    //     }]
-    // };
     if(settings.share_box) {
         $("#" + settings.share_box).html('').append( fastFrag.create( structure_items ) );    
     } else {
-        console.log("no settings.share_box to attach sharing UI to")
+        console.log("no settings.share_box to attach sharing UI to");
     }
 
 }
@@ -542,7 +505,7 @@ window.bExt.option_evts = {
     
     auto_copy : function( e ) {
         var chkd = $(e.target).attr("checked");
-        console.log("event for auto copy")
+        console.log("event for auto copy", chkd);
         bExt.info.set("auto_copy", chkd);
     },
     
