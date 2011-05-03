@@ -221,6 +221,7 @@
                 });
                 // setup the dom
                 
+                // todo, add the init app scripts pieces
                 opts_dom.assemble();
                 // $('#signedin_info_contents').append( opts_dom.auto_copy() );
                 // $('#signedin_info_contents').append( opts_dom.twitter() );                
@@ -254,13 +255,13 @@
                     login_attempt_count=0;
 
                 
-                function get_safe_threshold( num_value ) {
-                     
-                    var safe_value = Math.max(num_value, 5);
-                    safe_value = Math.ceil( Math.min(safe_value, 5000) );
-                    
-                    return safe_value;
-                }
+                // function get_safe_threshold( num_value ) {
+                //      
+                //     var safe_value = Math.max(num_value, 5);
+                //     safe_value = Math.ceil( Math.min(safe_value, 5000) );
+                //     
+                //     return safe_value;
+                // }
                 
                 
                 function set_api_radio_button() {
@@ -305,133 +306,133 @@
                     parent_elem.appendChild( results );
                 }
                 
-                function display_no_expand_domains() {
-                    var d_list = bg.get_no_expand_domains(), i=0,
-                        domain, disble_box="disabled", structured_items = [];
-                    for( ; domain=d_list[i]; i++) {
-                        // note
-                        // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
-                        if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
-                        else { disble_box = false; }
-                        
-                        structured_items.push({
-                            type : "li",
-                            content : [{
-                                type : "input",
-                                id : 'no_expand_d_'+i,
-                                css : "no_expand_check",
-                                attributes: {
-                                    type : "checkbox",
-                                    value : domain,
-                                    name : "no_expand_domain",
-                                    disabled : disble_box
-                                }
-                            },{
-                                type : "label",
-                                content : domain,
-                                attributes : {
-                                    'for' : 'no_expand_d_'+i
-                                }
-                            },{
-                                css : "hr",
-                                content : {
-                                    type : "hr"
-                                }
-                            }]
-                        });
-                        
-                    }
-
-                    
-                    var structure = [{
-                        type : "h4",
-                        content : 'Except These Domains:'
-                    },{
-                        type : "ul",
-                        css : "no_expand_domains_list",
-                        content : structured_items
-                    },{
-                        id : "new_no_expand_domain"
-                    },{
-                        content : [{
-                            type : "a",
-                            id : "add_no_expand_domain_form",
-                            content : "Add domain host",
-                            attributes : {
-                                href : "#"
-                            }
-                        },{
-                            text : " | "
-                        },{
-                            type : "a",
-                            content : "Remove selected",
-                            id : "remove_no_expand_domains",
-                            attributes : {
-                                href : "#"
-                            }
-                        },{
-                            type : "p",
-                            css : "no_domains_note",
-                            content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
-                        }]
-                    }]
-                    //div.innerHTML = html;
-                    no_expand_domains_box_elem.innerHTML = "";
-                    no_expand_domains_box_elem.appendChild( fastFrag.create( structure ) )
+                // function display_no_expand_domains() {
+                //     var d_list = bg.get_no_expand_domains(), i=0,
+                //         domain, disble_box="disabled", structured_items = [];
+                //     for( ; domain=d_list[i]; i++) {
+                //         // note
+                //         // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
+                //         if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
+                //         else { disble_box = false; }
+                //         
+                //         structured_items.push({
+                //             type : "li",
+                //             content : [{
+                //                 type : "input",
+                //                 id : 'no_expand_d_'+i,
+                //                 css : "no_expand_check",
+                //                 attributes: {
+                //                     type : "checkbox",
+                //                     value : domain,
+                //                     name : "no_expand_domain",
+                //                     disabled : disble_box
+                //                 }
+                //             },{
+                //                 type : "label",
+                //                 content : domain,
+                //                 attributes : {
+                //                     'for' : 'no_expand_d_'+i
+                //                 }
+                //             },{
+                //                 css : "hr",
+                //                 content : {
+                //                     type : "hr"
+                //                 }
+                //             }]
+                //         });
+                //         
+                //     }
+                // 
+                //     
+                //     var structure = [{
+                //         type : "h4",
+                //         content : 'Except These Domains:'
+                //     },{
+                //         type : "ul",
+                //         css : "no_expand_domains_list",
+                //         content : structured_items
+                //     },{
+                //         id : "new_no_expand_domain"
+                //     },{
+                //         content : [{
+                //             type : "a",
+                //             id : "add_no_expand_domain_form",
+                //             content : "Add domain host",
+                //             attributes : {
+                //                 href : "#"
+                //             }
+                //         },{
+                //             text : " | "
+                //         },{
+                //             type : "a",
+                //             content : "Remove selected",
+                //             id : "remove_no_expand_domains",
+                //             attributes : {
+                //                 href : "#"
+                //             }
+                //         },{
+                //             type : "p",
+                //             css : "no_domains_note",
+                //             content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
+                //         }]
+                //     }]
+                //     //div.innerHTML = html;
+                //     no_expand_domains_box_elem.innerHTML = "";
+                //     no_expand_domains_box_elem.appendChild( fastFrag.create( structure ) )
+                // 
+                // }
                 
-                }
                 
                 
-                
-                function display_logs() {
-                    
-                    var strucuture_items = [], logs = bg.get_logs(), html = "", i=0,
-                        log, div, time,
-                        ul = logging_box_elem.getElementsByTagName("ul"),
-                        display_time, hour, am_or_pm;
-                    
-                    if(ul.length>0)  {
-                        console.log(ul)
-                        logging_box_elem.removeChild( _id("logs_list_box") )
-                        return;
-                    } else {
-                        div = document.createElement("div");
-                        div.id="logs_list_box"
-                    }
-                    //html += '<ul class="log_item_list">'
-                    for( ; log=logs[i]; i++) {
-                        time = new Date( log.timestamp );
-                        strucuture_items.push({
-                            type : "li",
-                            content : [{
-                                type : "span",
-                                css : "log_date",
-                                content : time.logFormat()
-                            },{
-                                css : "log_message",
-                                type : "span",
-                                content : log.message
-                            },{
-                                css : "hr",
-                                content : {
-                                    type : "hr"
-                                }
-                            }]
-                        });
-                    }
-                    //html += '</ul>';
-                    
-                    var structure = {
-                        type : "ul",
-                        css : "log_item_list",
-                        content : strucuture_items
-                    }
-                    //div.innerHTML = "";
-                    console.log("insert logs")
-                    logging_box_elem.innerHTML = "";
-                    logging_box_elem.appendChild( fastFrag.create( structure ) );
-                
-                }
+                // function display_logs() {
+                //     
+                //     var strucuture_items = [], logs = bg.get_logs(), html = "", i=0,
+                //         log, div, time,
+                //         ul = logging_box_elem.getElementsByTagName("ul"),
+                //         display_time, hour, am_or_pm;
+                //     
+                //     if(ul.length>0)  {
+                //         console.log(ul)
+                //         logging_box_elem.removeChild( _id("logs_list_box") )
+                //         return;
+                //     } else {
+                //         div = document.createElement("div");
+                //         div.id="logs_list_box"
+                //     }
+                //     //html += '<ul class="log_item_list">'
+                //     for( ; log=logs[i]; i++) {
+                //         time = new Date( log.timestamp );
+                //         strucuture_items.push({
+                //             type : "li",
+                //             content : [{
+                //                 type : "span",
+                //                 css : "log_date",
+                //                 content : time.logFormat()
+                //             },{
+                //                 css : "log_message",
+                //                 type : "span",
+                //                 content : log.message
+                //             },{
+                //                 css : "hr",
+                //                 content : {
+                //                     type : "hr"
+                //                 }
+                //             }]
+                //         });
+                //     }
+                //     //html += '</ul>';
+                //     
+                //     var structure = {
+                //         type : "ul",
+                //         css : "log_item_list",
+                //         content : strucuture_items
+                //     }
+                //     //div.innerHTML = "";
+                //     console.log("insert logs")
+                //     logging_box_elem.innerHTML = "";
+                //     logging_box_elem.appendChild( fastFrag.create( structure ) );
+                // 
+                // }
                 
                 function list_accounts_callback(response) {
                     //console.log(response, "accounts list")
@@ -624,7 +625,7 @@
                 
                 _id("logs_show_link").addEventListener("click", function(e) {
                     e.preventDefault();
-                    display_logs();
+                    // display_logs();
                 
                 })
                 

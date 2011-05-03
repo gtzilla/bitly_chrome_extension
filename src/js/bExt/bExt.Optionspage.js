@@ -17,11 +17,12 @@
 */
 
 var settings={
-    box : "#signedin_info_contents"
+    box : "#signedin_info_contents",
+    is_chrome : (chrome&&chrome.tabs) ? true : false
 }
 
 window.bExt.Optionspage = function( opts_els ) {
-    settings=$.extend(true, {}, settings, opts_els );
+    settings=$.extend(true, {}, settings, opts_els );    
     return this;
 }
 
@@ -63,6 +64,12 @@ window.bExt.Optionspage.prototype={
                $( "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
         }
+        
+        if(settings.is_chrome) {
+            try {
+                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+            }
+        }        
     },
     
     api_domains : function() {
@@ -181,6 +188,12 @@ window.bExt.Optionspage.prototype={
 function build( opts_meta ) {
     var frag = single_check_frag( opts_meta.out() );
     return fastFrag.create( frag );    
+}
+
+function get_safe_threshold( num_value ) {
+    var safe_value = Math.max(num_value, 5);
+    safe_value = Math.ceil( Math.min(safe_value, 5000 ) );
+    return safe_value;
 }
 
 
@@ -364,6 +377,95 @@ function single_check_frag( meta ) {
 
 
 /*
+    Sharing UI
+*/
+function list_accounts_callback(response) {
+    //console.log(response, "accounts list")
+    if(response.error) {
+        document.location.reload();
+    }
+    var accounts = response && response.share_accounts, i=0,
+        account, html = "", status, structure, structure_items=[];
+    
+    for(; account=accounts[i]; i++) {
+        status = (account.active) ? "on" : "off";                    
+        structure_items.push({
+            type : "li",
+            id : account.account_id,
+            attributes : {
+                'status' : status
+            },
+            content : [{
+                type : "img",
+                css : "account_icon",
+                attributes : {
+                    src : 's/graphics/'+ account.account_type +'-'+ status +'.png',
+                    border : 0,
+                    alt : ""
+                }
+            },{
+                type : "span",
+                css : "account_name",
+                content : ( account.account_name || account.account_login )
+            },{
+                type : "a",
+                css : "sharingControl",
+                content : 'Sharing ' + status,
+                attributes : {
+                    href : "#"
+                }
+            }]
+        })
+    }
+    
+    
+    structure = [{
+        type : "h3",
+        content : "Services"
+    },{
+        type : "p",
+        content : "Share your links on:"
+    }, {
+        type : "ul",
+        content : structure_items
+    },{
+        css : "meta_graph",
+        content : {
+            type : "p",
+            content : [{
+                type : "a",
+                css : "add_or_remove",
+                content : "Add or remove",
+                attributes : {
+                    href : "http://bit.ly/a/account",
+                    target : "new"
+                }                                
+            },{
+                text : " accounts on bitly | "
+            },{
+                type : "a",
+                css : "resync",
+                content : "Refresh account list",
+                attributes : {
+                    href : "#"
+                } 
+            }]
+        }
+    }];
+    
+    
+    // todo, use share elem...
+    
+    // shares_elem.innerHTML = "";
+    // shares_elem.appendChild(   );
+    
+    $(settings.box).prepend( fastFrag.create( structure ) )
+}
+
+
+
+
+/*
     Options Event
 
 */
@@ -387,6 +489,8 @@ window.bExt.option_evts = {
     }
     
 }
+
+
 })(window);
 
 
