@@ -117,13 +117,16 @@ window.bExt.Optionspage.prototype={
         var opts_page_meta = this.build_meta({
             title : "Auto Expand Links",
             label : "Show Link Preview",
+            enabled : bExt.hovercard.allow(),
             desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
         }),
-        meta_frag = single_check_frag( opts_page_meta.out()  )
-        var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() || [] ) );
         
-        
-        meta_frag.content=meta_frag.content.concat( domains_frag );
+        meta_frag = single_check_frag( opts_page_meta.out()  );        
+        if( bExt.hovercard.allow() ) {
+            var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() || [] ) );
+            meta_frag.content=meta_frag.content.concat( domains_frag );            
+        }
+        opts_page_meta.event_method=bExt.option_evts.hovercard_domains;
         return fastFrag.create( meta_frag );
     },
     
@@ -368,15 +371,19 @@ window.bExt.option_evts = {
     
     auto_copy : function( e ) {
         var chkd = $(e.target).attr("checked");
-        console.log(chkd, "chkd");
         bExt.info.set("auto_copy", chkd);
     },
     
     twitter : function(e) {
         var chkd = $(e.target).attr("checked");
-        console.log("twitter working");
         bExt.info.set("enhance_twitter_com", chkd );
-        
+    },
+    
+    hovercard_domains : function(e) {
+        var chkd = $(e.target).attr("checked");        
+        console.log("yey! hoverville");
+        //todo, UPDATE THE DOM
+        bExt.hovercard.toggle( chkd  );
     }
     
 }

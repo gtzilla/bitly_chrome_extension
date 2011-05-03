@@ -147,5 +147,10 @@ bExt.hovercard={
         }
         
         return hv && hv.show_card;
-    }    
+    },
+    'toggle' : function( show_bool  ) {
+        var hv = bExt.info.get("hovercard") || {};
+        hv.show_card=show_bool;
+        bExt.info.set("hovercard", hv);
+    }
 }
