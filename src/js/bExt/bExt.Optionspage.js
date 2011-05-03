@@ -68,7 +68,7 @@ window.bExt.Optionspage.prototype={
         if(settings.is_chrome) {
             try {
                 chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
-            }
+            } catch(e){}
         }        
     },
     

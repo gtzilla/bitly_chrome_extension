@@ -306,81 +306,81 @@
                     parent_elem.appendChild( results );
                 }
                 
-                // function display_no_expand_domains() {
-                //     var d_list = bg.get_no_expand_domains(), i=0,
-                //         domain, disble_box="disabled", structured_items = [];
-                //     for( ; domain=d_list[i]; i++) {
-                //         // note
-                //         // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
-                //         if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
-                //         else { disble_box = false; }
-                //         
-                //         structured_items.push({
-                //             type : "li",
-                //             content : [{
-                //                 type : "input",
-                //                 id : 'no_expand_d_'+i,
-                //                 css : "no_expand_check",
-                //                 attributes: {
-                //                     type : "checkbox",
-                //                     value : domain,
-                //                     name : "no_expand_domain",
-                //                     disabled : disble_box
-                //                 }
-                //             },{
-                //                 type : "label",
-                //                 content : domain,
-                //                 attributes : {
-                //                     'for' : 'no_expand_d_'+i
-                //                 }
-                //             },{
-                //                 css : "hr",
-                //                 content : {
-                //                     type : "hr"
-                //                 }
-                //             }]
-                //         });
-                //         
-                //     }
-                // 
-                //     
-                //     var structure = [{
-                //         type : "h4",
-                //         content : 'Except These Domains:'
-                //     },{
-                //         type : "ul",
-                //         css : "no_expand_domains_list",
-                //         content : structured_items
-                //     },{
-                //         id : "new_no_expand_domain"
-                //     },{
-                //         content : [{
-                //             type : "a",
-                //             id : "add_no_expand_domain_form",
-                //             content : "Add domain host",
-                //             attributes : {
-                //                 href : "#"
-                //             }
-                //         },{
-                //             text : " | "
-                //         },{
-                //             type : "a",
-                //             content : "Remove selected",
-                //             id : "remove_no_expand_domains",
-                //             attributes : {
-                //                 href : "#"
-                //             }
-                //         },{
-                //             type : "p",
-                //             css : "no_domains_note",
-                //             content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
-                //         }]
-                //     }]
-                //     //div.innerHTML = html;
-                //     no_expand_domains_box_elem.innerHTML = "";
-                //     no_expand_domains_box_elem.appendChild( fastFrag.create( structure ) )
-                // 
-                // }
+                function display_no_expand_domains() {
+                    var d_list = bg.get_no_expand_domains(), i=0,
+                        domain, disble_box="disabled", structured_items = [];
+                    for( ; domain=d_list[i]; i++) {
+                        // note
+                        // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
+                        if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
+                        else { disble_box = false; }
+                        
+                        structured_items.push({
+                            type : "li",
+                            content : [{
+                                type : "input",
+                                id : 'no_expand_d_'+i,
+                                css : "no_expand_check",
+                                attributes: {
+                                    type : "checkbox",
+                                    value : domain,
+                                    name : "no_expand_domain",
+                                    disabled : disble_box
+                                }
+                            },{
+                                type : "label",
+                                content : domain,
+                                attributes : {
+                                    'for' : 'no_expand_d_'+i
+                                }
+                            },{
+                                css : "hr",
+                                content : {
+                                    type : "hr"
+                                }
+                            }]
+                        });
+                        
+                    }
+                
+                    
+                    var structure = [{
+                        type : "h4",
+                        content : 'Except These Domains:'
+                    },{
+                        type : "ul",
+                        css : "no_expand_domains_list",
+                        content : structured_items
+                    },{
+                        id : "new_no_expand_domain"
+                    },{
+                        content : [{
+                            type : "a",
+                            id : "add_no_expand_domain_form",
+                            content : "Add domain host",
+                            attributes : {
+                                href : "#"
+                            }
+                        },{
+                            text : " | "
+                        },{
+                            type : "a",
+                            content : "Remove selected",
+                            id : "remove_no_expand_domains",
+                            attributes : {
+                                href : "#"
+                            }
+                        },{
+                            type : "p",
+                            css : "no_domains_note",
+                            content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
+                        }]
+                    }]
+                    //div.innerHTML = html;
+                    no_expand_domains_box_elem.innerHTML = "";
+                    no_expand_domains_box_elem.appendChild( fastFrag.create( structure ) )
+                
+                }
                 
                 
                 
