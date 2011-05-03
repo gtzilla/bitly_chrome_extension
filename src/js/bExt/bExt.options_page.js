@@ -63,6 +63,7 @@ window.bExt.options_page={
         lst = __lst;
         for(var i=0; i<lst.length; i++) {
             if(lst[i].event_method !== null ) {
+                console.log("lst[i].el_selector", $(lst[i].el_selector));
                $( lst[i].el_selector || "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
         }
@@ -94,9 +95,14 @@ window.bExt.options_page={
         // replace the checkbox & label with the radio's list
         main_frag.content.splice(main_frag.content.length-1,1);
         main_frag.content = main_frag.content.concat([{
-            id : "api_choice_form",
+            id : prime_meta.get("id"),
             content : frag_lst
-        }]);    
+        }]);
+        
+        // assign DOM events
+        prime_meta.el_selector="#" + prime_meta.get("id") + " input";
+        prime_meta.event_method=bExt.option_evts.api_domains;
+        
         return fastFrag.create( main_frag );
                 
     },
@@ -326,12 +332,13 @@ function trends_structure() {
 
 
 
-function _single_radio_frag( meta ) {
+function _single_radio_frag( meta, pos ) {
+    if(!pos) pos=0;
     var radio_params = {
         type : "radio",                
         name : "api_choice",
         value : meta.value        
-    }
+    }, label_id_suffix=meta.value.replace(/[^a-zA-Z]+/gi, "_");
     if(meta.enabled) {
         radio_params.checked=true;
     }
@@ -339,10 +346,14 @@ function _single_radio_frag( meta ) {
         css : "bentoOptions",
         content : [{
             type : "input",
+            id : "radio_item_" + pos + "_" + label_id_suffix,
             attrs : radio_params
         },{
             type : "label",
-            content : "Use " + meta.value + " API"
+            content : "Use " + meta.value + " API",
+            attrs : {
+                "for" : "radio_item_" + pos + "_" + label_id_suffix
+            }
         }]
     }
 }
@@ -512,9 +523,14 @@ window.bExt.option_evts = {
         bExt.info.set("enhance_twitter_com", chkd );
     },
     
+    api_domains : function(e) {
+        console.log("api domains", $(this).val() );
+        bExt.info.set("domain", $(this).val() );
+    },
+    
     hovercard_domains : function(e) {
         var chkd = $(e.target).attr("checked");        
-        console.log("yey! hoverville");
+        console.log("yey! hover ville");
         //todo, UPDATE THE DOM
         bExt.hovercard.toggle( chkd  );
     }

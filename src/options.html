@@ -264,21 +264,21 @@
                 // }
                 
                 
-                function set_api_radio_button() {
-                    var api_domain = bg.get_api_domain(),
-                        radios = api_form_elem.getElementsByTagName("input"),
-                        i=0, radio;
-                    
-                    for(; radio=radios[i]; i++) {
-                        if( radio.type !== "radio" ) continue;
-                        
-                        if(radio.value.trim() === api_domain ) {
-                            radio.checked=true;
-                        } else {
-                            radio.checked=false;
-                        }
-                    }
-                }
+                // function set_api_radio_button() {
+                //     var api_domain = bg.get_api_domain(),
+                //         radios = api_form_elem.getElementsByTagName("input"),
+                //         i=0, radio;
+                //     
+                //     for(; radio=radios[i]; i++) {
+                //         if( radio.type !== "radio" ) continue;
+                //         
+                //         if(radio.value.trim() === api_domain ) {
+                //             radio.checked=true;
+                //         } else {
+                //             radio.checked=false;
+                //         }
+                //     }
+                // }
                 
                 function display_add_domain_no_expand_input( parent_elem ) {
                     var results, structure = {
@@ -598,7 +598,7 @@
                     // } else {
                     //     auto_copy_elem.checked=false;
                     // }
-                    set_api_radio_button();
+                    // set_api_radio_button();
                     
                     if( note_prefs ) {
                         console.log(note_prefs, "hrm")
@@ -741,12 +741,12 @@
                 //     _q('.notificationInnerContainer').style.display=shown;                    
                 // });
                 
-                api_form_elem.addEventListener('change', function(e) {
-                    //e.target,
-                    if(e.target.type !== "radio") { return; }
-                    //console.log(e, "api form changed", e.target.nodeName, e.target.type, e.target.value)
-                    bg.set_api_domain( e.target.value  )
-                })
+                // api_form_elem.addEventListener('change', function(e) {
+                //     //e.target,
+                //     if(e.target.type !== "radio") { return; }
+                //     //console.log(e, "api form changed", e.target.nodeName, e.target.type, e.target.value)
+                //     bg.set_api_domain( e.target.value  )
+                // })
                 
                 bod.addEventListener('click', function(e) {
                     
