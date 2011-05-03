@@ -147,6 +147,7 @@ body.page_loaded #blueBanner {
     height:0px;
     background:#6BAFF0;
     position:fixed;
+    z-index:100;
     top:0;
     width:100%;
     -webkit-box-shadow:0 4px 4px #D9D9D9;

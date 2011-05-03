@@ -20,7 +20,7 @@ var settings={
     box : "#signedin_info_contents",
     share_box : null,
     is_chrome : (chrome&&chrome.tabs) ? true : false
-};
+}, __lst=[];
 
 window.bExt.options_page={
     
@@ -30,8 +30,6 @@ window.bExt.options_page={
         var udata = bExt.info.get("user_data");
         console.log("this user", udata);        
     },
-    
-    __lst : [],
     
     // make this appear as an array
     length : 0,
@@ -44,7 +42,7 @@ window.bExt.options_page={
         
         // javascript fun, this is a reference. Objects are PASS BY REFERENCE
         // we can always access them, it's NOT A copy unless we go to serious lengths to ensure it.
-        bExt.options_page.__lst.push(m);
+        __lst.push(m);
         return m;
     },
     
@@ -62,8 +60,8 @@ window.bExt.options_page={
             .append( bExt.options_page.api_domains() );
         
         //  Assign DOM Events for OptionsMeta Objects list
-        lst = bExt.options_page.__lst;
-        for(var i=0; i<bExt.options_page.__lst.length; i++) {
+        lst = __lst;
+        for(var i=0; i<lst.length; i++) {
             if(lst[i].event_method !== null ) {
                $( lst[i].el_selector || "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
