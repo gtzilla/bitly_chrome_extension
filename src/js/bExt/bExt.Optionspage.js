@@ -31,10 +31,16 @@ window.bExt.Optionspage.prototype={
     
     // make this appear as an array
     length : 0,
-    splice : function() {
+    splice : function(idx, howMany) {
         
     },
     
+    build_meta : function( meta_params ) {
+        var m=new bExt.OptionMeta( meta_params  );
+        this.__lst.push(m);
+        
+        return m;
+    },
     
     assemble : function() {
         var $box=$(settings.box);
@@ -47,11 +53,20 @@ window.bExt.Optionspage.prototype={
             .append( this.hovercard_domains() )
             .append( this.context_menu() )
             .append( this.api_domains() );
+            
+        var lst = this.__lst;
+        
+        for(var i=0; i<this.__lst.length; i++) {
+            if(lst[i].event_method !== null ) {
+                console.log("id", this.__lst[i].get("id"), $( "#" + this.__lst[i].get("id") ) )
+               $( "#" + this.__lst[i].get("id") ).bind("change", this.__lst[i].event_method );
+            }
+        }
     },
     
     api_domains : function() {
         var frag_lst=[], meta_list=[], main_frag,
-            prime_meta = new bExt.OptionMeta({
+            prime_meta = this.build_meta({
                 title : "API Domains",
                 desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
             }),
@@ -83,7 +98,7 @@ window.bExt.Optionspage.prototype={
     
     trends : function() {
         
-        var frag, opts_page_meta = new bExt.OptionMeta({
+        var frag, opts_page_meta = this.build_meta({
             title : "Trend Notifications",
             label : "Enable Notifications",
             desc : "Automatically notify me when my link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour."
@@ -97,7 +112,7 @@ window.bExt.Optionspage.prototype={
     
     hovercard_domains : function() {
         
-        var opts_page_meta = new bExt.OptionMeta({
+        var opts_page_meta = this.build_meta({
             title : "Auto Expand Links",
             label : "Show Link Preview",
             desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
@@ -112,16 +127,20 @@ window.bExt.Optionspage.prototype={
     
     auto_copy : function() {
         
-        var opts_page_meta = new bExt.OptionMeta({
+        var opts_page_meta = this.build_meta({
             title : "Auto Copy Short Urls",
             desc : "Automatically copy short urls to my clipboard when popup opens"
         });        
+        
+        
+        // javascript fun, this is a reference. Objects are PASS BY REFERENCE
+        opts_page_meta.event_method=bExt.option_evts.auto_copy;
         
         return build( opts_page_meta );       
     },
     
     context_menu : function() {
-        var opts_page_meta = new bExt.OptionMeta({
+        var opts_page_meta = this.build_meta({
             title : "Context Menu Notifications",
             label : "Show Success Notification",
             desc : "On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs"
@@ -130,7 +149,7 @@ window.bExt.Optionspage.prototype={
     },
     
     twitter : function() {
-        var opts_page_meta = new bExt.OptionMeta({
+        var opts_page_meta = this.build_meta({
             title : "Twitter Enhance",
             label : "Enhance Twitter",
             desc : "Display a shorten button on twitter.com when I enter a long URL"
@@ -313,6 +332,7 @@ function single_check_frag( meta ) {
                 id : meta.id,
                 attrs : {
                     name : meta.id,
+                    checked : meta.enabled,
                     type : meta.type,
                     value : ""
                 }
@@ -328,9 +348,28 @@ function single_check_frag( meta ) {
 }
 
 
+window.bExt.option_evts = {
+    
+    auto_copy : function( e ) {
+        console.log("hahahha hahah haha")
+    }
+    
+}
+})(window);
+
+
+
+// separate but equal, prep to put in own file
+
+(function( window, undefined) {
+/*
+    Representation of each 'setting' UI Controls Parent
+    
+        Such that, a Title, desc, and event method are assigned
+*/
 
 window.bExt.OptionMeta = function( meta_obj  ) {
-    this.__m=$.extend( true, this.__m, meta_obj );
+    this.__m=$.extend( {}, this.__m, meta_obj );
     this.set_label();
     this.set_id();
 
@@ -338,6 +377,9 @@ window.bExt.OptionMeta = function( meta_obj  ) {
 }
 
 window.bExt.OptionMeta.prototype = {
+    
+    // add this to set event for this object
+    'event_method' : null,        
     
     set_id : function() {
         if(!this.__m.id && this.__m.title !== this.__m.label ) {
@@ -367,6 +409,7 @@ window.bExt.OptionMeta.prototype = {
         id : null,
         title : null,
         label : null,
+        enabled : null,
         type : "checkbox",
         desc : null,
         value : ""
