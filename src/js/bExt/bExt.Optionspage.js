@@ -18,11 +18,14 @@
 
 var settings={
     box : "#signedin_info_contents",
+    share_box : null,
     is_chrome : (chrome&&chrome.tabs) ? true : false
-}
+};
 
 window.bExt.Optionspage = function( opts_els ) {
-    settings=$.extend(true, {}, settings, opts_els );    
+    settings=$.extend(true, {}, settings, opts_els );
+    var udata = bExt.info.get("user_data");
+    console.log("this user", udata);
     return this;
 }
 
@@ -50,7 +53,8 @@ window.bExt.Optionspage.prototype={
         
         // get users data, append Elements as needed
         
-        $box.append( this.auto_copy() )
+        $box.append( this.services() )
+            .append( this.auto_copy() )
             .append( this.twitter() )
             .append( this.trends() )
             .append( this.hovercard_domains() )
@@ -61,15 +65,9 @@ window.bExt.Optionspage.prototype={
         lst = this.__lst;
         for(var i=0; i<this.__lst.length; i++) {
             if(lst[i].event_method !== null ) {
-               $( "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
+               $( lst[i].el_selector || "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
         }
-        
-        if(settings.is_chrome) {
-            try {
-                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
-            } catch(e){}
-        }        
     },
     
     api_domains : function() {
@@ -119,6 +117,22 @@ window.bExt.Optionspage.prototype={
         return fastFrag.create( frag );
     },
     
+    services : function() {
+        var opts_page_meta = this.build_meta({
+            title : "Sharing Services",
+            desc : "Share your links using the below external social network account(s):"
+        }), frag=sharing_frag_container( opts_page_meta.out() );
+        
+        settings.share_box = opts_page_meta.get("id");
+        if(settings.is_chrome) {
+            try {
+                chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
+            } catch(e){ console.log("Not chrome, not sending request for share accounts"); }
+        }
+        return fastFrag.create( frag );
+        
+    },
+    
     hovercard_domains : function() {
         
         var opts_page_meta = this.build_meta({
@@ -126,10 +140,11 @@ window.bExt.Optionspage.prototype={
             label : "Show Link Preview",
             enabled : bExt.hovercard.allow(),
             desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
-        }),
+        }), meta_frag = single_check_frag( opts_page_meta.out()  );
         
-        meta_frag = single_check_frag( opts_page_meta.out()  );        
+        
         if( bExt.hovercard.allow() ) {
+            // allow extension to add the hovercard [bitly.urlexpander.js] to domains
             var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() || [] ) );
             meta_frag.content=meta_frag.content.concat( domains_frag );            
         }
@@ -237,40 +252,6 @@ function _nohovercard_domains( d_list  ) {
     return structured_items;
 }
 
-function trends_structure() {
-    return [{
-        css : "smallInputContainer notificationInnerContainer",
-        content : [{
-            type : "form",
-            id : "notifications_form",
-            attrs : {
-                action : "#",
-                method : "get",
-                "accept-charset" : "utf-8"
-            },
-            content : [{
-                type : "label",
-                content : "Default Click Threshold"
-            }, {
-                type : "input",
-                attrs : {
-                    type : "text",
-                    value : 20
-                }
-            }, {
-                type : "input",
-                attrs : {
-                    value : "Update",
-                    type : "submit"
-                }
-            }]
-        },{
-            type : "p",
-            content : "Note: Threshold can be any integer from 5-5,000"
-        }]
-    }];
-}
-
 function hovercard_blist_domains( structured_items ) {
     return [{
         id : "no_expand_domains_box",
@@ -309,6 +290,44 @@ function hovercard_blist_domains( structured_items ) {
     }]
 }
 
+function trends_structure() {
+    // the notifications trending UI elements
+    // UI for users to set trending notification threshold
+    return [{
+        css : "smallInputContainer notificationInnerContainer",
+        content : [{
+            type : "form",
+            id : "notifications_form",
+            attrs : {
+                action : "#",
+                method : "get",
+                "accept-charset" : "utf-8"
+            },
+            content : [{
+                type : "label",
+                content : "Default Click Threshold"
+            }, {
+                type : "input",
+                attrs : {
+                    type : "text",
+                    value : 20
+                }
+            }, {
+                type : "input",
+                attrs : {
+                    value : "Update",
+                    type : "submit"
+                }
+            }]
+        },{
+            type : "p",
+            content : "Note: Threshold can be any integer from 5-5,000"
+        }]
+    }];
+}
+
+
+
 function _single_radio_frag( meta ) {
     var radio_params = {
         type : "radio",                
@@ -333,6 +352,9 @@ function _single_radio_frag( meta ) {
 function single_check_frag( meta ) {
     /*
         window.bExt.OptionMeta
+        
+            Most Common Fragment Type
+        
         meta = {
             title : "",
             desc : "",
@@ -375,15 +397,61 @@ function single_check_frag( meta ) {
     }
 }
 
-
+function sharing_frag_container( meta ) {
+    return {
+        id : "share_accounts",
+        content : [{
+            type : "h3",
+            content : meta.title
+        },{
+            type : "p",
+            content : meta.desc
+        }, {
+            type : "ul",
+            id : meta.id,
+            content : ""
+        },{
+            css : "meta_graph",
+            content : {
+                type : "p",
+                content : [{
+                    type : "a",
+                    css : "add_or_remove",
+                    content : "Add or remove",
+                    attributes : {
+                        href : "http://bit.ly/a/account",
+                        target : "new"
+                    }                                
+                },{
+                    text : " accounts on bitly | "
+                },{
+                    type : "a",
+                    css : "resync",
+                    content : "Refresh account list",
+                    attributes : {
+                        href : "#"
+                    } 
+                }]
+            }
+        }]
+    };    
+}
 /*
     Sharing UI
 */
 function list_accounts_callback(response) {
-    //console.log(response, "accounts list")
+    // todo
+    // break up and serve into page differently
+    // add the 'shared accounts' on response, but the header and events up top
     if(response.error) {
+        // todo
+        // should this return to sign in page?
+        // no, it should reload, then on page 'start'
+        // check for signed in / signed out ness
         document.location.reload();
     }
+    
+    console.log("show repsonse for sharing services", response)
     var accounts = response && response.share_accounts, i=0,
         account, html = "", status, structure, structure_items=[];
     
@@ -419,47 +487,48 @@ function list_accounts_callback(response) {
     }
     
     
-    structure = [{
-        type : "h3",
-        content : "Services"
-    },{
-        type : "p",
-        content : "Share your links on:"
-    }, {
-        type : "ul",
-        content : structure_items
-    },{
-        css : "meta_graph",
-        content : {
-            type : "p",
-            content : [{
-                type : "a",
-                css : "add_or_remove",
-                content : "Add or remove",
-                attributes : {
-                    href : "http://bit.ly/a/account",
-                    target : "new"
-                }                                
-            },{
-                text : " accounts on bitly | "
-            },{
-                type : "a",
-                css : "resync",
-                content : "Refresh account list",
-                attributes : {
-                    href : "#"
-                } 
-            }]
-        }
-    }];
-    
-    
-    // todo, use share elem...
-    
-    // shares_elem.innerHTML = "";
-    // shares_elem.appendChild(   );
-    
-    $(settings.box).prepend( fastFrag.create( structure ) )
+    // structure = {
+    //     id : "share_accounts",
+    //     content : [{
+    //         type : "h3",
+    //         content : "Services"
+    //     },{
+    //         type : "p",
+    //         content : "Share your links on:"
+    //     }, {
+    //         type : "ul",
+    //         content : structure_items
+    //     },{
+    //         css : "meta_graph",
+    //         content : {
+    //             type : "p",
+    //             content : [{
+    //                 type : "a",
+    //                 css : "add_or_remove",
+    //                 content : "Add or remove",
+    //                 attributes : {
+    //                     href : "http://bit.ly/a/account",
+    //                     target : "new"
+    //                 }                                
+    //             },{
+    //                 text : " accounts on bitly | "
+    //             },{
+    //                 type : "a",
+    //                 css : "resync",
+    //                 content : "Refresh account list",
+    //                 attributes : {
+    //                     href : "#"
+    //                 } 
+    //             }]
+    //         }
+    //     }]
+    // };
+    if(settings.share_box) {
+        $("#" + settings.share_box).html('').append( fastFrag.create( structure_items ) );    
+    } else {
+        console.log("no settings.share_box to attach sharing UI to")
+    }
+
 }
 
 
@@ -473,6 +542,7 @@ window.bExt.option_evts = {
     
     auto_copy : function( e ) {
         var chkd = $(e.target).attr("checked");
+        console.log("event for auto copy")
         bExt.info.set("auto_copy", chkd);
     },
     
@@ -543,6 +613,7 @@ window.bExt.OptionMeta.prototype = {
     },
     __m : {
         evt_type : "change",
+        el_selector : null, // a jQuery query selector string
         id : null,
         title : null,
         label : null,
