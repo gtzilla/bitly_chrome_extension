@@ -18,6 +18,7 @@
 
 var settings={
     box : "#signedin_info_contents",
+    signin_box : "#signedin_username",
     share_box : null,
     is_chrome : (chrome&&chrome.tabs) ? true : false
 }, __lst=[];
@@ -28,7 +29,13 @@ window.bExt.options_page={
     init : function( opts_els ) {
         settings=$.extend(true, {}, settings, opts_els );
         var udata = bExt.info.get("user_data");
-        console.log("this user", udata);        
+        console.log("this user", udata);
+        if(udata && udata.x_login) {
+            
+            $(settings.signin_box).text(udata.x_login + " | ");
+            return true;
+        }
+        return false;
     },
     
     // make this appear as an array
@@ -50,27 +57,26 @@ window.bExt.options_page={
         var $box=$(settings.box), lst;
         
         // get users data, append Elements as needed
-        
-        $box.append( bExt.options_page.services() )
-            .append( bExt.options_page.auto_copy() )
-            .append( bExt.options_page.twitter() )
-            .append( bExt.options_page.trends() )
-            .append( bExt.options_page.hovercard_domains() )
-            .append( bExt.options_page.context_menu() )
-            .append( bExt.options_page.api_domains() );
+        var lcl=bExt.options_page;
+        $box.append( lcl.services() )
+            .append( lcl.auto_copy() )
+            .append( lcl.twitter() )
+            .append( lcl.trends() )
+            .append( lcl.hovercard_domains() )
+            .append( lcl.context_menu() )
+            .append( lcl.api_domains() );
         
         //  Assign DOM Events for OptionsMeta Objects list
         lst = __lst;
         for(var i=0; i<lst.length; i++) {
             if(lst[i].event_method !== null ) {
-                console.log("lst[i].el_selector", $(lst[i].el_selector));
                $( lst[i].el_selector || "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
         }
     },
     
     api_domains : function() {
-        var frag_lst=[], meta_list=[], main_frag,
+        var frag_lst=[], radios_list=[], main_frag,
             prime_meta = bExt.options_page.build_meta({
                 title : "API Domains",
                 desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
@@ -80,14 +86,15 @@ window.bExt.options_page={
         
         for(var i=0; i<apis_lst.length; i++) {
             // don't use complete object [new bExt.OptionMeta] here, overkill
-            meta_list.push({
+            // also, don't need to track these elements invidivually
+            radios_list.push({
                 value : apis_lst[i],
                 enabled : ( apis_lst[i] === user_selected_domain ) ? true : false
             });
         }
         
-        for(var i=0; i<meta_list.length; i++) {
-            frag_lst.push( _single_radio_frag( meta_list[i] ) );
+        for(var i=0; i<radios_list.length; i++) {
+            frag_lst.push( _single_radio_frag( radios_list[i] ) );
         }
 
         main_frag = single_check_frag( prime_meta.out() );
@@ -211,7 +218,7 @@ function build( opts_meta ) {
 
 function get_safe_threshold( num_value ) {
     var safe_value = Math.max(num_value, 5);
-    safe_value = Math.ceil( Math.min(safe_value, 5000 ) );
+    safe_value = Math.ceil( Math.min(safe_value, 10000 ) );
     return safe_value;
 }
 
@@ -325,7 +332,7 @@ function trends_structure() {
             }]
         },{
             type : "p",
-            content : "Note: Threshold can be any integer from 5-5,000"
+            content : "Note: Threshold can be any integer from 5-10,000"
         }]
     }];
 }
@@ -563,6 +570,7 @@ window.bExt.OptionMeta.prototype = {
     
     // add this to set event for this object
     'event_method' : null,        
+    'el_selector' : null, // a jQuery query selector string    
     
     set_id : function() {
         if(!this.__m.id && this.__m.title !== this.__m.label ) {
@@ -571,6 +579,7 @@ window.bExt.OptionMeta.prototype = {
             this.__m.id=(this.__m.title).replace(/[^a-z0-9]/gi, "_").toLowerCase();
         }
     },
+    
     set_label : function() {
         if(!this.__m.label) {
             this.__m.label=this.__m.title;
@@ -590,7 +599,7 @@ window.bExt.OptionMeta.prototype = {
     },
     __m : {
         evt_type : "change",
-        el_selector : null, // a jQuery query selector string
+        evt_track : "bind",
         id : null,
         title : null,
         label : null,

@@ -47,7 +47,7 @@
                 </div>
 
                 
-                <div id="signedin_info_contents" style="display:none;">
+                <div id="signedin_info_contents">
                                         
                     <!-- <div id="share_accounts"></div> -->
                     
@@ -220,7 +220,11 @@
                     box : "#signedin_info_contents"
                 });
                 // setup the dom
-                
+                if(!opts_dom) {
+                    console.log("user not logged in");
+                    document.location=chrome.extension.getURL( "signin.html" );
+                    return;
+                }
                 // todo, add the init app scripts pieces
                 bExt.options_page.assemble();
                 // $('#signedin_info_contents').append( opts_dom.auto_copy() );
@@ -240,14 +244,14 @@
                 var bg = chrome.extension.getBackgroundPage(),
                     note_prefs = bg.get_note_preferences(),
                     user_data = bg.localfetch("user_data"),
-                    auto_copy_elem = _id("auto_copy_short_urls"),
-                    enhance_twitter_input = _id("enhance_twitter"),
+                    // auto_copy_elem = _id("auto_copy_short_urls"),
+                    // enhance_twitter_input = _id("enhance_twitter"),
                     
-                    logging_box_elem = _id("logging_box"),
+                    // logging_box_elem = _id("logging_box"),
                     elem, header = _id("bitly_options"),
-                    shares_elem = _id("share_accounts"),
-                    api_form_elem = _id("api_choice_form"),
-                    api_domains_elem = _id("api_domains"),
+                    // shares_elem = _id("share_accounts"),
+                    // api_form_elem = _id("api_choice_form"),
+                    // api_domains_elem = _id("api_domains"),
                     no_expand_domains_box_elem = _id("no_expand_domains_box"),
                     url_expand_input = _id("show_link_preview"),
                     bod = document.body,
@@ -434,84 +438,84 @@
                 // 
                 // }
                 
-                function list_accounts_callback(response) {
-                    //console.log(response, "accounts list")
-                    if(response.error) {
-                        document.location.reload();
-                    }
-                    var accounts = response && response.share_accounts, i=0,
-                        account, html = "", status, structure, structure_items=[];
-                    
-                    for(; account=accounts[i]; i++) {
-                        status = (account.active) ? "on" : "off";                    
-                        structure_items.push({
-                            type : "li",
-                            id : account.account_id,
-                            attributes : {
-                                'status' : status
-                            },
-                            content : [{
-                                type : "img",
-                                css : "account_icon",
-                                attributes : {
-                                    src : 's/graphics/'+ account.account_type +'-'+ status +'.png',
-                                    border : 0,
-                                    alt : ""
-                                }
-                            },{
-                                type : "span",
-                                css : "account_name",
-                                content : ( account.account_name || account.account_login )
-                            },{
-                                type : "a",
-                                css : "sharingControl",
-                                content : 'Sharing ' + status,
-                                attributes : {
-                                    href : "#"
-                                }
-                            }]
-                        })
-                    }
-                    
-                    
-                    structure = [{
-                        type : "h3",
-                        content : "Services"
-                    },{
-                        type : "p",
-                        content : "Share your links on:"
-                    }, {
-                        type : "ul",
-                        content : structure_items
-                    },{
-                        css : "meta_graph",
-                        content : {
-                            type : "p",
-                            content : [{
-                                type : "a",
-                                css : "add_or_remove",
-                                content : "Add or remove",
-                                attributes : {
-                                    href : "http://bit.ly/a/account",
-                                    target : "new"
-                                }                                
-                            },{
-                                text : " accounts on bitly | "
-                            },{
-                                type : "a",
-                                css : "resync",
-                                content : "Refresh account list",
-                                attributes : {
-                                    href : "#"
-                                } 
-                            }]
-                        }
-                    }]
-                    
-                    shares_elem.innerHTML = "";
-                    shares_elem.appendChild( fastFrag.create( structure )  );
-                }
-                
+                // function list_accounts_callback(response) {
+                //      //console.log(response, "accounts list")
+                //      if(response.error) {
+                //          document.location.reload();
+                //      }
+                //      var accounts = response && response.share_accounts, i=0,
+                //          account, html = "", status, structure, structure_items=[];
+                //      
+                //      for(; account=accounts[i]; i++) {
+                //          status = (account.active) ? "on" : "off";                    
+                //          structure_items.push({
+                //              type : "li",
+                //              id : account.account_id,
+                //              attributes : {
+                //                  'status' : status
+                //              },
+                //              content : [{
+                //                  type : "img",
+                //                  css : "account_icon",
+                //                  attributes : {
+                //                      src : 's/graphics/'+ account.account_type +'-'+ status +'.png',
+                //                      border : 0,
+                //                      alt : ""
+                //                  }
+                //              },{
+                //                  type : "span",
+                //                  css : "account_name",
+                //                  content : ( account.account_name || account.account_login )
+                //              },{
+                //                  type : "a",
+                //                  css : "sharingControl",
+                //                  content : 'Sharing ' + status,
+                //                  attributes : {
+                //                      href : "#"
+                //                  }
+                //              }]
+                //          })
+                //      }
+                //      
+                //      
+                //      structure = [{
+                //          type : "h3",
+                //          content : "Services"
+                //      },{
+                //          type : "p",
+                //          content : "Share your links on:"
+                //      }, {
+                //          type : "ul",
+                //          content : structure_items
+                //      },{
+                //          css : "meta_graph",
+                //          content : {
+                //              type : "p",
+                //              content : [{
+                //                  type : "a",
+                //                  css : "add_or_remove",
+                //                  content : "Add or remove",
+                //                  attributes : {
+                //                      href : "http://bit.ly/a/account",
+                //                      target : "new"
+                //                  }                                
+                //              },{
+                //                  text : " accounts on bitly | "
+                //              },{
+                //                  type : "a",
+                //                  css : "resync",
+                //                  content : "Refresh account list",
+                //                  attributes : {
+                //                      href : "#"
+                //                  } 
+                //              }]
+                //          }
+                //      }]
+                //      
+                //      shares_elem.innerHTML = "";
+                //      shares_elem.appendChild( fastFrag.create( structure )  );
+                //  }
+                //  
                 // events
                 
                 // function signin_form_event( e ){
@@ -566,26 +570,26 @@
                 */
                 
                 if(user_data && user_data.x_login) {
-                    elem = _id("signedin_info_contents");
-                    elem.style.display="block";
+                    // elem = _id("signedin_info_contents");
+                    // elem.style.display="block";
                     // _id("api_key").setAttribute("value", user_data.x_apiKey);
                     // _id("current_username").innerText = user_data.x_login;
                     var domain_elem = _id("api_domains");
                     // _id("context_menu_notifications").style.display="block";
                     
                     
-                    _id("signedin_username").innerText = user_data.x_login + " | ";
+                    // _id("signedin_username").innerText = user_data.x_login + " | ";
                     // chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
                     // api_domains_elem.style.display="block";
                     // _id("auto_expand_container").style.display="block";
                     
-                    if( bExt.info.get("auto_expand_urls") ) {
-                        // url_expand_input.checked=true;
-                        // show domains
-                        display_no_expand_domains();
-                    } else {
-                        // url_expand_input.checked=false;
-                    }
+                    // if( bExt.info.get("auto_expand_urls") ) {
+                    //     // url_expand_input.checked=true;
+                    //     // show domains
+                    //     // display_no_expand_domains();
+                    // } else {
+                    //     // url_expand_input.checked=false;
+                    // }
                     
                     // if(bg.get_enhance_twitter()) {
                     //     enhance_twitter_input.checked=true;
