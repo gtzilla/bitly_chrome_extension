@@ -37,8 +37,10 @@ window.bExt.Optionspage.prototype={
     
     build_meta : function( meta_params ) {
         var m=new bExt.OptionMeta( meta_params  );
-        this.__lst.push(m);
         
+        // javascript fun, this is a reference. Objects are PASS BY REFERENCE
+        // we can always access them, it's NOT A copy unless we go to serious lengths to ensure it.
+        this.__lst.push(m);
         return m;
     },
     
@@ -58,8 +60,7 @@ window.bExt.Optionspage.prototype={
         
         for(var i=0; i<this.__lst.length; i++) {
             if(lst[i].event_method !== null ) {
-                console.log("id", this.__lst[i].get("id"), $( "#" + this.__lst[i].get("id") ) )
-               $( "#" + this.__lst[i].get("id") ).bind("change", this.__lst[i].event_method );
+               $( "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
             }
         }
     },
@@ -75,7 +76,8 @@ window.bExt.Optionspage.prototype={
         for(var i=0; i<apis_lst.length; i++) {
             // don't use complete object [new bExt.OptionMeta] here, overkill
             meta_list.push({
-                value : apis_lst[i]
+                value : apis_lst[i],
+                enabled : false
             });
         }
         
@@ -86,12 +88,11 @@ window.bExt.Optionspage.prototype={
         main_frag = single_check_frag( prime_meta.out() );
 
         // replace the checkbox & label with the radio's list
-        console.log(main_frag.content);
-        main_frag.content.splice(2,1);
-        main_frag.content = main_frag.content.concat(frag_lst);
-
-        // return frag_lst;
-        
+        main_frag.content.splice(main_frag.content.length-1,1);
+        main_frag.content = main_frag.content.concat([{
+            id : "api_choice_form",
+            content : frag_lst
+        }]);    
         return fastFrag.create( main_frag );
                 
     },
@@ -129,6 +130,7 @@ window.bExt.Optionspage.prototype={
         
         var opts_page_meta = this.build_meta({
             title : "Auto Copy Short Urls",
+            enabled : bExt.info.get("auto_copy"),
             desc : "Automatically copy short urls to my clipboard when popup opens"
         });        
         
@@ -317,6 +319,15 @@ function single_check_frag( meta ) {
         }
     */
     
+    var input_params={
+        name : meta.id,
+        type : meta.type,
+        value : ""        
+    }
+    if(meta.enabled) {
+        input_params.checked=true;
+    }
+    
     return {
         css : "options_container",
         content : [{
@@ -330,12 +341,7 @@ function single_check_frag( meta ) {
             content : [{
                 type : "input",
                 id : meta.id,
-                attrs : {
-                    name : meta.id,
-                    checked : meta.enabled,
-                    type : meta.type,
-                    value : ""
-                }
+                attrs : input_params
             },{
                 type : "label",
                 content : meta.label,
@@ -351,7 +357,9 @@ function single_check_frag( meta ) {
 window.bExt.option_evts = {
     
     auto_copy : function( e ) {
-        console.log("hahahha hahah haha")
+        var chkd = $(e.target).attr("checked");
+        console.log(chkd, "chkd");
+        bExt.info.set("auto_copy", chkd);
     }
     
 }
@@ -406,6 +414,7 @@ window.bExt.OptionMeta.prototype = {
         return this.__m;
     },
     __m : {
+        evt_type : "change",
         id : null,
         title : null,
         label : null,
