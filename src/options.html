@@ -665,28 +665,28 @@
                     if(t===this) return;
                     
                     switch(t.id) {
-                        case "add_no_expand_domain_form":
-                            e.preventDefault();
-                            // add form input
-                            display_add_domain_no_expand_input( _id("new_no_expand_domain") )
-                        break;
+                        // case "add_no_expand_domain_form":
+                        //     e.preventDefault();
+                        //     // add form input
+                        //     display_add_domain_no_expand_input( _id("new_no_expand_domain") )
+                        // break;
                         
-                        case "remove_no_expand_domains":
-                            e.preventDefault();
-                            inputs = no_expand_domains_box_elem.getElementsByTagName("input");
-                            for( ; input=inputs[i]; i++) {
-                                console.log( input.checked, input.value );
-                                if(input.checked && input.type === "checkbox") {
-                                    removed_count+=1;
-                                    bg.remove_no_expand_domain( input.value );
-                                }
-                            }
-                        
-                            
-                            if(removed_count > 0) {
-                                display_no_expand_domains();
-                            }
-                        break;
+                        // case "remove_no_expand_domains":
+                        //     e.preventDefault();
+                        //     inputs = no_expand_domains_box_elem.getElementsByTagName("input");
+                        //     for( ; input=inputs[i]; i++) {
+                        //         console.log( input.checked, input.value );
+                        //         if(input.checked && input.type === "checkbox") {
+                        //             removed_count+=1;
+                        //             bg.remove_no_expand_domain( input.value );
+                        //         }
+                        //     }
+                        // 
+                        //     
+                        //     if(removed_count > 0) {
+                        //         display_no_expand_domains();
+                        //     }
+                        // break;
                         
                         case "add_new_no_expand_domain":
                             console.log(t, e)
@@ -697,7 +697,7 @@
                                 var domain_host = input.value;
                                 bg.add_no_expand_domain( domain_host );
                                 //p.parentNode.removeChild(p);
-                                display_no_expand_domains();
+                                //display_no_expand_domains();
                             }
                         break;
                     

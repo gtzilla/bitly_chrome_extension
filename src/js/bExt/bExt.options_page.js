@@ -59,8 +59,9 @@ window.bExt.options_page={
     assemble : function() {
         var $box=$(settings.box);
         
-        // get users data, append Elements as needed
         var lcl=bExt.options_page;
+        
+        // append To DOM
         $box.append( lcl.services() )
             .append( lcl.auto_copy() )
             .append( lcl.twitter() )
@@ -69,7 +70,7 @@ window.bExt.options_page={
             .append( lcl.context_menu() )
             .append( lcl.api_domains() );
         
-        
+        // Events for newly appended DOM items
         lcl._attach_event();
     },
     
@@ -91,6 +92,7 @@ window.bExt.options_page={
             
             extras=lst[i].event_extras;
             for(var j=0; j<extras.length; j++) {
+                console.log(extras, "extras", $(extras[j].selector))
                 $(extras[j].selector).bind( extras[j].evt_type, extras[j].event_method );
             }
 
@@ -167,6 +169,7 @@ window.bExt.options_page={
             evt_type : "submit",
             event_method : bExt.option_evts.update_trends
         });
+
         return fastFrag.create( frag );
     },
     
@@ -211,6 +214,17 @@ window.bExt.options_page={
             meta_frag.content=meta_frag.content.concat( domains_frag );            
         }
 
+        opts_page_meta.event_extras.push({
+            selector : "#add_no_expand_domain_form",
+            evt_type : "click",
+            event_method : bExt.option_evts.hovercard_update_form
+        });
+        
+        opts_page_meta.event_extras.push({
+            selector : "#remove_no_expand_domains",
+            evt_type : "click",
+            event_method : bExt.option_evts.hovercard_remove_domain
+        });        
         opts_page_meta.event_method=bExt.option_evts.hovercard_domains;
         return fastFrag.create( meta_frag );
     },
@@ -466,6 +480,7 @@ function single_check_frag( meta ) {
     }
 }
 
+
 function sharing_frag_container( meta ) {
     return {
         id : "share_accounts",
@@ -611,8 +626,8 @@ window.bExt.option_evts = {
     hovercard_domains : function(e) {
         var chkd = $(e.target).attr("checked");        
         //todo, UPDATE THE DOM
-        var p = $(this).parents(".options_container");
-        var meta = bExt.options_page.find_meta( p.attr("id") );
+        // var p = $(this).parents(".options_container");
+        // var meta = bExt.options_page.find_meta( p.attr("id") );
         if(chkd) {
             $('#no_expand_domains_box').slideDown();
         } else {
@@ -621,6 +636,35 @@ window.bExt.option_evts = {
         bExt.hovercard.toggle( chkd  );
     },
     
+    
+    hovercard_update_form : function(e) {
+        e.preventDefault();
+        console.log("works")
+        var frag = additional_hovercard_frag();
+        $("#new_no_expand_domain").append( fastFrag.create( frag ) );
+    },
+    
+    hovercard_remove_domain : function(e) {
+        e.preventDefault();
+        console.log("remove domains");
+        
+        
+        var $selected_els = $("#new_no_expand_domain").find("input[type=checked]");
+        console.log($selected_els, "selected")
+        // inputs = no_expand_domains_box_elem.getElementsByTagName("input");
+        // for( ; input=inputs[i]; i++) {
+        //     console.log( input.checked, input.value );
+        //     if(input.checked && input.type === "checkbox") {
+        //         removed_count+=1;
+        //         bg.remove_no_expand_domain( input.value );
+        //     }
+        // }
+        //     
+        // 
+        // if(removed_count > 0) {
+        //     display_no_expand_domains();
+        // }        
+    },
     
     // bExt.option_evts.services
     services : function(e) {
@@ -647,6 +691,32 @@ window.bExt.option_evts = {
         }        
     }
     
+}
+
+/*
+    Post Event DOM Insertion Pieces
+*/
+function additional_hovercard_frag() {
+    return structure = {
+        css : "domains_host_container",
+        content : [{
+            type : "input",
+            id : "no_expand_domain_new_domain",
+            attributes : {
+                name : "no_expand_domain_new_domain",
+                type : "text"
+            }
+        },{
+            type : "input",
+            css : "activeButtons",
+            id : "add_new_no_expand_domain",
+            attributes : {
+                name : "add_new_no_expand_domain",
+                type : "submit",
+                value : "Add"
+            }                            
+        }]
+    }
 }
 
 
