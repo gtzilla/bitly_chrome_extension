@@ -95,8 +95,6 @@ window.bExt={
     
     sign_out : function() {
         bExt.api.remove_credentials();
-        // auto_expand_urls = true;
-        // enhance_twitter_com=true;
         
         bExt._clear_signin_data();
         bExt.api.set_domain("bit.ly");

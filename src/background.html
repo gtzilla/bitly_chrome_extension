@@ -59,7 +59,7 @@
             bExt.init_db();
             console.log("new structure bExt.Eventer");
             bExt.events=new bExt.Eventer();
-            
+            bExt.add_righclick();
             // see js/bExt/listeners_chrome.js
             bExt.events.register(null, bExt.bg_listeners_chrome);
             bExt.events.chrome_listen();
