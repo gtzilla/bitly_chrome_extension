@@ -96,26 +96,33 @@ window.bExt={
     sign_out : function() {
         bExt.api.remove_credentials();
         
-        bExt._clear_signin_data();
+        try {
+            bExt._clear_signin_data();        
+        } catch(e) {}
+
         bExt.api.set_domain("bit.ly");
         
         // bail on worker
         bExt.trends.exit();
         
         chrome.browserAction.setPopup({ "popup" : ""});
+        if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
+            chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
+        }        
+        console.log("log out complete")
         return;
     },
     
     _clear_signin_data : function() {
-        bExt.info.clear("realtime");
-        bExt.info.clear("note_blacklist");
-        bExt.info.clear("notifications");
-        bExt.info.clear("stash");
-        bExt.info.clear("popup_history");
+        bExt.info.remove("realtime");
+        bExt.info.remove("note_blacklist");
+        bExt.info.remove("notifications");
+        bExt.info.remove("stash");
+        bExt.info.remove("popup_history");
 
-        bExt.info.clear("user_data");
-        bExt.info.clear("share_accounts"); //  we don't store share accounts in SQL
-        bExt.info.clear("no_expand_domains");            
+        bExt.info.remove("user_data");
+        bExt.info.remove("share_accounts"); //  we don't store share accounts in SQL
+        bExt.info.remove("no_expand_domains");            
 
         bExt.db.remove("notifications", delete_sql_handler );
         bExt.db.remove("no_expand_domains", delete_sql_handler );
@@ -131,7 +138,7 @@ window.bExt={
                 'type' : 'normal',
                 'title' : 'Shorten and copy link with bitly',
                 'contexts' : ["link"],
-                'onclick' : _contextmenu_on_link_click,
+                'onclick' : bExt.evt_rightclick,
                 'documentUrlPatterns' : ['http://*/*', 'https://*/*']
             }
             // todo, chrome specific
@@ -164,7 +171,8 @@ window.bExt={
         // The Event for the 'popup' When popup is NOT enable
         var udata = bExt.info.get("user_data");
         if(bExt.is_chrome && udata && udata.x_login ) {
-            console.log("is the no shorten on??")
+            console.log("is the no shorten on?? User logged in?", udata);
+            
         } else if(bExt.is_chrome) {
             
             chrome.tabs.create( { 'url' : chrome.extension.getURL( "signin.html" ) });
@@ -290,9 +298,10 @@ window.bExt={
             // everything from the cache
         },
         
-        'clear' : function(itemKey) {
+        'remove' : function(itemKey) {
             try {
                 window.localStorage.removeItem( itemKey );
+                delete this.__data[itemKey];
                 return true;
             } catch(e){ return false; }
             return false;            
@@ -352,14 +361,6 @@ function contextmenu_inject_pagebanner( tab_id  ) {
 Function.prototype._scope = function( scope ) {
     var self=this;
     return function() { self.apply( scope, Array.prototype.slice.call( arguments, 0 ) ); }
-}
-
-
-window.bExt.cache = {
-    
-    // handle loading the local cache on application start
-    // todo, add methods in signout here... 
-    
 }
 
 window.bExt.config = {
@@ -475,6 +476,10 @@ window.bExt.share = {
         });
     }
     
+}
+
+function delete_sql_handler() {
+    /* sql  */
 }
 
 
