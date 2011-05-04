@@ -65,13 +65,20 @@ window.bExt.options_page={
     
     //  Assign DOM Events for OptionMeta Objects list    
     _attach_event : function() {
-        var lst = __lst, types = ["bind", "live"], event_track;
+        var lst = __lst, types = ["bind", "live"], event_track, extras;
         for(var i=0; i<lst.length; i++) {
+            extras=[];
             if(lst[i].event_method !== null ) {
                 event_track=lst[i].get("evt_track");
                 if(types.indexOf( event_track ) === -1) { event_track="bind"; }
                $( lst[i].el_selector || "#" + lst[i].get("id") )[event_track](lst[i].get("evt_type"), lst[i].event_method );
             }
+            
+            extras=lst[i].event_extras;
+            for(var j=0; j<extras.length; j++) {
+                $(extras[j].selector).bind( extras[j].evt_type, extras[j].event_method );
+            }
+
         }        
     },
     
@@ -134,9 +141,16 @@ window.bExt.options_page={
             desc : "Share your links using the below external social network account(s):"
         }), frag=sharing_frag_container( opts_page_meta.out() );
         
+        // setup DOM for later insertion w/ list_accounts_callback
         settings.share_box = opts_page_meta.get("id");
+        
         opts_page_meta.set("evt_type", "click");
-        opts_page_meta.event_method=bExt.option_evts.services
+        opts_page_meta.event_method=bExt.option_evts.services;
+        opts_page_meta.event_extras.push({
+            selector : ".resync",
+            evt_type : "click",
+            event_method : bExt.option_evts.service_resync 
+        });
         if(settings.is_chrome) {
             try {
                 chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
@@ -455,7 +469,7 @@ function sharing_frag_container( meta ) {
 */
 function list_accounts_callback(response) {
     // todo
-    console.log("list_accounts_callback() method")
+    console.log("new list_accounts_callback() method")
     // break up and serve into page differently
     // add the 'shared accounts' on response, but the header and events up top
     if(response.error) {
@@ -463,6 +477,7 @@ function list_accounts_callback(response) {
         // should this return to sign in page?
         // no, it should reload, then on page 'start'
         // check for signed in / signed out ness
+        console.log("error", response.error)
         document.location.reload();
     }
     
@@ -545,6 +560,7 @@ window.bExt.option_evts = {
     services : function(e) {
         var params={ 'action' : 'activate_account' }, img, status, parent;
         if(e.target.nodeName.toLowerCase() === "img" || e.target.className === "sharingControl") {
+            e.preventDefault();
             parent = e.target.parentNode;
             status = ( parent.getAttribute("status").indexOf("on") < 0 );
             params.account_id = parent.id
@@ -553,9 +569,12 @@ window.bExt.option_evts = {
                 chrome.extension.sendRequest( params, list_accounts_callback );
             } catch(e) { console.log("Not Chrome, did not refresh share accounts"); }
         }
-        
+    },
+    
+    service_resync : function(e) {
         if(e.target.className === "resync") {
             e.preventDefault();
+            e.stopPropagation();
             try {
                 chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback );                
             } catch(e) { console.log("Not chrome, no resync"); }

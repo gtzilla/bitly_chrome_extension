@@ -16,6 +16,7 @@
 
 window.bExt.OptionMeta = function( meta_obj  ) {
     this.__m=jQuery.extend( {}, this.__m, meta_obj );
+    this.event_extras=[]; // reset it, or the previous instance value will remain when the list contains an Object
     this.set_label();
     this.set_id();
 
@@ -27,6 +28,9 @@ window.bExt.OptionMeta.prototype = {
     // add this to set event for this object
     'event_method' : null,        
     'el_selector' : null, // a jQuery query selector string    
+    
+    'event_extras' : [], // { selector : "css query selector", event_method : function(e){ .. } }
+    
     
     set_id : function() {
         if(!this.__m.id && this.__m.title !== this.__m.label ) {
