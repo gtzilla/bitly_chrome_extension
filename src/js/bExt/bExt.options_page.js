@@ -592,7 +592,12 @@ function list_accounts_callback(response) {
 
 
 /*
-    Options Event
+    Options Events
+    
+        DOM Based Events
+            jQuery Event Types
+            
+        Alter DOM, save values to storage
 
 */
 window.bExt.option_evts = {
@@ -616,13 +621,12 @@ window.bExt.option_evts = {
             $("#trending_ui_form_box").slideDown();            
         } else {
             $("#trending_ui_form_box").slideUp();            
-        }
-        // todo, update this value in local storage
-        
+        }        
         bExt.update_note_prefs({
             'enabled' : chkd
         });        
         
+        // todo, turn off the worker?
     },
     
     update_trends : function(e) {
@@ -635,7 +639,13 @@ window.bExt.option_evts = {
     },
     
     api_domains : function(e) {
-        bExt.info.set("domain", $(this).val() );
+        var txt_value = $(this).val();
+        bExt.info.set("domain", txt_value );
+        
+        chrome.extension.sendRequest({
+            action : "update_api_domain",
+            api_domain : txt_value
+        }, function(){});
     },
     
     hovercard_domains : function(e) {
@@ -654,6 +664,7 @@ window.bExt.option_evts = {
         e.preventDefault();
         var frag = additional_hovercard_frag();
         $("#new_no_expand_domain").append( fastFrag.create( frag ) );
+        $("#new_no_expand_domain").find("input[type=text]").focus();
     },
     
     hovercard_remove_domain : function(e) {

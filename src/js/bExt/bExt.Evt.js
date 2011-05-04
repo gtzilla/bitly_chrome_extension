@@ -9,7 +9,6 @@
 
 bExt.Evt=function(request, sender, callback) {
     // an Ext Event Wrapper / Representation
-    console.log("args", arguments)
     this.__finished=false;
     if(arguments.length > 1) {
          this.original_args=arguments;
@@ -20,6 +19,7 @@ bExt.Evt=function(request, sender, callback) {
          this.short_url=request && request.short_url;
          this.long_url=request && request.long_url;         
          this.share_text=request && request.share_text;
+         this.api_domain=request && request.api_domain;         
          
          this.url=sender && sender.tab && sender.tab.url;
          this.is_http=this._find_http();

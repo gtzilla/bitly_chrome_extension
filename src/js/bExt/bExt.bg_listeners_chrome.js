@@ -46,6 +46,13 @@ bExt.bg_listeners_chrome = {
         evt.callback({});
     },
     
+    "update_api_domain" : function( evt ) {
+        if(evt.api_domain) {
+            bExt.api.set_domain( evt.api_domain );            
+        }
+        evt.callback({});        
+    },
+    
     "realtime_metrics" : function(evt) {
         evt.callback( bExt.info.get("realtime") || {} );
     },
