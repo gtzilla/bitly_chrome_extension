@@ -495,14 +495,14 @@ window.bExt.share = {
     },
     
     // toggle specific social accounts on and off
-    toggle : function( callback  ) {
+    toggle : function( accnt_id, active,  callback  ) {
         var user_share_accounts = bExt.info.get("share_accounts"),
             accounts = user_share_accounts && user_share_accounts.share_accounts,
             i=0, account, flag=false;
         
         for( ; account=accounts[i]; i++) {
-            if(account.account_id === request.account_id) {
-                account.active = request.active;
+            if( account.account_id === accnt_id ) {
+                account.active = active;
                 flag = true;
                 break;
             }

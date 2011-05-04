@@ -455,6 +455,7 @@ function sharing_frag_container( meta ) {
 */
 function list_accounts_callback(response) {
     // todo
+    console.log("list_accounts_callback() method")
     // break up and serve into page differently
     // add the 'shared accounts' on response, but the header and events up top
     if(response.error) {
@@ -540,6 +541,7 @@ window.bExt.option_evts = {
         bExt.hovercard.toggle( chkd  );
     },
     
+    // bExt.option_evts.services
     services : function(e) {
         var params={ 'action' : 'activate_account' }, img, status, parent;
         if(e.target.nodeName.toLowerCase() === "img" || e.target.className === "sharingControl") {

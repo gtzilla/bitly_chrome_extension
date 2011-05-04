@@ -96,7 +96,7 @@ bExt.bg_listeners_chrome = {
     
     "activate_account" : function( evt ) {
         // Turn accounts on/off for sharing
-        bExt.share.toggle( evt.callback._scope(evt) );
+        bExt.share.toggle( evt.account_id, evt.is_active, evt.callback._scope(evt) );
     },
     
     "shorten_and_select" : function( evt ) {

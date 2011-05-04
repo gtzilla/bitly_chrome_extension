@@ -9,12 +9,14 @@
 
 bExt.Evt=function(request, sender, callback) {
     // an Ext Event Wrapper / Representation
+    console.log("args", arguments)
     this.__finished=false;
     if(arguments.length > 1) {
          this.original_args=arguments;
          // request settingss
          this.page_name=request && request.page_name;
          this.account_id=request && request.account_id;
+         this.is_active=request && request.active || false;
          this.short_url=request && request.short_url;
          this.long_url=request && request.long_url;         
          this.share_text=request && request.share_text;
