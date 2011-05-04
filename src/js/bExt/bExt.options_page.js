@@ -355,6 +355,7 @@ function trends_structure( threshold  ) {
                 }
             }, {
                 type : "input",
+                css : "activeButtons notesFormBttn",
                 attrs : {
                     value : "Update",
                     type : "submit"
