@@ -63,6 +63,11 @@ window.bExt.options_page={
         lcl._attach_event();
     },
     
+    check_realtime : function() {
+        var r_meta = bExt.info.get("realtime") || {};
+        console.log(r_meta, r_meta.realtime_links, "realtime")
+    },
+    
     //  Assign DOM Events for OptionMeta Objects list    
     _attach_event : function() {
         var lst = __lst, types = ["bind", "live"], event_track, extras;
@@ -189,7 +194,7 @@ window.bExt.options_page={
             // allow extension to add the hovercard [bitly.urlexpander.js] to domains
             var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() || [] ) );
             meta_frag.content=meta_frag.content.concat( domains_frag );            
-        }
+        }        
         opts_page_meta.event_method=bExt.option_evts.hovercard_domains;
         return fastFrag.create( meta_frag );
     },
@@ -562,6 +567,7 @@ window.bExt.option_evts = {
         var chkd = $(e.target).attr("checked");
         bExt.info.set("enhance_twitter_com", chkd );
     },
+    
     
     trends : function(e) {
         console.log("implement trends");
