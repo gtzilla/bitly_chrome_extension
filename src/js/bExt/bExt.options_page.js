@@ -135,6 +135,8 @@ window.bExt.options_page={
         }), frag=sharing_frag_container( opts_page_meta.out() );
         
         settings.share_box = opts_page_meta.get("id");
+        opts_page_meta.set("evt_type", "click");
+        opts_page_meta.event_method=bExt.option_evts.services
         if(settings.is_chrome) {
             try {
                 chrome.extension.sendRequest( {'action' : 'share_accounts' }, list_accounts_callback );
@@ -536,6 +538,26 @@ window.bExt.option_evts = {
         console.log("yey! hover ville");
         //todo, UPDATE THE DOM
         bExt.hovercard.toggle( chkd  );
+    },
+    
+    services : function(e) {
+        var params={ 'action' : 'activate_account' }, img, status, parent;
+        if(e.target.nodeName.toLowerCase() === "img" || e.target.className === "sharingControl") {
+            parent = e.target.parentNode;
+            status = ( parent.getAttribute("status").indexOf("on") < 0 );
+            params.account_id = parent.id
+            params.active = status;
+            try {
+                chrome.extension.sendRequest( params, list_accounts_callback );
+            } catch(e) { console.log("Not Chrome, did not refresh share accounts"); }
+        }
+        
+        if(e.target.className === "resync") {
+            e.preventDefault();
+            try {
+                chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback );                
+            } catch(e) { console.log("Not chrome, no resync"); }
+        }        
     }
     
 }
