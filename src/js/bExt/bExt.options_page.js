@@ -348,6 +348,7 @@ function hovercard_blist_domains( structured_items ) {
             content : 'Except These Domains:'
         },{
             type : "ul",
+            id : "hv_blacklist_ui",
             css : "no_expand_domains_list",
             content : structured_items
         },{
@@ -644,6 +645,7 @@ window.bExt.option_evts = {
     
     
     hovercard_update_form : function(e) {
+        // Show the UI form to add a new blacklist hovercard
         e.preventDefault();
         var frag = additional_hovercard_frag();
         $("#new_no_expand_domain").append( fastFrag.create( frag ) );
@@ -660,11 +662,12 @@ window.bExt.option_evts = {
         console.log(domains_list)
         
         bExt.hovercard.remove_blacklist( domains_list );
-        
+        update_ui_hovercard_blacklist();        
         // todo, update the dom 
     },
     
     hovercard_add_domain : function(e) {
+        // form submit event
         e.preventDefault();
             
         var $els = $("#new_no_expand_domain").find("input[type=text]"),
@@ -672,8 +675,9 @@ window.bExt.option_evts = {
         console.log("triggered", $els.val());
         
         if(txt_value) {
-            // todo, refresh dom!
-            bExt.hovercard.update_blacklist( [ txt_value ] );
+            // todo, refresh dom!    
+            bExt.hovercard.update_blacklist( [ txt_value ] );                    
+            update_ui_hovercard_blacklist();
         }
 
     },
@@ -688,23 +692,26 @@ window.bExt.option_evts = {
             params.account_id = parent.id
             params.active = status;
             try {
+                // todo, break this out
                 chrome.extension.sendRequest( params, list_accounts_callback );
             } catch(e) { console.log("Not Chrome, did not refresh share accounts"); }
         }
     },
     
     service_resync : function(e) {
-        if(e.target.className === "resync") {
-            e.preventDefault();
-            e.stopPropagation();
-            try {
-                chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback );                
-            } catch(e) { console.log("Not chrome, no resync"); }
-        }        
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            chrome.extension.sendRequest( {'action' : 're_sync_share_accounts' }, list_accounts_callback );                
+        } catch(e) { console.log("Not chrome, no resync"); }
     }
     
 }
 
+function update_ui_hovercard_blacklist() {
+    var items_frag = _nohovercard_domains( bExt.hovercard.blacklist() || [] );
+    $("#hv_blacklist_ui").html('').append( fastFrag.create( items_frag  ) );    
+}
 
 function get_safe_threshold( num_value ) {
     var safe_value = Math.max(num_value, 5);
