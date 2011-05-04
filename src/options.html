@@ -184,15 +184,12 @@
                 });
                 // setup the dom
                 if(!opts_dom) {
-                    console.log("user not logged in");
+                    console.log("User not logged in.");
                     document.location=chrome.extension.getURL( "signin.html" );
                 } else {
-                    // todo, add the init app scripts pieces
+                    
                     bExt.options_page.assemble();
                     bExt.options_page.check_realtime();
-                    // $('#signedin_info_contents').append( opts_dom.auto_copy() );
-                    // $('#signedin_info_contents').append( opts_dom.twitter() );                
-                    console.log("si")
                     $(document).bind('click', function(e) {
 
                         if(e.target.className === "signout") {
@@ -208,8 +205,6 @@
                         deplay : 20
                     });
                 }
-
-
                 
             </script>
             
@@ -237,134 +232,84 @@
                     login_attempt_count=0;
 
                 
-                // function get_safe_threshold( num_value ) {
-                //      
-                //     var safe_value = Math.max(num_value, 5);
-                //     safe_value = Math.ceil( Math.min(safe_value, 5000) );
-                //     
-                //     return safe_value;
-                // }
+ 
                 
-                
-                // function set_api_radio_button() {
-                //     var api_domain = bg.get_api_domain(),
-                //         radios = api_form_elem.getElementsByTagName("input"),
-                //         i=0, radio;
-                //     
-                //     for(; radio=radios[i]; i++) {
-                //         if( radio.type !== "radio" ) continue;
-                //         
-                //         if(radio.value.trim() === api_domain ) {
-                //             radio.checked=true;
-                //         } else {
-                //             radio.checked=false;
-                //         }
-                //     }
-                // }
-                
-                function display_add_domain_no_expand_input( parent_elem ) {
-                    console.log("display_add_domain_no_expand_input() method")
-                    var results, structure = {
-                        css : "domains_host_container",
-                        content : [{
-                            type : "input",
-                            id : "no_expand_domain_new_domain",
-                            attributes : {
-                                name : "no_expand_domain_new_domain",
-                                type : "text"
-                            }
-                        },{
-                            type : "input",
-                            css : "activeButtons",
-                            id : "add_new_no_expand_domain",
-                            attributes : {
-                                name : "add_new_no_expand_domain",
-                                type : "submit",
-                                value : "Add"
-                            }                            
-                        }]
-                    }
-                    
-                    results = fastFrag.create( structure );
-                    parent_elem.appendChild( results );
-                }
-                
-                function display_no_expand_domains() {
-                    console.log("trigger display_no_expand_domains() method")
-                    var d_list = bg.get_no_expand_domains(), i=0,
-                        domain, disble_box="disabled", structured_items = [];
-                    for( ; domain=d_list[i]; i++) {
-                        // note
-                        // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
-                        if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
-                        else { disble_box = false; }
-                        
-                        structured_items.push({
-                            type : "li",
-                            content : [{
-                                type : "input",
-                                id : 'no_expand_d_'+i,
-                                css : "no_expand_check",
-                                attributes: {
-                                    type : "checkbox",
-                                    value : domain,
-                                    name : "no_expand_domain",
-                                    disabled : disble_box
-                                }
-                            },{
-                                type : "label",
-                                content : domain,
-                                attributes : {
-                                    'for' : 'no_expand_d_'+i
-                                }
-                            },{
-                                css : "hr",
-                                content : {
-                                    type : "hr"
-                                }
-                            }]
-                        });
-                        
-                    }
-                
-                    
-                    var structure = [{
-                        type : "h4",
-                        content : 'Except These Domains:'
-                    },{
-                        type : "ul",
-                        css : "no_expand_domains_list",
-                        content : structured_items
-                    },{
-                        id : "new_no_expand_domain"
-                    },{
-                        content : [{
-                            type : "a",
-                            id : "add_no_expand_domain_form",
-                            content : "Add domain host",
-                            attributes : {
-                                href : "#"
-                            }
-                        },{
-                            text : " | "
-                        },{
-                            type : "a",
-                            content : "Remove selected",
-                            id : "remove_no_expand_domains",
-                            attributes : {
-                                href : "#"
-                            }
-                        },{
-                            type : "p",
-                            css : "no_domains_note",
-                            content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
-                        }]
-                    }]
-                    //div.innerHTML = html;
-                    no_expand_domains_box_elem.innerHTML = "";
-                    no_expand_domains_box_elem.appendChild( fastFrag.create( structure ) )
-                
-                }
+                // function display_no_expand_domains() {
+                //                     console.log("trigger display_no_expand_domains() method")
+                //                     var d_list = bg.get_no_expand_domains(), i=0,
+                //                         domain, disble_box="disabled", structured_items = [];
+                //                     for( ; domain=d_list[i]; i++) {
+                //                         // note
+                //                         // if bit.ly / j.mp ever support hover card, change to checked, to encourage removal
+                //                         if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
+                //                         else { disble_box = false; }
+                //                         
+                //                         structured_items.push({
+                //                             type : "li",
+                //                             content : [{
+                //                                 type : "input",
+                //                                 id : 'no_expand_d_'+i,
+                //                                 css : "no_expand_check",
+                //                                 attributes: {
+                //                                     type : "checkbox",
+                //                                     value : domain,
+                //                                     name : "no_expand_domain",
+                //                                     disabled : disble_box
+                //                                 }
+                //                             },{
+                //                                 type : "label",
+                //                                 content : domain,
+                //                                 attributes : {
+                //                                     'for' : 'no_expand_d_'+i
+                //                                 }
+                //                             },{
+                //                                 css : "hr",
+                //                                 content : {
+                //                                     type : "hr"
+                //                                 }
+                //                             }]
+                //                         });
+                //                         
+                //                     }
+                //                 
+                //                     
+                //                     var structure = [{
+                //                         type : "h4",
+                //                         content : 'Except These Domains:'
+                //                     },{
+                //                         type : "ul",
+                //                         css : "no_expand_domains_list",
+                //                         content : structured_items
+                //                     },{
+                //                         id : "new_no_expand_domain"
+                //                     },{
+                //                         content : [{
+                //                             type : "a",
+                //                             id : "add_no_expand_domain_form",
+                //                             content : "Add domain host",
+                //                             attributes : {
+                //                                 href : "#"
+                //                             }
+                //                         },{
+                //                             text : " | "
+                //                         },{
+                //                             type : "a",
+                //                             content : "Remove selected",
+                //                             id : "remove_no_expand_domains",
+                //                             attributes : {
+                //                                 href : "#"
+                //                             }
+                //                         },{
+                //                             type : "p",
+                //                             css : "no_domains_note",
+                //                             content : "Note: subdomains must be specified, facebook.com will not match www.facebook.com"
+                //                         }]
+                //                     }]
+                //                     //div.innerHTML = html;
+                //                     no_expand_domains_box_elem.innerHTML = "";
+                //                     no_expand_domains_box_elem.appendChild( fastFrag.create( structure ) )
+                //                 
+                //                 }
                 
                 
                 
@@ -498,52 +443,7 @@
                 //  
                 // events
                 
-                // function signin_form_event( e ){
-                //     e.preventDefault();
-                //     login_attempt_count+=1;
-                //     // validate form
-                //     var username = _id("username"),
-                //         pass = _id("password"),
-                //         error_message_text = "Sorry, your username and password don't match";
-                //     if(username.value === "" ||  pass.value === "") {
-                //         console.log("all fields required")
-                //         errors_box_elem.innerHTML = "All fields required"
-                //         errors_box_elem.style.display="block";
-                //         return;
-                //     }
-                // 
-                //     sign_in_loader_elem.style.display="block";
-                //     signInButtonContainer_elem.style.display="none";
-                //     errors_box_elem.style.display="none";
-                //     bg.bExt.sign_in( username.value, pass.value, function(jo) {                        
-                //         //console.log(jo)
-                //         if(jo && !jo.error) {
-                //             document.location.reload();
-                //             return;
-                //         } else if(jo && jo.status_code === 401) {
-                //             // set diff default text here
-                //         } else {
-                //             error_message_text = "An error occurred trying to sign in"
-                //         }
-                //         
-                //         if(login_attempt_count > 5) {
-                //             alert("It looks like you found some type of bug, please email us at support@bit.ly with your username.");
-                //             document.location.reload();                            
-                //         } else if(login_attempt_count > 3) {
-                //             alert("Please contact us at support@bit.ly, there appears to be a problem");
-                //         }
-                //         
-                //         
-                //         sign_in_loader_elem.style.display="none";
-                //         signInButtonContainer_elem.style.display="block";
-                //         errors_box_elem.innerHTML = error_message_text;
-                //         errors_box_elem.style.display="block";
-                //         console.log("Failed sign in")
-                //         bg.logger("Failed sign in attempt: " + JSON.stringify( jo ) );
-                //     
-                //     });
-                // 
-                // }
+
                 
                 /*
                      Determine which 'display' to show user. Signed In || Sign In
@@ -566,22 +466,11 @@
                     // if( bExt.info.get("auto_expand_urls") ) {
                     //     // url_expand_input.checked=true;
                     //     // show domains
-                    //     // display_no_expand_domains();
                     // } else {
                     //     // url_expand_input.checked=false;
                     // }
                     
-                    // if(bg.get_enhance_twitter()) {
-                    //     enhance_twitter_input.checked=true;
-                    // } else {
-                    //     enhance_twitter_input.checked=false;
-                    // }
-                    
-                    // if( bg.get_auto_copy() ) {
-                    //     auto_copy_elem.checked=true;
-                    // } else {
-                    //     auto_copy_elem.checked=false;
-                    // }
+
                     // set_api_radio_button();
                     
                     if( note_prefs ) {
@@ -649,61 +538,7 @@
                 //     bg.set_auto_copy(e.target.checked);
                 // });
                 
-                // enhance_twitter_input.addEventListener('change', function(e) {
-                //     if(e.target.checked) {
-                //         
-                //     } else {
-                //         enhance_twitter_input.checked=false;
-                //     }
-                //     
-                //     bg.set_enhance_twitter_com( e.target.checked );
-                // });
                 
-                no_expand_domains_box_elem.addEventListener('click', function(e) {
-                    console.log("exisiting event, click for no_expand_domains_box_elem")
-                    var t = e.target, inputs, input, i=0, removed_count = 0, p;
-                    if(t===this) return;
-                    
-                    switch(t.id) {
-                        // case "add_no_expand_domain_form":
-                        //     e.preventDefault();
-                        //     // add form input
-                        //     display_add_domain_no_expand_input( _id("new_no_expand_domain") )
-                        // break;
-                        
-                        // case "remove_no_expand_domains":
-                        //     e.preventDefault();
-                        //     inputs = no_expand_domains_box_elem.getElementsByTagName("input");
-                        //     for( ; input=inputs[i]; i++) {
-                        //         console.log( input.checked, input.value );
-                        //         if(input.checked && input.type === "checkbox") {
-                        //             removed_count+=1;
-                        //             bg.remove_no_expand_domain( input.value );
-                        //         }
-                        //     }
-                        // 
-                        //     
-                        //     if(removed_count > 0) {
-                        //         display_no_expand_domains();
-                        //     }
-                        // break;
-                        
-                        // case "add_new_no_expand_domain":
-                        //     console.log(t, e)
-                        //     p=t.parentNode;
-                        //     console.log(p)
-                        //     input = p.getElementsByTagName("input")[0];
-                        //     if( input.value.trim() !== "") {
-                        //         var domain_host = input.value;
-                        //         bg.add_no_expand_domain( domain_host );
-                        //         //p.parentNode.removeChild(p);
-                        //         //display_no_expand_domains();
-                        //     }
-                        // break;
-                    
-                    }
-                
-                });
                 
                 
                 // notifications_form.addEventListener('submit', function(e) {
@@ -733,19 +568,9 @@
                 //     bg.set_api_domain( e.target.value  )
                 // })
                 
-                // bod.addEventListener('click', function(e) {
-                //     
-                //     if(e.target.className === "signout") {
-                //         e.preventDefault();
-                //         bg.bExt.sign_out();
-                //         document.location.reload();
-                //     }
-                // 
-                // });
+
                 
-                // setTimeout(function() {
-                //     $(document.body).addClass("page_loaded")
-                // }, 20);
+
 
             
             </script>

@@ -40,7 +40,7 @@ bExt.bg_listeners_chrome = {
     "add_prohibited_host" : function( evt ) {
         // from URL expander Content Plugin
         if(evt.domain_host) {
-            bExt.hovercard.add_prohibited( evt.domain_host );
+            bExt.hovercard.update_blacklist( [evt.domain_host] );
             this.open_page("options.html");            
         }
         evt.callback({});

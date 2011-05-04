@@ -30,12 +30,34 @@ bExt.hovercard={
         
     },
     
+    save_blacklist : function( lst  ) {
+        var hv = bExt.info.get("hovercard") || {};
+        hv.blacklist=lst;
+        return bExt.info.set("hovercard", hv);        
+    },
+    
     update_blacklist : function( blist_update ) {
         // domains the hovercard should not expand links from
-        var hv = bExt.info.get("hovercard") || {};
-        hv.blacklist=hv.blacklist.concat( blist_update );
+        var blist = bExt.hovercard.blacklist(), final_lst=[];
+        for(var i=0; i<blist_update.length; i++) {
+            if(blist.indexOf( blist_update[i] ) === -1 ) {
+                final_lst.push(blist_update[i]);
+            }
+        }
+        blist=blist.concat( final_lst );
         
-        return bExt.info.set("hovercard", hv);
+        return bExt.hovercard.save_blacklist( blist );
+    },
+    
+    remove_blacklist : function( blist_remove ) {
+        var blist=bExt.hovercard.blacklist(), new_lst=[];
+        for(var i=0; i<blist.length; i++) {
+            if(blist_remove.indexOf( blist[i] ) === -1) {
+                new_lst.push( blist[i] );
+            }
+        }
+        
+        return bExt.hovercard.save_blacklist( new_lst );
     },
     
     'store_md5domains' : function( jo ) {       
@@ -45,27 +67,7 @@ bExt.hovercard={
             console.log("storing domains to sql", bit_domains.length);
         });       
     },
-    
-    add_prohibited : function( prohibited_host ) {
         
-        var prohibited=bExt.hovercard.get_prohibited();
-        
-        if(prohibited.indexOf( prohibited_host ) > -1 ) { return; }
-        prohibited.push(prohibited_host);
-        bExt.info.set("no_expand_domains", prohibited);
-        
-        return true;
-    },
-    
-    get_prohibited : function() {
-        var prohibited = bExt.info.get("no_expand_domains");
-        if(!prohibited) {
-            prohibited = ["bit.ly", "j.mp", "bitly.com"];
-            bExt.info.set("no_expand_domains", prohibited);
-        }
-        return prohibited;
-    },
-    
     
     'get_domains' : function( callback ) {
         // todo, setup expire

@@ -94,7 +94,6 @@ window.bExt.options_page={
             
             extras=lst[i].event_extras;
             for(var j=0; j<extras.length; j++) {
-                console.log(extras, "extras", $(extras[j].selector))
                 if(!extras[j].evt_track) {
                     event_track="bind"; 
                 } else {
@@ -140,11 +139,11 @@ window.bExt.options_page={
         // assign DOM events
         prime_meta.el_selector="#" + prime_meta.get("id") + " input";
         prime_meta.event_method=bExt.option_evts.api_domains;
-        prime_meta.event_extras.push({
-            selector : "#no_expand_domains_box",
-            evt_type : "click",
-            event_method : bExt.option_evts.update_blacklist
-        });
+        // prime_meta.event_extras.push({
+        //     selector : "#no_expand_domains_box",
+        //     evt_type : "click",
+        //     event_method : bExt.option_evts.update_api_domain
+        // });
         
         return fastFrag.create( main_frag );
                 
@@ -160,7 +159,6 @@ window.bExt.options_page={
             desc : "Automatically notify me when my link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour."
         });
         
-        console.log("notice_prefs", notice_prefs)
         frag=single_check_frag( opts_page_meta.out() );
         
         if(notice_prefs.enabled) {
@@ -296,11 +294,7 @@ function build( opts_meta ) {
     return fastFrag.create( frag );    
 }
 
-function get_safe_threshold( num_value ) {
-    var safe_value = Math.max(num_value, 5);
-    safe_value = Math.ceil( Math.min(safe_value, 10000 ) );
-    return safe_value;
-}
+
 
 
 function _nohovercard_domains( d_list  ) {
@@ -325,7 +319,7 @@ function _hcard_sngle_checkbox_frag( domain, disble_box, pos  ) {
             type : "input",
             id : 'no_expand_d_'+pos,
             css : "no_expand_check",
-            attributes: {
+            attrs : {
                 type : "checkbox",
                 value : domain,
                 name : "no_expand_domain",
@@ -334,7 +328,7 @@ function _hcard_sngle_checkbox_frag( domain, disble_box, pos  ) {
         },{
             type : "label",
             content : domain,
-            attributes : {
+            attrs : {
                 'for' : 'no_expand_d_'+pos
             }
         },{
@@ -363,7 +357,7 @@ function hovercard_blist_domains( structured_items ) {
                 type : "a",
                 id : "add_no_expand_domain_form",
                 content : "Add domain host",
-                attributes : {
+                attrs : {
                     href : "#"
                 }
             },{
@@ -372,7 +366,7 @@ function hovercard_blist_domains( structured_items ) {
                 type : "a",
                 content : "Remove selected",
                 id : "remove_no_expand_domains",
-                attributes : {
+                attrs : {
                     href : "#"
                 }
             },{
@@ -523,7 +517,7 @@ function sharing_frag_container( meta ) {
                     type : "a",
                     css : "add_or_remove",
                     content : "Add or remove",
-                    attributes : {
+                    attrs : {
                         href : "http://bit.ly/a/account",
                         target : "new"
                     }                                
@@ -533,7 +527,7 @@ function sharing_frag_container( meta ) {
                     type : "a",
                     css : "resync",
                     content : "Refresh account list",
-                    attributes : {
+                    attrs : {
                         href : "#"
                     } 
                 }]
@@ -546,7 +540,6 @@ function sharing_frag_container( meta ) {
 */
 function list_accounts_callback(response) {
     // todo
-    console.log("new list_accounts_callback() method")
     // break up and serve into page differently
     // add the 'shared accounts' on response, but the header and events up top
     if(response.error) {
@@ -567,13 +560,13 @@ function list_accounts_callback(response) {
         structure_items.push({
             type : "li",
             id : account.account_id,
-            attributes : {
+            attrs : {
                 'status' : status
             },
             content : [{
                 type : "img",
                 css : "account_icon",
-                attributes : {
+                attrs : {
                     src : 's/graphics/'+ account.account_type +'-'+ status +'.png',
                     border : 0,
                     alt : ""
@@ -586,7 +579,7 @@ function list_accounts_callback(response) {
                 type : "a",
                 css : "sharingControl",
                 content : 'Sharing ' + status,
-                attributes : {
+                attrs : {
                     href : "#"
                 }
             }]
@@ -620,11 +613,7 @@ window.bExt.option_evts = {
         var chkd = $(e.target).attr("checked");
         bExt.info.set("enhance_twitter_com", chkd );
     },
-    
-    update_blacklist : function(e) {
         
-    },
-    
     trends : function(e) {
         console.log("implement trends");
         // todo, update the DOM
@@ -640,15 +629,11 @@ window.bExt.option_evts = {
     },
     
     api_domains : function(e) {
-        console.log("api domains", $(this).val() );
         bExt.info.set("domain", $(this).val() );
     },
     
     hovercard_domains : function(e) {
-        var chkd = $(e.target).attr("checked");        
-        //todo, UPDATE THE DOM
-        // var p = $(this).parents(".options_container");
-        // var meta = bExt.options_page.find_meta( p.attr("id") );
+        var chkd = $(e.target).attr("checked");
         if(chkd) {
             $('#no_expand_domains_box').slideDown();
         } else {
@@ -660,46 +645,28 @@ window.bExt.option_evts = {
     
     hovercard_update_form : function(e) {
         e.preventDefault();
-        console.log("works")
         var frag = additional_hovercard_frag();
         $("#new_no_expand_domain").append( fastFrag.create( frag ) );
     },
     
     hovercard_remove_domain : function(e) {
         e.preventDefault();
-        console.log("remove domains");
+        var $selected_els = $("#no_expand_domains_box").find("input[type=checkbox]:checked"),
+            domains_list=[];
+
+        for(var i=0; i<$selected_els.length; i++) {
+            domains_list.push( $selected_els[i].value )
+        }
+        console.log(domains_list)
         
+        bExt.hovercard.remove_blacklist( domains_list );
         
-        var $selected_els = $("#new_no_expand_domain").find("input[type=checked]");
-        console.log($selected_els, "selected")
-        // inputs = no_expand_domains_box_elem.getElementsByTagName("input");
-        // for( ; input=inputs[i]; i++) {
-        //     console.log( input.checked, input.value );
-        //     if(input.checked && input.type === "checkbox") {
-        //         removed_count+=1;
-        //         bg.remove_no_expand_domain( input.value );
-        //     }
-        // }
-        //     
-        // 
-        // if(removed_count > 0) {
-        //     display_no_expand_domains();
-        // }        
+        // todo, update the dom 
     },
     
     hovercard_add_domain : function(e) {
         e.preventDefault();
-        
-        // console.log(t, e)
-        // p=t.parentNode;
-        // console.log(p)
-        // input = p.getElementsByTagName("input")[0];
-        // if( input.value.trim() !== "") {
-        //     var domain_host = input.value;
-        //     bg.add_no_expand_domain( domain_host );
-        //     //p.parentNode.removeChild(p);
-        //     //display_no_expand_domains();
-        // }        
+            
         var $els = $("#new_no_expand_domain").find("input[type=text]"),
             txt_value = $els.val() || null;
         console.log("triggered", $els.val());
@@ -738,6 +705,13 @@ window.bExt.option_evts = {
     
 }
 
+
+function get_safe_threshold( num_value ) {
+    var safe_value = Math.max(num_value, 5);
+    safe_value = Math.ceil( Math.min(safe_value, 10000 ) );
+    return safe_value;
+}
+
 /*
     Post Event DOM Insertion Pieces
 */
@@ -747,7 +721,7 @@ function additional_hovercard_frag() {
         content : [{
             type : "input",
             id : "no_expand_domain_new_domain",
-            attributes : {
+            attrs : {
                 name : "no_expand_domain_new_domain",
                 type : "text"
             }
@@ -755,7 +729,7 @@ function additional_hovercard_frag() {
             type : "input",
             css : "activeButtons",
             id : "add_new_no_expand_domain",
-            attributes : {
+            attrs : {
                 name : "add_new_no_expand_domain",
                 type : "submit",
                 value : "Add"
