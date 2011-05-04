@@ -29,6 +29,7 @@
         <script type="text/javascript" src="js/bExt/bExt.js"></script>
         <script type="text/javascript" src="js/bExt/bExt.Evt.js"></script>
         <script type="text/javascript" src="js/bExt/bExt.Eventer.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.trends.js"></script>        
         <script type="text/javascript" src="js/bExt/bExt.hovercard.js"></script>
         <script type="text/javascript" src="js/bExt/utilities/utils.js"></script>
         <script type="text/javascript" src="js/bExt/bExt.bg_listeners_chrome.js"></script>
@@ -43,7 +44,7 @@
         <script type="text/javascript" src="js/libs/bitNote.js"></script>
         
         <script type="text/javascript" charset="utf-8">
-            // restart...
+            // Begin Application -- Chrome bitly Extension
             var api_success = bExt.init_api();
             if(!api_success) {
                 console.log("user is logged out");
@@ -93,21 +94,7 @@
             return sqlDB("bitly_local_db");
         }
         
-        function test_metrics() {
-            // clicks|country|referrers
-            bitly.metrics("clicks", function(jo) {
-                // need to send param: days=40, days:2, days:5
-                console.log("clicks", jo);
-            });
-            
-            bitly.metrics("countries", function(jo) {
-                console.log("country", jo)
-            });
-            
-            bitly.metrics("referrers", function(jo) {
-                console.log("referrers", jo)
-            });
-        }
+
         
         /////////////////////////////////////////////////////////////
         /// START UP the Chrome Extension Application..
@@ -144,7 +131,7 @@
         // derive items from cache
         
         
-        initialize_data_from_local_cache();
+            set_domain_list_from_cache();
         
         
         
@@ -154,45 +141,7 @@
                     Everyone is invited....
         */
           
-          
 
-
-        
-        // function browser_action_listener( curr_tab ) {
-        //     // if popup is NOT set, this event will be triggered
-        //     get_chrome_page("options.html");
-        // }        
- 
-        /*
-            Support for external shortens?
-            http://code.google.com/chrome/extensions/extension.html
-            chrome.extension.onConnectExternal.addListener(function(Port port) {...});
-        */
-        
-        
-
-        //chrome.extension.onRequest.addListener(actions_listeners);
-        
-        // add skip the popup check
-        
-        
-        /*
-            TODO
-            // do not implement this!
-            
-            analytics init
-                this is broken on Google's side
-                http://code.google.com/chrome/extensions/trunk/tut_analytics.html
-        */
-        
-        // _gaq.push(['_setAccount', 'UA-XXXXXX-X']);
-        // _gaq.push(['_trackPageview']);
-        //
-        // (function() {
-        //   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        //   ga.src = 'https://ssl.google-analytics.com/ga.js';
-        //   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
-        // })();
         
         </script>
     

@@ -53,6 +53,11 @@ bExt.bg_listeners_chrome = {
         evt.callback({});        
     },
     
+    "sign_out" : function( evt ) {
+        bExt.sign_out();
+        evt.callback({});
+    },
+    
     "realtime_metrics" : function(evt) {
         evt.callback( bExt.info.get("realtime") || {} );
     },
