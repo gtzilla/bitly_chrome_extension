@@ -205,6 +205,11 @@ window.bExt={
         return bExt.info.get("note_preferences") || default_pref;
     },
     
+    update_note_prefs : function( meta ) {
+        var meta = $.extend( {}, bExt.note_prefs(), meta); 
+        return bExt.info.set("note_preferences", meta);
+    },
+    
     // get all the notes resolves
     note_resolve : function( short_urls ) {
         var r_time = bExt.info.get("realtime"), 

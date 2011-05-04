@@ -133,11 +133,20 @@ window.bExt.options_page={
         
         console.log("notice_prefs", notice_prefs)
         frag=single_check_frag( opts_page_meta.out() );
+        
         if(notice_prefs.enabled) {
             var trend_frag_details = trends_structure( notice_prefs.threshold  );
             frag.content=frag.content.concat(trend_frag_details);            
         }
-
+        
+        
+        // bind events for FORM submit and on change event
+        opts_page_meta.event_method=bExt.option_evts.trends;
+        opts_page_meta.event_extras.push({
+            selector : "#notifications_form",
+            evt_type : "submit",
+            event_method : bExt.option_evts.update_trends
+        });
         return fastFrag.create( frag );
     },
     
@@ -551,6 +560,20 @@ window.bExt.option_evts = {
     twitter : function(e) {
         var chkd = $(e.target).attr("checked");
         bExt.info.set("enhance_twitter_com", chkd );
+    },
+    
+    trends : function(e) {
+        console.log("implement trends");
+        // todo, update the DOM
+    },
+    
+    update_trends : function(e) {
+        // form submission event
+        e.preventDefault();
+        var txt_value = $(this).find("input[type=text]").val();        
+        bExt.update_note_prefs({
+            'threshold' : get_safe_threshold(txt_value)
+        });
     },
     
     api_domains : function(e) {
