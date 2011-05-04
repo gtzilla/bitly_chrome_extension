@@ -676,7 +676,9 @@ window.bExt.option_evts = {
         
         if(txt_value) {
             // todo, refresh dom!    
-            bExt.hovercard.update_blacklist( [ txt_value ] );                    
+            bExt.hovercard.update_blacklist( [ txt_value ] );
+            $els.val(''); // reset form
+            $els.focus();
             update_ui_hovercard_blacklist();
         }
 
