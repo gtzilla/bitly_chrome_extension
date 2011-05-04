@@ -123,15 +123,21 @@ window.bExt.options_page={
     
     trends : function() {
         
-        var frag, opts_page_meta = bExt.options_page.build_meta({
+        var notice_prefs = bExt.note_prefs(),
+            frag, opts_page_meta = bExt.options_page.build_meta({
             title : "Trend Notifications",
             label : "Enable Notifications",
+            enabled : notice_prefs.enabled,
             desc : "Automatically notify me when my link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour."
         });
         
+        console.log("notice_prefs", notice_prefs)
         frag=single_check_frag( opts_page_meta.out() );
-        var trend_frag_details = trends_structure();
-        frag.content=frag.content.concat(trend_frag_details);
+        if(notice_prefs.enabled) {
+            var trend_frag_details = trends_structure( notice_prefs.threshold  );
+            frag.content=frag.content.concat(trend_frag_details);            
+        }
+
         return fastFrag.create( frag );
     },
     
@@ -313,11 +319,14 @@ function hovercard_blist_domains( structured_items ) {
     }]
 }
 
-function trends_structure() {
+function trends_structure( threshold  ) {
     // the notifications trending UI elements
     // UI for users to set trending notification threshold
     return [{
         css : "smallInputContainer notificationInnerContainer",
+        // attrs : {
+        //     style : "display:none;"
+        // },
         content : [{
             type : "form",
             id : "notifications_form",
@@ -333,7 +342,7 @@ function trends_structure() {
                 type : "input",
                 attrs : {
                     type : "text",
-                    value : 20
+                    value : threshold || 20
                 }
             }, {
                 type : "input",
