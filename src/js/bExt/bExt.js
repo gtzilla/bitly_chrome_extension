@@ -183,6 +183,8 @@ window.bExt={
             bExt.api=new bitlyAPI( bitly_oauth_credentials.client_id, bitly_oauth_credentials.client_signature );
         }
         
+        bExt.api.set_domain( bExt.info.get("domain") || "bit.ly" );
+        
         var user_data = bExt.info.get("user_data");
         if(user_data && user_data.x_login && user_data.x_apiKey) {
             bExt.api.set_credentials( user_data.x_login, user_data.x_apiKey, user_data.access_token );
