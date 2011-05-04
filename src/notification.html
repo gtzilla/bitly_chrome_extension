@@ -20,6 +20,8 @@
 
 
         <script type="text/javascript" src="js/libs/fastFrag.js" charset="utf-8"></script>
+        <script type="text/javascript" src="js/bExt/bExt.js" charset="utf-8"></script>     
+        <script type="text/javascript" src="js/bExt/bExt.trends.js" charset="utf-8"></script>                
         <script type="text/javascript" src="js/libs/common.js" charset="utf-8"></script>
         <script type="text/javascript" charset="utf-8">
             
@@ -28,7 +30,7 @@
 
             console.log("working?")
             var bg = chrome.extension.getBackgroundPage(),
-                notification_data = bg.notification_get_latest(),
+                notification_data = bExt.info.get("notifications") || [],
                 latest = notification_data, display_urls=[];
             // if(!latest) {
             //    // note_contents_box.innerHTML = "Oops, Sorry but an error happened"
@@ -36,7 +38,8 @@
             // }
             // okay, let's trash the stuff in memory
             
-            bg.notification_set_list( [] );
+            // bg.notification_set_list( [] );
+            bExt.info.set("notifications", []);
 
             latest_display = latest.slice(0,3);
             var params = {}, items = [];
@@ -66,7 +69,9 @@
                 }
             })
             
-            bg.add_to_notes_blacklist(  display_urls );
+            
+            bExt.trends.update_blacklist( display_urls   );
+            // bg.add_to_notes_blacklist(  display_urls );
             
             
             var ending = (latest.length>1) ? "s" : "";
@@ -114,7 +119,8 @@
             var trend_link = _q("#containerInner");
             trend_link.addEventListener('click', function(e) {
                 e.preventDefault();
-                bg.get_chrome_page("trending.html");
+                // bg.get_chrome_page("trending.html");
+                bExt.open_page("trending.html");
             });            
 
         }());

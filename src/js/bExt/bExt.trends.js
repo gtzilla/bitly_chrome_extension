@@ -83,6 +83,18 @@ window.bExt.trends = {
         }        
     },
 
+    update_blacklist : function( new_notes ) {
+        var notes = bExt.info.get("note_blacklist") || [];
+
+        for(var i=0,note;note=new_notes[i]; i++) {
+            if(notes.indexOf( note ) > -1) {
+                continue;
+            }
+            notes.push( note );
+        }
+        bExt.info.set("note_blacklist", notes);        
+    },
+
     expire_links : function() {
         // expire blacklinks
         var notes = bExt.info.get("note_blacklist") || [], 

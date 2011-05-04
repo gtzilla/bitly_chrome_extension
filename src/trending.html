@@ -67,6 +67,8 @@
         
         </div> <!-- end #container -->
         
+        <script type="text/javascript" src="js/bExt/bExt.js"></script>        
+        
         <script type="text/javascript" src="js/libs/common.js"></script>
         <script type="text/javascript" src="js/libs/backtweet.js"></script>
         <script type="text/javascript" src="js/libs/timeFormat.js"></script>
@@ -99,7 +101,7 @@
             function watcher_callback( jo ) {
                 //console.log("money monkey", jo)
                 var links = jo && jo.expand_and_meta || {},
-                    link_trends = bg.localfetch("realtime")                
+                    link_trends = bExt.info.get("realtime");
                 
                 //console.log("link_trends in watcher_callback", link_trends, links)
                 bitly_trends.update_meta( links );
@@ -150,15 +152,14 @@
                 if(trends_internval) clearInterval(trends_internval);
                 //console.log("trend watching")
                 trends_internval = setInterval(function() {
-                    ///bg.get_realtime_metrics(  );
                     chrome.extension.sendRequest({'action' : 'realtime_metrics'}, trends_callback)
                 }, 10000)
             }
             
             var bg = chrome.extension.getBackgroundPage(),
-                realtimes_from_cache = bg.localfetch("realtime"),
+                realtimes_from_cache = bExt.info.get("realtime"),
                 trends_internval, current_trend_list = [],
-                user_data = bg.localfetch("user_data"),
+                user_data = bExt.info.get("user_data"),
                 link_trends = [];
             
             //console.log("link trends", link_trends)
@@ -177,7 +178,7 @@
                 
             } else {
                 // send them to login page...
-                bg.get_chrome_page("options.html")
+                bExt.open_page("options.html")
             }
             
 
@@ -196,7 +197,7 @@
 
 
 /*
-so I have this trends list, bg.localfetch("trends") || [];
+
 
 the fist item, is always the 'latest' item
 

@@ -260,24 +260,18 @@ window.bExt={
     },
     
 
-    
-    //
-    
-        
-    // bExt.user    
+    /*
+        Access to LOCAL storage
+            This access transcends windows / pages
+            
+            Accessable across entire chrome ext.
+    */
     'info' : {
         /*
-            enhance_twitter_com
-            auto_expand_urls
-            user_data = localfetch("user_data");
         */
         
         'get' : function(key) {
-            if(!this.__data[key]) {
-                // get from cache, store it
-                this.__data[key]=this.__get(key);
-            }
-            return this.__data[key];
+            return this.__get(key);
         },
         '__get' : function(itemKey) {
             var item = window.localStorage.getItem( itemKey );
@@ -286,27 +280,22 @@ window.bExt={
             } catch(e) { return item; }          
         },
         'set' : function(k,v) {
-            this.__data[k]=v;
+            // this.__data[k]=v;
             try{
                 window.localStorage.setItem( k, window.JSON.stringify( v ) );
                 return true;
             } catch(e) {}
             return false;   
-        },
-        '__data' : {},
-        'load_cache' : function() {
-            // everything from the cache
-        },
-        
+        },  
         'remove' : function(itemKey) {
             try {
                 window.localStorage.removeItem( itemKey );
-                delete this.__data[itemKey];
                 return true;
             } catch(e){ return false; }
             return false;            
         }
     }
+    /* end bExt.info methods  */
 }
 
 

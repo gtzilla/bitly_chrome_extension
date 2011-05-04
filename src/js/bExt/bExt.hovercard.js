@@ -61,11 +61,14 @@ bExt.hovercard={
     },
     
     'store_md5domains' : function( jo ) {       
-        var bit_domains = jo.reverse(), 
+        var bit_domains = jo && jo.reverse() || [], 
             params = { 'domains' :  bit_domains, 'timestamp' : (new Date()).getTime() };
-        bExt.db.save( "domains_list", params, function() {
-            console.log("storing domains to sql", bit_domains.length);
-        });       
+        if(bit_domains.length > 0) {
+            bExt.db.save( "domains_list", params, function() {
+                console.log("storing domains to sql", bit_domains.length);
+            });            
+        }
+      
     },
         
     
