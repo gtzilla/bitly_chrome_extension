@@ -81,7 +81,9 @@ window.bExt.options_page={
     
     //  Assign DOM Events for OptionMeta Objects list    
     _attach_event : function() {
-        var lst = __lst, types = ["bind", "live"], event_track, extras;
+        var lst = __lst, types = ["bind", "live"], 
+            event_track, extras;
+        
         for(var i=0; i<lst.length; i++) {
             extras=[];
             if(lst[i].event_method !== null ) {
@@ -93,7 +95,12 @@ window.bExt.options_page={
             extras=lst[i].event_extras;
             for(var j=0; j<extras.length; j++) {
                 console.log(extras, "extras", $(extras[j].selector))
-                $(extras[j].selector).bind( extras[j].evt_type, extras[j].event_method );
+                if(!extras[j].evt_track) {
+                    event_track="bind"; 
+                } else {
+                    event_track=extras[j].evt_track;
+                }
+                $(extras[j].selector)[event_track]( extras[j].evt_type, extras[j].event_method );
             }
 
         }        
@@ -224,7 +231,18 @@ window.bExt.options_page={
             selector : "#remove_no_expand_domains",
             evt_type : "click",
             event_method : bExt.option_evts.hovercard_remove_domain
-        });        
+        }); 
+        
+        
+        // this isn't attached here... it's attached dynamically
+        // choices :: either use live() -- or 
+        // move this event to that object
+        opts_page_meta.event_extras.push({
+            selector : "#add_new_no_expand_domain",
+            evt_type : "click",
+            evt_track : "live",
+            event_method : bExt.option_evts.hovercard_add_domain
+        });
         opts_page_meta.event_method=bExt.option_evts.hovercard_domains;
         return fastFrag.create( meta_frag );
     },
@@ -294,35 +312,38 @@ function _nohovercard_domains( d_list  ) {
         if(domain === "bit.ly" || domain === 'j.mp') { disble_box = true; }
         else { disble_box = false; }
         
-        structured_items.push({
-            type : "li",
-            content : [{
-                type : "input",
-                id : 'no_expand_d_'+i,
-                css : "no_expand_check",
-                attributes: {
-                    type : "checkbox",
-                    value : domain,
-                    name : "no_expand_domain",
-                    disabled : disble_box
-                }
-            },{
-                type : "label",
-                content : domain,
-                attributes : {
-                    'for' : 'no_expand_d_'+i
-                }
-            },{
-                css : "hr",
-                content : {
-                    type : "hr"
-                }
-            }]
-        });
-        
+        structured_items.push( _hcard_sngle_checkbox_frag( domain, disble_box, i ) );
     }
     
     return structured_items;
+}
+
+function _hcard_sngle_checkbox_frag( domain, disble_box, pos  ) {
+    return {
+        type : "li",
+        content : [{
+            type : "input",
+            id : 'no_expand_d_'+pos,
+            css : "no_expand_check",
+            attributes: {
+                type : "checkbox",
+                value : domain,
+                name : "no_expand_domain",
+                disabled : disble_box
+            }
+        },{
+            type : "label",
+            content : domain,
+            attributes : {
+                'for' : 'no_expand_d_'+pos
+            }
+        },{
+            css : "hr",
+            content : {
+                type : "hr"
+            }
+        }]
+    }
 }
 
 function hovercard_blist_domains( structured_items ) {
@@ -664,6 +685,30 @@ window.bExt.option_evts = {
         // if(removed_count > 0) {
         //     display_no_expand_domains();
         // }        
+    },
+    
+    hovercard_add_domain : function(e) {
+        e.preventDefault();
+        
+        // console.log(t, e)
+        // p=t.parentNode;
+        // console.log(p)
+        // input = p.getElementsByTagName("input")[0];
+        // if( input.value.trim() !== "") {
+        //     var domain_host = input.value;
+        //     bg.add_no_expand_domain( domain_host );
+        //     //p.parentNode.removeChild(p);
+        //     //display_no_expand_domains();
+        // }        
+        var $els = $("#new_no_expand_domain").find("input[type=text]"),
+            txt_value = $els.val() || null;
+        console.log("triggered", $els.val());
+        
+        if(txt_value) {
+            // todo, refresh dom!
+            bExt.hovercard.update_blacklist( [ txt_value ] );
+        }
+
     },
     
     // bExt.option_evts.services
