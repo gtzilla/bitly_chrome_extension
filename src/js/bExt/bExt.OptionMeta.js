@@ -19,7 +19,7 @@ window.bExt.OptionMeta = function( meta_obj  ) {
     this.event_extras=[]; // reset it, or the previous instance value will remain when the list contains an Object
     this.set_label();
     this.set_id();
-
+    this.set_uuid();
     return this;
 }
 
@@ -46,6 +46,10 @@ window.bExt.OptionMeta.prototype = {
         }
     },
     
+    set_uuid : function() {
+        this.__m.uuid = window.btoa( (new Date()).getTime()*Math.random()*1000  + "_" + this.title );
+    },
+    
     get : function( name ) {
         return this.__m[ name ];
     },
@@ -66,7 +70,8 @@ window.bExt.OptionMeta.prototype = {
         enabled : null,
         type : "checkbox",
         desc : null,
-        value : ""
+        value : "",
+        uuid : null
     }
 }
     

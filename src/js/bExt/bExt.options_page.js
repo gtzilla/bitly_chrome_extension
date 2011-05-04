@@ -426,6 +426,7 @@ function single_check_frag( meta ) {
     
     return {
         css : "options_container",
+        id : meta.uuid,
         content : [{
             type : "h3",
             content : meta.title
