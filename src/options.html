@@ -224,12 +224,22 @@
                 if(!opts_dom) {
                     console.log("user not logged in");
                     document.location=chrome.extension.getURL( "signin.html" );
-                    return;
+                } else {
+                    // todo, add the init app scripts pieces
+                    bExt.options_page.assemble();
+                    // $('#signedin_info_contents').append( opts_dom.auto_copy() );
+                    // $('#signedin_info_contents').append( opts_dom.twitter() );                
+                    console.log("si")
+                    $(document).bind('click', function(e) {
+
+                        if(e.target.className === "signout") {
+                            e.preventDefault();
+                            bg.bExt.sign_out();
+                            document.location.reload();
+                        }
+
+                    });                    
                 }
-                // todo, add the init app scripts pieces
-                bExt.options_page.assemble();
-                // $('#signedin_info_contents').append( opts_dom.auto_copy() );
-                // $('#signedin_info_contents').append( opts_dom.twitter() );                
 
 
                 
@@ -286,6 +296,7 @@
                 // }
                 
                 function display_add_domain_no_expand_input( parent_elem ) {
+                    console.log("display_add_domain_no_expand_input() method")
                     var results, structure = {
                         css : "domains_host_container",
                         content : [{
@@ -312,6 +323,7 @@
                 }
                 
                 function display_no_expand_domains() {
+                    console.log("trigger display_no_expand_domains() method")
                     var d_list = bg.get_no_expand_domains(), i=0,
                         domain, disble_box="disabled", structured_items = [];
                     for( ; domain=d_list[i]; i++) {
@@ -622,7 +634,7 @@
                     
                     
                 } else {
-                    document.location=chrome.extension.getURL( "signin.html" );
+                    // document.location=chrome.extension.getURL( "signin.html" );
                     // elem = _id("signedout_info_contents");
                     // elem.style.display="block";
                     // header.innerText = "Sign in via bit.ly";
@@ -681,6 +693,7 @@
                 // });
                 
                 no_expand_domains_box_elem.addEventListener('click', function(e) {
+                    console.log("exisiting event, click for no_expand_domains_box_elem")
                     var t = e.target, inputs, input, i=0, removed_count = 0, p;
                     if(t===this) return;
                     
@@ -753,15 +766,15 @@
                 //     bg.set_api_domain( e.target.value  )
                 // })
                 
-                bod.addEventListener('click', function(e) {
-                    
-                    if(e.target.className === "signout") {
-                        e.preventDefault();
-                        bg.bExt.sign_out();
-                        document.location.reload();
-                    }
-                
-                });
+                // bod.addEventListener('click', function(e) {
+                //     
+                //     if(e.target.className === "signout") {
+                //         e.preventDefault();
+                //         bg.bExt.sign_out();
+                //         document.location.reload();
+                //     }
+                // 
+                // });
                 
                 setTimeout(function() {
                     addClass(bod, "page_loaded");

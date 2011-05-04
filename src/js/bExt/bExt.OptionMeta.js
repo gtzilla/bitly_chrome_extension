@@ -5,7 +5,7 @@
 //  Created by gregory tomlinson on 2011-05-03.
 //  Copyright 2011 the public domain. All rights reserved.
 // 
-
+// requires jQuery via the $.extend function
 
 (function( window, undefined) {
 /*
@@ -15,7 +15,7 @@
 */
 
 window.bExt.OptionMeta = function( meta_obj  ) {
-    this.__m=$.extend( {}, this.__m, meta_obj );
+    this.__m=jQuery.extend( {}, this.__m, meta_obj );
     this.set_label();
     this.set_id();
 

@@ -37,13 +37,6 @@ window.bExt.options_page={
         }
         return false;
     },
-    
-    // make this appear as an array
-    length : 0,
-    splice : function(idx, howMany) {
-        
-    },
-    
     build_meta : function( meta_params ) {
         var m=new bExt.OptionMeta( meta_params  );
         
@@ -54,7 +47,7 @@ window.bExt.options_page={
     },
     
     assemble : function() {
-        var $box=$(settings.box), lst;
+        var $box=$(settings.box);
         
         // get users data, append Elements as needed
         var lcl=bExt.options_page;
@@ -66,13 +59,20 @@ window.bExt.options_page={
             .append( lcl.context_menu() )
             .append( lcl.api_domains() );
         
-        //  Assign DOM Events for OptionsMeta Objects list
-        lst = __lst;
+        
+        lcl._attach_event();
+    },
+    
+    //  Assign DOM Events for OptionMeta Objects list    
+    _attach_event : function() {
+        var lst = __lst, types = ["bind", "live"], event_track;
         for(var i=0; i<lst.length; i++) {
             if(lst[i].event_method !== null ) {
-               $( lst[i].el_selector || "#" + lst[i].get("id") ).bind(lst[i].get("evt_type"), lst[i].event_method );
+                event_track=lst[i].get("evt_track");
+                if(types.indexOf( event_track ) === -1) { event_track="bind"; }
+               $( lst[i].el_selector || "#" + lst[i].get("id") )[event_track](lst[i].get("evt_type"), lst[i].event_method );
             }
-        }
+        }        
     },
     
     api_domains : function() {
@@ -150,7 +150,7 @@ window.bExt.options_page={
             title : "Auto Expand Links",
             label : "Show Link Preview",
             enabled : bExt.hovercard.allow(),
-            desc : "Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads."
+            desc : "Shows a link preview, for bitly links, on pages you visit. This change only applies to new page loads."
         }), meta_frag = single_check_frag( opts_page_meta.out()  );
         
         
@@ -197,10 +197,6 @@ window.bExt.options_page={
         
         opts_page_meta.event_method=bExt.option_evts.twitter;
         return build( opts_page_meta );
-    },
-    
-    basic : function() {
-        console.log("basic: window.bExt.options_page");
     }
 }
 
