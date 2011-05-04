@@ -15,7 +15,9 @@
              
              <div id="top">
                     <div id="logo">
-                        <a href="options.html"><img src="s/graphics/bitly_logo.png" alt="" border="0" width="280px" height="47px"  /></a>
+                        <a href="options.html">
+                            <img src="s/graphics/bitly_logo.png" alt="" border="0" width="280px" height="47px"  />
+                        </a>
                     </div>
                 </div> <!-- end #top -->
             
@@ -28,137 +30,8 @@
                         <span id="signedin_username"></span><a class="signout" href="#">Sign Out</a>
                     </div>
                 </div>
-
-                
-                <div id="signedin_info_contents">
-                                        
-                 
-                    
-                    <!-- <div class="options_container">
-                        <h3>Trend Notifications</h3>
-                        <p>Automatically notify me when my link starts to become popular, or trend. Notifications will be shown when a link reaches the threshold specified below during the past hour.</p>
-                        <div>
-
-                            <input type="checkbox" name="watch_urls" value="" id="watch_urls">
-
-                            <label for="watch_urls">Enable Notifications</label>
+                <div id="signedin_info_contents"></div>
                             
-                            <div class="smallInputContainer notificationInnerContainer" style="display:none;">
-                            <form id="notifications_form" action="#" method="get" accept-charset="utf-8">
-                                
-                                <label for="click_threshold">Default Click Threshold</label>
-                                <input type="text" name="click_threshold" value="20" id="click_threshold">
-                                <input type="submit" class="activeButtons mediumSizeButton" id="submitClickThreshold" value="Update" id="some_name">
-
-                            </form>
-
-                                
-                                <p class="no_domains_note">Note: Threshold can be any integer from 5-5,000</p>
-                            </div>
-                            <div id="watching_links_box">
-                                
-                            </div>                            
-
-                        
-                        </div>
-                    </div>  -->                   
-                    
-                    
-                    <!-- <div id="auto_expand_container" style="display:none;" class="options_container">
-                        <h3>Auto Expand Links</h3>
-                        <p>Shows a link preview, for bit.ly, on pages you visit. This change only applies to new page loads.</p>
-                        <div>
-                            <input type="checkbox" checked name="show_link_preview" value="" id="show_link_preview">
-                            <label for="show_link_preview">Show Link Preview</label>
-                        </div>
-                        <div id="no_expand_domains_box"></div>
-                    
-                    </div> -->
-                    
-                    <!-- <div id="context_menu_notifications" style="display:none;" class="options_container">
-                        <h3>Context Menu Notifications</h3>
-                        <p>On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs</p>
-                        
-                        <div>
-                            <input type="checkbox" name="show_success_notification" value="" id="show_success_notification">
-                            <label for="show_success_notification">Show Success Notification</label>
-                            
-                        </div>
-                    </div> -->
-                    
-
-                    <!-- <div id="api_domains">
-                        
-                        <div class="api_type_selector options_container">
-                        <h3>API Domains</h3>
-                            
-                            <p>You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change <strong>only</strong> applies to <strong>new shortens</strong>.</p>
-                            
-                            <form id="api_choice_form" action="#" method="get" accept-charset="utf-8">
-                                 
-                                <div class="bentoOptions">
-                                    
-                                    <input type="radio" name="api_choice" checked value="bit.ly" id="jmp">
-                                    <label for="jmp">Use bit.ly API</label>
-                                </div>
-                                
-                                <div class="bentoOptions">
-                                    <input type="radio" name="api_choice" value="j.mp" id="bitly">
-                                    <label for="bitly">Use j.mp API</label>
-                                
-                                </div>
-                                
-                                <div class="bentoOptions">
-                                    <input type="radio" name="api_choice" checked value="bitly.com" id="bitlydotcom">
-                                    <label for="bitlydotcom">Use bitly.com API</label>
-                                </div>                                
-
-                            
-                            </form>
-                        </div>
-                    </div>    -->                 
-
-                    
-                
-                </div>
-                <!-- <div id="signedout_info_contents" style="display:none;">
-                    <form id="signin_form" action="#" method="get" accept-charset="utf-8">
-                        
-                        <div id="errors_box" class="chrome_page_errors_box" style="display:none;"></div>
-                        
-                        <div class="inputContainer">
-                            <label for="username">Username</label>
-                            <input type="text" name="username" value="" id="username">
-                        </div>
-
-
-                        
-                        <div class="inputContainer">
-                            <label for="password">Password</label>
-                            <input type="password" name="password" value="" id="password">
-                        </div>
-                        
-                        <div id="signInContainer">
-                            <div id="signInButtonContainer">
-                                <input type="submit" class="activeButtons mediumSizeButton" name="some_name" value="Sign In" id="some_name">
-                            </div>
-                            <div style="display:none;" id="sign_in_loader">
-                                <img src="s/graphics/loader_signin_30_30.gif" height="30" width="30" border="0" alt="" />
-                            </div>
-                        </div>
-                        
-                        
-                        <div class="meta_graph">
-                            <p>Not a bit.ly or j.mp user? <a href="http://bit.ly/a/sign_up">Get an account</a></p>
-                        </div>
-                    
-                    </form>
-                </div> -->
-                
-                <div id="logging_box" style="display:none;">
-                    <a id="logs_show_link" href="#">Logs</a>
-                </div>
-            
             </div> <!-- END #middle -->
             
             <div id="bottom">
@@ -169,66 +42,49 @@
         
             
             <!-- <script type="text/javascript" src=""></script> -->
-            <script type="text/javascript" src="js/jquery-1.5.2.js"></script>
-            <script type="text/javascript" src="js/libs/fastFrag.js"></script>
-            <script type="text/javascript" src="js/bExt/bExt.js"></script>
-            <script type="text/javascript" src="js/bExt/bExt.hovercard.js"></script>
-            <script type="text/javascript" src="js/bExt/bExt.OptionMeta.js"></script>
-            <script type="text/javascript" src="js/bExt/bExt.ui_banner.js"></script>            
-            <script type="text/javascript" src="js/bExt/bExt.options_page.js"></script>
-            <script type="text/javascript" charset="utf-8">
+        <script type="text/javascript" src="js/jquery-1.5.2.js"></script>
+        <script type="text/javascript" src="js/libs/fastFrag.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.hovercard.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.OptionMeta.js"></script>
+        <script type="text/javascript" src="js/bExt/bExt.ui_banner.js"></script>            
+        <script type="text/javascript" src="js/bExt/bExt.options_page.js"></script>
+        <script type="text/javascript" charset="utf-8">
+            
+            
+            var opts_dom = bExt.options_page.init({
+                box : "#signedin_info_contents"
+            });
+            // setup the dom
+            if(!opts_dom) {
+                console.log("User not logged in.");
+                document.location=chrome.extension.getURL( "signin.html" );
+            } else {
                 
-                
-                var opts_dom = bExt.options_page.init({
-                    box : "#signedin_info_contents"
+                bExt.options_page.assemble();
+                bExt.options_page.check_realtime();
+                $(document).bind('click', function(e) {
+
+                    if(e.target.className === "signout") {
+                        e.preventDefault();
+                        chrome.extension.sendRequest({
+                            "action" : "sign_out"
+                        }, function(){})
+                        document.location.reload();
+                    }
+
                 });
-                // setup the dom
-                if(!opts_dom) {
-                    console.log("User not logged in.");
-                    document.location=chrome.extension.getURL( "signin.html" );
-                } else {
-                    
-                    bExt.options_page.assemble();
-                    bExt.options_page.check_realtime();
-                    $(document).bind('click', function(e) {
-
-                        if(e.target.className === "signout") {
-                            e.preventDefault();
-                            chrome.extension.sendRequest({
-                                "action" : "sign_out"
-                            }, function(){})
-                            document.location.reload();
-                        }
-
-                    });
-                    
-                    bExt.ui_banner.init({
-                        box : "#top",
-                        deplay : 20
-                    });
-                }
                 
-            </script>
+                // draw the top blue banner
+                bExt.ui_banner.init({
+                    box : "#top",
+                    deplay : 20
+                });
+            }
             
-                    
-            <script type="text/javascript" charset="utf-8">
+        </script>
+        
                 
-
- 
-                // events
-
-                // 
-                // watch_urls.addEventListener('change', function(e) {
-                //     bg.set_note_preferences( { 'enabled': e.target.checked } );
-                //     var shown = "none"
-                //     if(e.target.checked) {
-                //         shown="block";
-                //     }
-                //     _q('.notificationInnerContainer').style.display=shown;                    
-                // });
-
-            
-            </script>
     
     </body>
 </html>

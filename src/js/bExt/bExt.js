@@ -388,6 +388,8 @@ window.bExt.config = {
 
 /*
     Sharing
+    
+        Handle the connection between bitly API and ext for external services and Local Storage
 
 */
 window.bExt.share = {

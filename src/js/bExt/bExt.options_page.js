@@ -74,11 +74,6 @@ window.bExt.options_page={
         lcl._attach_event();
     },
     
-    check_realtime : function() {
-        var r_meta = bExt.info.get("realtime") || {};
-        console.log(r_meta, r_meta.realtime_links, "realtime")
-    },
-    
     //  Assign DOM Events for OptionMeta Objects list    
     _attach_event : function() {
         var lst = __lst, types = ["bind", "live"], 
@@ -268,7 +263,13 @@ window.bExt.options_page={
         
         opts_page_meta.event_method=bExt.option_evts.twitter;
         return build( opts_page_meta );
-    }
+    },
+    
+    
+    check_realtime : function() {
+        var r_meta = bExt.info.get("realtime") || {};
+        console.log(r_meta, r_meta.realtime_links, "realtime")
+    }    
 }
 
 
