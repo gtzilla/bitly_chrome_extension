@@ -63,6 +63,7 @@
                 
                 bExt.options_page.assemble();
                 bExt.options_page.check_realtime();
+                
                 $(document).bind('click', function(e) {
 
                     if(e.target.className === "signout") {
@@ -80,6 +81,8 @@
                     box : "#top",
                     deplay : 20
                 });
+                
+                setInterval(bExt.options_page.check_realtime, 30000);
             }
             
         </script>

@@ -301,4 +301,24 @@
     padding-top:6px;
 }
 
+
+/*
+    realtime
+*/
+
+#realtime_trending_box {
+    width:800px;
+    text-indent:25px;
+    margin:15px auto 0;
+    background:#ffffcb url(../s/graphics/trend-icon.png) 12px 9px no-repeat;
+    padding:10px;
+    display:block;
+    height:auto;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+    border:1px solid #cccc99;
+}
+
 /* EOF */

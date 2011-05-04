@@ -27,9 +27,9 @@ window.bExt.options_page={
     
     //bExt.options_page.init
     init : function( opts_els ) {
+        console.log("begin, bExt.options_page.init")
         settings=$.extend(true, {}, settings, opts_els );
         var udata = bExt.info.get("user_data");
-        console.log("this user", udata);
         if(udata && udata.x_login) {
             
             $(settings.signin_box).text(udata.x_login + " | ");
@@ -267,8 +267,33 @@ window.bExt.options_page={
     
     
     check_realtime : function() {
-        var r_meta = bExt.info.get("realtime") || {};
-        console.log(r_meta, r_meta.realtime_links, "realtime")
+        var r_meta = bExt.info.get("realtime") || {}, clicks=0, links=0;
+        if(r_meta && r_meta.realtime_links) {
+            var lst=r_meta.realtime_links;
+            links=lst.length;
+            for(var i=0; i<lst.length; i++) {
+                clicks+=lst[i].clicks
+            }
+            
+            var realtime_frag = {
+                id : "realtime_trending_box",
+                content : [{
+                    type : "strong",
+                    content : "Trending Links: "
+                },{
+                    text : "You have " + clicks + " clicks on "
+                }, {
+                    type : "a",
+                    content : links + " links",
+                    attrs : {
+                        href : chrome.extension.getURL("trending.html")
+                    }
+                }]
+            }            
+            $("#realtime_trending_box").remove();
+            $("#top").append( fastFrag.create( realtime_frag ) );
+        }
+
     }    
 }
 
