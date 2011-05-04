@@ -15,14 +15,7 @@
              
              <div id="top">
                     
-                    <div id="blueBanner">
-                        <ul class="ext_nav_list">
-                            <!-- <li><a class="openOptions" href="/options.html">Settings</a></li>
-                            <li><a class="openTrending" href="trending.html">Currently Trending</a></li>
-                            <li><a class="openAnalyze" href="/metrics.html">Analyze</a></li>      -->                       
-                        </ul>
-                    
-                    </div>
+
                     
                     <div id="logo">
                         <a href="options.html"><img src="s/graphics/bitly_logo.png" alt="" border="0"width="280px" height="47px"  /></a>
@@ -212,7 +205,8 @@
             <script type="text/javascript" src="js/libs/fastFrag.js"></script>
             <script type="text/javascript" src="js/bExt/bExt.js"></script>
             <script type="text/javascript" src="js/bExt/bExt.hovercard.js"></script>
-            <script type="text/javascript" src="js/bExt/bExt.OptionMeta.js"></script>            
+            <script type="text/javascript" src="js/bExt/bExt.OptionMeta.js"></script>
+            <script type="text/javascript" src="js/bExt/bExt.ui_banner.js"></script>            
             <script type="text/javascript" src="js/bExt/bExt.options_page.js"></script>
             <script type="text/javascript" charset="utf-8">
                 
@@ -238,7 +232,12 @@
                             document.location.reload();
                         }
 
-                    });                    
+                    });
+                    
+                    bExt.ui_banner.init({
+                        box : "#top",
+                        deplay : 20
+                    });
                 }
 
 
@@ -776,9 +775,9 @@
                 // 
                 // });
                 
-                setTimeout(function() {
-                    addClass(bod, "page_loaded");
-                }, 20);
+                // setTimeout(function() {
+                //     $(document.body).addClass("page_loaded")
+                // }, 20);
 
             
             </script>
