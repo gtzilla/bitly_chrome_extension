@@ -67,7 +67,7 @@ window.bExt.options_page={
             .append( lcl.twitter() )
             .append( lcl.trends() )
             .append( lcl.hovercard_domains() )
-            .append( lcl.context_menu() )
+            // .append( lcl.context_menu() )
             .append( lcl.api_domains() );
         
         // Events for newly appended DOM items
@@ -139,11 +139,6 @@ window.bExt.options_page={
         // assign DOM events
         prime_meta.el_selector="#" + prime_meta.get("id") + " input";
         prime_meta.event_method=bExt.option_evts.api_domains;
-        // prime_meta.event_extras.push({
-        //     selector : "#no_expand_domains_box",
-        //     evt_type : "click",
-        //     event_method : bExt.option_evts.update_api_domain
-        // });
         
         return fastFrag.create( main_frag );
                 
@@ -161,10 +156,8 @@ window.bExt.options_page={
         
         frag=single_check_frag( opts_page_meta.out() );
         
-        if(notice_prefs.enabled) {
-            var trend_frag_details = trends_structure( notice_prefs.threshold  );
-            frag.content=frag.content.concat(trend_frag_details);            
-        }
+        var trend_frag_details = trends_structure( notice_prefs.enabled, notice_prefs.threshold  );
+        frag.content=frag.content.concat(trend_frag_details);        
         
         
         // bind events for FORM submit and on change event
@@ -231,10 +224,6 @@ window.bExt.options_page={
             event_method : bExt.option_evts.hovercard_remove_domain
         }); 
         
-        
-        // this isn't attached here... it's attached dynamically
-        // choices :: either use live() -- or 
-        // move this event to that object
         opts_page_meta.event_extras.push({
             selector : "#add_new_no_expand_domain",
             evt_type : "click",
@@ -296,7 +285,9 @@ function build( opts_meta ) {
 
 
 
-
+/*
+    This private method has a dependecy in bExt.options_evt
+*/
 function _nohovercard_domains( d_list  ) {
     var i=0, domain, disble_box="disabled", 
         structured_items=[];
@@ -379,14 +370,16 @@ function hovercard_blist_domains( structured_items ) {
     }]
 }
 
-function trends_structure( threshold  ) {
+function trends_structure( enabled, threshold  ) {
     // the notifications trending UI elements
     // UI for users to set trending notification threshold
+    var css_string = (enabled) ? "" : "display:none;";
     return [{
+        id: "trending_ui_form_box",
         css : "smallInputContainer notificationInnerContainer",
-        // attrs : {
-        //     style : "display:none;"
-        // },
+        attrs : {
+            style : css_string
+        },
         content : [{
             type : "form",
             id : "notifications_form",
@@ -618,6 +611,18 @@ window.bExt.option_evts = {
     trends : function(e) {
         console.log("implement trends");
         // todo, update the DOM
+        var chkd = $(e.target).attr("checked");
+        if(chkd) {
+            $("#trending_ui_form_box").slideDown();            
+        } else {
+            $("#trending_ui_form_box").slideUp();            
+        }
+        // todo, update this value in local storage
+        
+        bExt.update_note_prefs({
+            'enabled' : chkd
+        });        
+        
     },
     
     update_trends : function(e) {
@@ -663,19 +668,14 @@ window.bExt.option_evts = {
         
         bExt.hovercard.remove_blacklist( domains_list );
         update_ui_hovercard_blacklist();        
-        // todo, update the dom 
     },
     
     hovercard_add_domain : function(e) {
         // form submit event
         e.preventDefault();
-            
         var $els = $("#new_no_expand_domain").find("input[type=text]"),
             txt_value = $els.val() || null;
-        console.log("triggered", $els.val());
-        
-        if(txt_value) {
-            // todo, refresh dom!    
+        if(txt_value) {   
             bExt.hovercard.update_blacklist( [ txt_value ] );
             $els.val(''); // reset form
             $els.focus();
@@ -711,6 +711,7 @@ window.bExt.option_evts = {
 }
 
 function update_ui_hovercard_blacklist() {
+    // private method dependency -- _nohovercard_domains -- required by both bExt.option_evts and bExt.options_page 
     var items_frag = _nohovercard_domains( bExt.hovercard.blacklist() || [] );
     $("#hv_blacklist_ui").html('').append( fastFrag.create( items_frag  ) );    
 }
