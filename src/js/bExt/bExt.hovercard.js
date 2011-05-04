@@ -30,6 +30,14 @@ bExt.hovercard={
         
     },
     
+    update_blacklist : function( blist_update ) {
+        // domains the hovercard should not expand links from
+        var hv = bExt.info.get("hovercard") || {};
+        hv.blacklist=hv.blacklist.concat( blist_update );
+        
+        return bExt.info.set("hovercard", hv);
+    },
+    
     'store_md5domains' : function( jo ) {       
         var bit_domains = jo.reverse(), 
             params = { 'domains' :  bit_domains, 'timestamp' : (new Date()).getTime() };

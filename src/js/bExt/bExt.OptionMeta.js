@@ -31,6 +31,7 @@ window.bExt.OptionMeta.prototype = {
     
     'event_extras' : [], // { selector : "css query selector", event_method : function(e){ .. } }
     
+    'event_dom_refresh' : null,
     
     set_id : function() {
         if(!this.__m.id && this.__m.title !== this.__m.label ) {
@@ -47,7 +48,7 @@ window.bExt.OptionMeta.prototype = {
     },
     
     set_uuid : function() {
-        this.__m.uuid = window.btoa( (new Date()).getTime()*Math.random()*1000  + "_" + this.title );
+        this.__m.uuid = window.btoa(  Math.random()*1000  + "_" + (new Date()).getTime() + "_" + this.title );
     },
     
     get : function( name ) {

@@ -19,7 +19,7 @@
 var settings={
     box : "#signedin_info_contents",
     signin_box : "#signedin_username",
-    share_box : null,
+    share_box : null, // set this dynimically, when elem created
     is_chrome : (chrome&&chrome.tabs) ? true : false
 }, __lst=[];
 
@@ -44,6 +44,16 @@ window.bExt.options_page={
         // we can always access them, it's NOT A copy unless we go to serious lengths to ensure it.
         __lst.push(m);
         return m;
+    },
+    
+    find_meta : function( uuid  ) {
+        for(var i=0; i<__lst.length; i++) {
+            if( __lst[i].get("uuid") === uuid) {
+                return __lst[i];
+            }
+        }
+        
+        return null;
     },
     
     assemble : function() {
@@ -121,6 +131,11 @@ window.bExt.options_page={
         // assign DOM events
         prime_meta.el_selector="#" + prime_meta.get("id") + " input";
         prime_meta.event_method=bExt.option_evts.api_domains;
+        prime_meta.event_extras.push({
+            selector : "#no_expand_domains_box",
+            evt_type : "click",
+            event_method : bExt.option_evts.update_blacklist
+        });
         
         return fastFrag.create( main_frag );
                 
@@ -194,7 +209,8 @@ window.bExt.options_page={
             // allow extension to add the hovercard [bitly.urlexpander.js] to domains
             var domains_frag = hovercard_blist_domains( _nohovercard_domains( bExt.hovercard.blacklist() || [] ) );
             meta_frag.content=meta_frag.content.concat( domains_frag );            
-        }        
+        }
+
         opts_page_meta.event_method=bExt.option_evts.hovercard_domains;
         return fastFrag.create( meta_frag );
     },
@@ -569,6 +585,9 @@ window.bExt.option_evts = {
         bExt.info.set("enhance_twitter_com", chkd );
     },
     
+    update_blacklist : function(e) {
+        
+    },
     
     trends : function(e) {
         console.log("implement trends");
@@ -591,10 +610,17 @@ window.bExt.option_evts = {
     
     hovercard_domains : function(e) {
         var chkd = $(e.target).attr("checked");        
-        console.log("yey! hover ville");
         //todo, UPDATE THE DOM
+        var p = $(this).parents(".options_container");
+        var meta = bExt.options_page.find_meta( p.attr("id") );
+        if(chkd) {
+            $('#no_expand_domains_box').slideDown();
+        } else {
+            $('#no_expand_domains_box').slideUp();
+        }
         bExt.hovercard.toggle( chkd  );
     },
+    
     
     // bExt.option_evts.services
     services : function(e) {
