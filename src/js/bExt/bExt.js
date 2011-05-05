@@ -199,23 +199,7 @@ window.bExt={
             console.log("is the no shorten on?? User logged in?", udata);
             
         } else if( udata && udata.x_login && popup_disabled  ) {
-            console.log("no popup, do a shorten", bExt.api, curr_tab);
-            
-
-            chrome.browserAction.setBadgeBackgroundColor({
-                color : [255, 0, 0, 255],
-                tabId : curr_tab.id
-            });            
-            // shorten only.            
-            if(curr_tab.url && curr_tab.url !== "") {
-                // todo, add match host
-                bExt.api.shorten( curr_tab.url, function(jo) {
-                    console.log("jo", jo);
-                    if(jo && jo.url) {
-                        copy_to_clip( jo.url );
-                    }
-                });
-            }
+            bExt.speed_shorten( curr_tab )
 
         } else if(bExt.is_chrome) {
             
@@ -223,6 +207,36 @@ window.bExt={
             console.log("didn't open the chrome tab for optiions inoroder to login")
         }
 
+    },
+    
+    
+    speed_shorten : function( curr_tab ) {
+        console.log("no popup, do a shorten", bExt.api, curr_tab);
+        
+        chrome.browserAction.setBadgeText({
+            text : " ",
+            tabId : curr_tab.id                
+        });
+        chrome.browserAction.setBadgeBackgroundColor({
+            color : [107, 175, 240, 150],
+            tabId : curr_tab.id
+        });            
+        // shorten only.            
+        if(curr_tab.url && curr_tab.url !== "") {
+            // todo, add match host
+            bExt.api.shorten( curr_tab.url, function(jo) {
+                console.log("jo", jo);
+                if(jo && jo.url) {
+                    copy_to_clip( jo.url );
+                    setTimeout(function() {
+                        chrome.browserAction.setBadgeText({
+                            text : "",
+                            tabId : curr_tab.id                
+                        });                            
+                    }, 7000);
+                }
+            });
+        }        
     },
     
     // start the bitly API ref
