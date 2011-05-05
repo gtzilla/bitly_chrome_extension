@@ -17,7 +17,7 @@ HTML_BASE="${CWD}/../src"
 #####################
 
 # java -jar $COMPILER --js
-BUILD_FILES="background.html options.html popup.html notification.html metrics.html trending.html"
+BUILD_FILES="background.html options.html popup.html notification.html metrics.html trending.html signin.html"
 # todo
 # compress css
 # move the graphics

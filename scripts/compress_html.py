@@ -39,7 +39,7 @@ class ProcessHTML:
         
         # remove the existing tmp dir
         self.tmp_path=os.path.abspath( os.path.join(self.dir, "..", "tmp") )        
-        # self._open_subshell( "rm -rf %s" % self.tmp_path )        
+        # self._open_subshell( "rm -rf %s" % self.tmp_path )
         try:
             os.mkdir( self.tmp_path )
             os.mkdir( os.path.join(self.tmp_path, "js" ) )
