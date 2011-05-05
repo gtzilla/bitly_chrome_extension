@@ -59,16 +59,9 @@ bExt.bg_listeners_chrome = {
     },
     
     "toggle_popup" : function( evt ) {
-        console.log("toggle the popup", evt);
-        console.log("the location", document.location)
-        if(evt.is_active) {
-            chrome.browserAction.setPopup({ "popup" : ""});
-            if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
-                chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
-            }            
-        } else {
-            chrome.browserAction.setPopup({ "popup" : "popup.html"});
-        }        
+        // speed shorten preference setting
+        // Auto Copy must be 'enabled' for this to work
+        bExt.disable_popup( evt.is_active );
     },
     
     "realtime_metrics" : function(evt) {

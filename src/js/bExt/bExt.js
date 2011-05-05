@@ -63,7 +63,10 @@ window.bExt={
             chrome.browserAction.setPopup({ "popup" : "popup.html"});
         } else if( bExt.is_chrome ){
             console.log("the pop is disabled, browser action");
-            chrome.browserAction.setPopup({ "popup" : ""});            
+            chrome.browserAction.setPopup({ "popup" : ""});   
+            chrome.browserAction.setTitle({
+                title : "Shorten link with bitly"
+            });                     
             if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
                 chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
             }
@@ -98,6 +101,22 @@ window.bExt={
         });
         
     },
+    
+    disable_popup : function( disabled ) {
+        
+        if(disabled) {
+            chrome.browserAction.setPopup({ "popup" : ""});
+            chrome.browserAction.setTitle({
+                title : "Shorten link with bitly"
+            });
+            if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
+                chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
+            }            
+        } else {
+            chrome.browserAction.setPopup({ "popup" : "popup.html"});
+        }        
+    },
+    
     // bExt.sign_out
     sign_out : function() {
         bExt.api.remove_credentials();
@@ -111,10 +130,7 @@ window.bExt={
         // bail on worker
         bExt.trends.exit();
         
-        chrome.browserAction.setPopup({ "popup" : ""});
-        if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
-            chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
-        }        
+        bExt.disable_popup( true );
         console.log("log out complete")
         return;
     },
@@ -165,14 +181,17 @@ window.bExt={
                 if(jo && jo.status_txt && jo.status_txt === "ALREADY_A_BITLY_LINK") {
                    _util_expand_and_reshorten( long_url  );
                 } else if(jo && jo.url && jo.url !== "") {
-                    // can I get a callback from this? -- check if it's true?
                     copy_to_clip(jo.url);
-                    contextmenu_inject_pagebanner( tab.id );
+                    // contextmenu_inject_pagebanner( tab.id );
                 }
             }); 
         }        
     },
     
+    
+    /*
+        The Fish Icon
+    */
     evt_button_listen : function( curr_tab ) {
         // The Event for the 'popup' When popup is NOT enable
         var udata = bExt.info.get("user_data"), popup_disabled=bExt.info.get("disable_popup");
@@ -181,16 +200,21 @@ window.bExt={
             
         } else if( udata && udata.x_login && popup_disabled  ) {
             console.log("no popup, do a shorten", bExt.api, curr_tab);
-            // shorten only.. hmm
+            
+
+            chrome.browserAction.setBadgeBackgroundColor({
+                color : [255, 0, 0, 255],
+                tabId : curr_tab.id
+            });            
+            // shorten only.            
             if(curr_tab.url && curr_tab.url !== "") {
                 // todo, add match host
                 bExt.api.shorten( curr_tab.url, function(jo) {
                     console.log("jo", jo);
                     if(jo && jo.url) {
-                        copy_to_clip( jo.url );                        
+                        copy_to_clip( jo.url );
                     }
-
-                });                
+                });
             }
 
         } else if(bExt.is_chrome) {
@@ -287,8 +311,6 @@ window.bExt={
             Accessable across entire chrome ext.
     */
     'info' : {
-        /*
-        */
         
         'get' : function(key) {
             return this.__get(key);
