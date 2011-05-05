@@ -59,8 +59,14 @@ window.bExt={
     },
     
     set_popup : function() {
-        if(bExt.is_chrome) {
+        if(bExt.is_chrome && !bExt.info.get("disable_popup") ) {
             chrome.browserAction.setPopup({ "popup" : "popup.html"});
+        } else if( bExt.is_chrome ){
+            console.log("the pop is disabled, browser action");
+            chrome.browserAction.setPopup({ "popup" : ""});            
+            if( !chrome.browserAction.onClicked.hasListener( bExt.evt_button_listen ) ) {
+                chrome.browserAction.onClicked.addListener( bExt.evt_button_listen );
+            }
         } else {
             console.log("not chrome, didn't set popup");
         }
@@ -169,10 +175,24 @@ window.bExt={
     
     evt_button_listen : function( curr_tab ) {
         // The Event for the 'popup' When popup is NOT enable
-        var udata = bExt.info.get("user_data");
-        if(bExt.is_chrome && udata && udata.x_login ) {
+        var udata = bExt.info.get("user_data"), popup_disabled=bExt.info.get("disable_popup");
+        if(bExt.is_chrome && udata && udata.x_login && !popup_disabled ) {
             console.log("is the no shorten on?? User logged in?", udata);
             
+        } else if( udata && udata.x_login && popup_disabled  ) {
+            console.log("no popup, do a shorten", bExt.api, curr_tab);
+            // shorten only.. hmm
+            if(curr_tab.url && curr_tab.url !== "") {
+                // todo, add match host
+                bExt.api.shorten( curr_tab.url, function(jo) {
+                    console.log("jo", jo);
+                    if(jo && jo.url) {
+                        copy_to_clip( jo.url );                        
+                    }
+
+                });                
+            }
+
         } else if(bExt.is_chrome) {
             
             chrome.tabs.create( { 'url' : chrome.extension.getURL( "signin.html" ) });
@@ -320,12 +340,16 @@ function _util_expand_and_reshorten( long_url ) {
 }
 
 function copy_to_clip( str_value  ) {
-    var txt_area = $("instant_clipboad_copy_space") || document.body.appendChild( fastFrag.create({
-        id : "instant_clipboad_copy_space"
-    }) );
+    var $txt_area = $("#instant_clipboad_copy_space");
+    if(!$txt_area || $txt_area.length < 1 ) {
+        document.body.appendChild( fastFrag.create({
+            id : "instant_clipboad_copy_space"
+        }) );
+        $txt_area = $("#instant_clipboad_copy_space");
+    }
     try {
-        txt_area.value=str_value;
-        txt_area.select();
+        $txt_area.val( str_value );
+        $txt_area[0].select();
         document.execCommand("copy", false, null);  
     } catch(e){}            
 }

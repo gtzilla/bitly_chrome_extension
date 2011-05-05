@@ -48,6 +48,18 @@
     padding:0 200px 8px 0;
 }
 
+.options_container_inner {
+    margin:10px 10px 5px;
+}
+.options_container_inner input[type=checkbox] {
+    margin-right:5px;
+}
+.options_container_inner .desc_txt {
+    margin-top:5px;
+}
+.desc_txt {
+    color:#999;
+}
 
 .bentoOptions {
     padding:5px 0 5px;

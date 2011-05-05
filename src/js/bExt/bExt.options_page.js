@@ -99,45 +99,47 @@ window.bExt.options_page={
 
         }        
     },
-    
-    api_domains : function() {
-        var frag_lst=[], radios_list=[], main_frag,
-            prime_meta = bExt.options_page.build_meta({
-                title : "API Domains",
-                desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
-            }),
-            apis_lst=["bit.ly", "j.mp", "bitly.com"],
-            user_selected_domain = bExt.info.get("domain") || "bit.ly";
         
-        for(var i=0; i<apis_lst.length; i++) {
-            // don't use complete object [new bExt.OptionMeta] here, overkill
-            // also, don't need to track these elements invidivually
-            radios_list.push({
-                value : apis_lst[i],
-                enabled : ( apis_lst[i] === user_selected_domain ) ? true : false
-            });
-        }
+    auto_copy : function() {
         
-        for(var i=0; i<radios_list.length; i++) {
-            frag_lst.push( _single_radio_frag( radios_list[i] ) );
-        }
-
-        main_frag = single_check_frag( prime_meta.out() );
-
-        // replace the checkbox & label with the radio's list
-        main_frag.content.splice(main_frag.content.length-1,1);
-        main_frag.content = main_frag.content.concat([{
-            id : prime_meta.get("id"),
-            content : frag_lst
-        }]);
+        var opts_page_meta = bExt.options_page.build_meta({
+            title : "Auto Copy Short Urls",
+            enabled : bExt.info.get("auto_copy"),
+            desc : "Automatically copy short urls to my clipboard when popup opens"
+        }), frag=single_check_frag( opts_page_meta.out() );
         
-        // assign DOM events
-        prime_meta.el_selector="#" + prime_meta.get("id") + " input";
-        prime_meta.event_method=bExt.option_evts.api_domains;
-        
-        return fastFrag.create( main_frag );
-                
+        frag.content=frag.content.concat( hide_sharing_popup_frag( bExt.info.get("auto_copy"), bExt.info.get("disable_popup") ) );          
+        // javascript fun, this is a reference. Objects are PASS BY REFERENCE
+        opts_page_meta.event_method=bExt.option_evts.auto_copy;
+        opts_page_meta.event_extras.push({
+            selector : "#hide_sharing_input",
+            evt_type : "change",
+            event_method : bExt.option_evts.disable_popup
+        })
+        // return build( opts_page_meta );
+        return fastFrag.create( frag );
     },
+    
+    twitter : function() {
+        var opts_page_meta = bExt.options_page.build_meta({
+            title : "Twitter Enhance",
+            enabled : bExt.config.twitter_bttn(),
+            label : "Enhance Twitter",
+            desc : "Display a shorten button on twitter.com when I enter a long URL"
+        });  
+        
+        opts_page_meta.event_method=bExt.option_evts.twitter;
+        return build( opts_page_meta );
+    },
+    
+    context_menu : function() {
+        var opts_page_meta = bExt.options_page.build_meta({
+            title : "Context Menu Notifications",
+            label : "Show Success Notification",
+            desc : "On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs"
+        });    
+        return build( opts_page_meta );            
+    },    
     
     trends : function() {
         
@@ -191,6 +193,45 @@ window.bExt.options_page={
         
     },
     
+    api_domains : function() {
+        var frag_lst=[], radios_list=[], main_frag,
+            prime_meta = bExt.options_page.build_meta({
+                title : "API Domains",
+                desc : "You can choose either the bit.ly API, the j.mp API or the bitly.com API. All work the same way, but j.mp is just a little shorter. This change only applies to new shortens."
+            }),
+            apis_lst=["bit.ly", "j.mp", "bitly.com"],
+            user_selected_domain = bExt.info.get("domain") || "bit.ly";
+        
+        for(var i=0; i<apis_lst.length; i++) {
+            // don't use complete object [new bExt.OptionMeta] here, overkill
+            // also, don't need to track these elements invidivually
+            radios_list.push({
+                value : apis_lst[i],
+                enabled : ( apis_lst[i] === user_selected_domain ) ? true : false
+            });
+        }
+        
+        for(var i=0; i<radios_list.length; i++) {
+            frag_lst.push( _single_radio_frag( radios_list[i] ) );
+        }
+
+        main_frag = single_check_frag( prime_meta.out() );
+
+        // replace the checkbox & label with the radio's list
+        main_frag.content.splice(main_frag.content.length-1,1);
+        main_frag.content = main_frag.content.concat([{
+            id : prime_meta.get("id"),
+            content : frag_lst
+        }]);
+        
+        // assign DOM events
+        prime_meta.el_selector="#" + prime_meta.get("id") + " input";
+        prime_meta.event_method=bExt.option_evts.api_domains;
+        
+        return fastFrag.create( main_frag );
+                
+    },    
+    
     hovercard_domains : function() {
         
         var opts_page_meta = bExt.options_page.build_meta({
@@ -228,44 +269,7 @@ window.bExt.options_page={
         opts_page_meta.event_method=bExt.option_evts.hovercard_domains;
         return fastFrag.create( meta_frag );
     },
-    
-    auto_copy : function() {
         
-        var opts_page_meta = bExt.options_page.build_meta({
-            title : "Auto Copy Short Urls",
-            enabled : bExt.info.get("auto_copy"),
-            desc : "Automatically copy short urls to my clipboard when popup opens"
-        });        
-        
-        
-        // javascript fun, this is a reference. Objects are PASS BY REFERENCE
-        opts_page_meta.event_method=bExt.option_evts.auto_copy;
-        
-        return build( opts_page_meta );       
-    },
-    
-    context_menu : function() {
-        var opts_page_meta = bExt.options_page.build_meta({
-            title : "Context Menu Notifications",
-            label : "Show Success Notification",
-            desc : "On webpages I visit, show a confirmation message when a link has been shorten via the context menu (right click menu) for valid URLs"
-        });    
-        return build( opts_page_meta );            
-    },
-    
-    twitter : function() {
-        var opts_page_meta = bExt.options_page.build_meta({
-            title : "Twitter Enhance",
-            enabled : bExt.config.twitter_bttn(),
-            label : "Enhance Twitter",
-            desc : "Display a shorten button on twitter.com when I enter a long URL"
-        });  
-        
-        opts_page_meta.event_method=bExt.option_evts.twitter;
-        return build( opts_page_meta );
-    },
-    
-    
     check_realtime : function() {
         var r_meta = bExt.info.get("realtime") || {}, clicks=0, links=0;
         if(r_meta && r_meta.realtime_links && r_meta.realtime_links.length > 0) {
@@ -440,7 +444,42 @@ function trends_structure( enabled, threshold  ) {
     }];
 }
 
-
+function hide_sharing_popup_frag( show_box, enabled ) {
+    /*
+        A form to hide the popup
+    */
+    
+    var input_params={
+        type : "checkbox"
+    }, outer_params = {
+        style :"display:none;"
+    };
+    if(show_box) {
+        outer_params.style="";        
+    }
+    if(enabled) {
+        input_params.checked=true;
+    }
+    return [{
+        css : "options_container_inner",
+        id : "hide_popup_box",
+        attrs : outer_params,
+        content : [{
+            type : "input",
+            id : "hide_sharing_input",
+            attrs : input_params
+        },{
+            type : "label",
+            content : "Speedy Shorten, disable popup",
+            attrs : {
+                'for' : "hide_sharing_input"
+            }
+        },{
+            content : "Disable shorten sharing popup. Shows a browser icon on successful shorten, and copy the short url to my clipboard",
+            css : "desc_txt"
+        }]
+    }]
+}
 
 function _single_radio_frag( meta, pos ) {
     if(!pos) pos=0;
@@ -634,6 +673,26 @@ window.bExt.option_evts = {
         var chkd = $(e.target).attr("checked");
         console.log("event for auto copy", chkd);
         bExt.info.set("auto_copy", chkd);
+        
+        if(chkd) {
+            $("#hide_popup_box").slideDown();
+        } else {
+            $("#hide_popup_box").slideUp();
+        }
+    },
+    
+    disable_popup : function(e) {
+        var chkd = $(e.target).attr("checked");
+        bExt.info.set("disable_popup", chkd);
+        // todo
+        // change the browser action
+        console.log(chkd)
+        chrome.extension.sendRequest({
+            'action' : "toggle_popup",
+            'active' : chkd
+        }, function(){
+            console.log("compelte", arguments);
+        });
     },
     
     twitter : function(e) {
