@@ -268,7 +268,7 @@ window.bExt.options_page={
     
     check_realtime : function() {
         var r_meta = bExt.info.get("realtime") || {}, clicks=0, links=0;
-        if(r_meta && r_meta.realtime_links) {
+        if(r_meta && r_meta.realtime_links && r_meta.realtime_links.length > 0) {
             var lst=r_meta.realtime_links;
             links=lst.length;
             for(var i=0; i<lst.length; i++) {
@@ -292,6 +292,8 @@ window.bExt.options_page={
             }            
             $("#realtime_trending_box").remove();
             $("#top").append( fastFrag.create( realtime_frag ) );
+        } else {
+            $("#realtime_trending_box").remove();
         }
 
     }    
