@@ -37,7 +37,7 @@ window.bExt.popup={
         settings=$.extend( true, settings, user_settings )
         
         if(!bExt.popup.page) {
-            console.log("load page from init, not called");
+            console.log("bExt.popup.Dompage() var is null, create new bExt.popup.Dompage from init");
             bExt.popup.page=new bExt.popup.Dompage();
         }
         // listeners

@@ -211,6 +211,18 @@ BitApi.prototype = {
         internal_multiget( host + urls.lookup, 'url', params, callback );
     },
     
+    
+    clicks_by_minute : function( params, callback ) {
+        // params = {shortUrl : [], hash : [] }
+        var creds={ 'login' : this.bit_request.login,
+                    'apiKey' : this.bit_request.apiKey,
+                    'url' : long_urls };
+                    
+        params = extend({}, params, creds );
+        this.count+=1;
+        bitlyRequest( ssl_host + urls.clicks_by_minute, params, callback);        
+    },
+    
     /*
         SSL Hosts (HTTPS)
     */

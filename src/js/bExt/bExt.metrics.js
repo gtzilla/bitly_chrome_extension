@@ -8,6 +8,22 @@
 
 (function(window, undefined){
     
+window.bExt.metrics = {
     
+    init : function() {
+        
+        var r_meta = bExt.info.get("realtime") || {},
+            popup_history=bExt.info.get("popup_history") || [];
+            
+        console.log("realtime", r_meta);
+        console.log("popup", popup_history);
+        
+        
+    },
+    
+    
+    
+    
+}
     
 })(window);
