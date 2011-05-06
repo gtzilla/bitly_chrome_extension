@@ -61,7 +61,7 @@
                 $(document.body).addClass("page_loaded");
             });
             $('#middle').append( fastFrag.create(build_canvas(total_w,total_h) ) );
-            bg.bitly.user_clicks(30,function(jo) {
+            bg.bExt.api.user_clicks(30,function(jo) {
                 console.log(jo, "metrics for user");
                 var max_clicks=0;
                 for(var i=0; i<jo.clicks.length; i++) {

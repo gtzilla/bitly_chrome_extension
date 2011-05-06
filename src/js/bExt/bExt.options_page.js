@@ -647,6 +647,7 @@ function list_accounts_callback(response) {
         })
     }
     
+    
     if(settings.share_box) {
         $("#" + settings.share_box).html('').append( fastFrag.create( structure_items ) );    
     } else {
@@ -690,9 +691,7 @@ window.bExt.option_evts = {
         chrome.extension.sendRequest({
             'action' : "toggle_popup",
             'active' : chkd
-        }, function(){
-            console.log("compelte", arguments);
-        });
+        }, function(){} );
     },
     
     twitter : function(e) {
@@ -701,7 +700,6 @@ window.bExt.option_evts = {
     },
         
     trends : function(e) {
-        console.log("implement trends");
         // todo, update the DOM
         var chkd = $(e.target).attr("checked");
         if(chkd) {

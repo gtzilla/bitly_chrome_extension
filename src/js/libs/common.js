@@ -57,16 +57,7 @@ function removeClass(ele,cls) {
         ele.className=ele.className.replace(reg,' ');
     }
 }
-function _copy( obj1 ) {
-    // http://my.opera.com/GreyWyvern/blog/show.dml/1725165
-    // derivative of prototype method, don't want to mess with native types (object, boolean, string etc)
-    var i, newObj = (obj1 instanceof Array) ? [] : {};
-    for (i in obj1) {
-      if (obj1[i] && typeof obj1[i] == "object") {
-        newObj[i] = _copy( obj1[i] );
-      } else { newObj[i] = obj1[i]; }
-    } return newObj;        
-}
+
 
 
 

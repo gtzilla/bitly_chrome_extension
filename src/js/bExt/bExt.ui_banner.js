@@ -31,7 +31,18 @@ function frag_struct() {
         id : "blueBanner",
         content : {
             type : "ul",
-            css : "ext_nav_list"
+            css : "ext_nav_list",
+            content : [{
+                type : "li",
+                content : {
+                    type : "a",
+                    css : "",
+                    content : "Metrics",
+                    attr : {
+                        href : chrome.extension.getURL("metrics.html")
+                    }
+                }
+            }]
         }
     }
 }

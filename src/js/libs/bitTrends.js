@@ -15,9 +15,13 @@
 
 (function() {
     
-    var bitTrends = function( el, realtime_bits, settings ) {
+    var bitTrends = function( el, realtime_bits, opts ) {
+        settings=opts;
         return new bTrend( el, realtime_bits );
-    }
+    }, settings = {
+        
+        base_domain : "bit.ly"
+    };
     window.bitTrends = bitTrends;
     var trend_height = 75;
 // all the real work, this was all a $.fn.whatever really is anyway, except it inherited the jQuery info
@@ -89,14 +93,6 @@
                 }
             }
             
-            // for(i=0; i<old_bits.length; i++) {
-            //    
-            // }
-            
-            
-            
-            // you know what, I cannot move these until the end, b/c it's sequential, so I should just update it
-            
             for(i=0; item=el_items[i]; i++) {
                 
                 old_bit = item.getAttribute("bit_hash")
@@ -166,7 +162,6 @@
             this.realtime_bits = realtime_bits;
 
             // now let's move / animate the elements
-            // so if I loop over the el_items, I should be able to move to their location in the new_bits array
             var trend_el, b_pos;            
             for(i=0; i<current_trend.length; i++) {
                 // alright, now find this elements position...
@@ -246,7 +241,7 @@
         var key, i=0, realtime, meta, final_results=[], tmp_obj={};
         
         for( ; realtime=realtime_list[i]; i++) {
-            key = "http://bit.ly/" + realtime.user_hash;
+            key = "http://"+settings.base_domain+"/" + realtime.user_hash;
             meta = bitly_meta[key];
             if(!meta) continue;
             tmp_obj = extend( {}, realtime, meta );
@@ -369,29 +364,10 @@
     
     function _drawChanged(url) {
         var diff = [], structure, dir = "up";
-        // if(url.time_diff) {
-        //     dir = (url.percent_change > 0) ? "up" : "down";            
-        //     diff = [{
-        //         type : "img",
-        //         attributes : {
-        //             src : 's/graphics/'+dir+'_arrow.png',
-        //             height : 9,
-        //             width : 9,
-        //             border : 0,
-        //             alt : ""
-        //         }
-        //     }, {
-        //         text : ' ' + Math.ceil( url.percent_change ) + '%' + url.time_diff.toLowerCase() + ' from ' + url.past_clicks + ' clicks'
-        //     }]
-        // } else {
-        //     diff = [{
-        //         text : "No change 1 min ago "
-        //     }]
-        // }
         diff.push({
             type : "a",
             attributes : {
-                href : 'http://bit.ly/'+url.user_hash+'+',
+                href : 'http://'+settings.base_domain+'/'+url.user_hash+'+',
                 target : "new"
             },
             content : ' more info +'
@@ -419,6 +395,15 @@
         return target;
     }
     
-    
+    function _copy( obj1 ) {
+        // http://my.opera.com/GreyWyvern/blog/show.dml/1725165
+        // derivative of prototype method, don't want to mess with native types (object, boolean, string etc)
+        var i, newObj = (obj1 instanceof Array) ? [] : {};
+        for (i in obj1) {
+          if (obj1[i] && typeof obj1[i] == "object") {
+            newObj[i] = _copy( obj1[i] );
+          } else { newObj[i] = obj1[i]; }
+        } return newObj;        
+    }    
 
 })();
