@@ -10,8 +10,10 @@
 
 var settings = {
     box : "#middle",
-    canvas : null
-}
+    canvas : null,
+    canvas_elem : null,
+    ctx : null
+};
 // framing.. for animation... hmmm
 window.bExt.metrics = {
     /*
@@ -44,19 +46,48 @@ window.bExt.metrics = {
         $(settings.box).append(fastFrag.create(search_frag() ) )
                        .append( fastFrag.create( canvas_frag( canvas_id ) ) );
                        
-        var canvas_elem = document.getElementById( canvas_id );
-        
-        window.webkitRequestAnimationFrame(bExt.metrics.canvas_framerate, canvas_elem);        
+        settings.canvas_elem = document.getElementById( canvas_id );
+        settings.ctx = settings.canvas_elem.getContext("2d");
+        bExt.metrics.request_animation();
     
     },
     
+    request_animation : function() {
+        window.webkitRequestAnimationFrame(bExt.metrics.canvas_framerate, settings.canvas_elem);
+    },
     
-    canvas_framerate: function( time_param ) {
-        if(!time_param) {
+    
+    canvas_framerate: function( time_code ) {
+        var context=settings.ctx;
+        if(!time_code) {
             console.log("create time param..")
-            time_param =(new Date()).getTime();
+            time_code =(new Date()).getTime();
         }
-        console.log("this", this, arguments);
+        console.log("this", this, time_code);
+        
+        
+        context.beginPath();
+        // if(i % 7 && i !== paint_graph.length-1) {continue;}
+        
+        // instructions, an array or methods -- lineTo, moveTo etc
+        
+        /*
+            [{
+                name : "lineTo",
+                args : [arg1,arg2,arg3]
+            }]
+            
+            context[item.name].apply( context, items.args || [] );
+        */
+        
+        
+        context.moveTo(50,0);
+        context.lineTo(100,300);
+        context.lineTo(10,10);
+        context.lineTo(10,300);                
+        context.closePath()
+        context.stroke();        
+        // if not complete, recall  bExt.metrics.request_animation();
     }
     
     
@@ -93,7 +124,11 @@ function canvas_frag( canvas_id ) {
         id : "bitly_metrics_canvas_tag_box",
         content : {
             type : "canvas",
-            id : canvas_id
+            id : canvas_id,
+            attrs : {
+                width : 300,
+                height : 250
+            }
         }
         
     }
