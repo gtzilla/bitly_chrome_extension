@@ -12,8 +12,10 @@ var settings = {
     box : "#middle",
     canvas : null,
     canvas_elem : null,
-    ctx : null
-};
+    ctx : null,
+    width : 800,
+    height : 600
+}, __lst=[];
 // framing.. for animation... hmmm
 window.bExt.metrics = {
     /*
@@ -55,12 +57,17 @@ window.bExt.metrics = {
         $(settings.box).append(fastFrag.create(search_frag() ) )
                        .append( fastFrag.create( canvas_frag( canvas_id ) ) );
                        
-        settings.canvas_elem = document.getElementById( canvas_id );
-        settings.ctx = settings.canvas_elem.getContext("2d");
-        bExt.metrics.request_animation();
-    
+        settings.canvas_elem = document.getElementById( canvas_id, settings.width, settings.height );
+        settings.ctx = settings.canvas_elem.getContext("2d");    
     },
     
+    track_data : function( metrics_meta_obj  ) {
+        var m = new bExt.metrics.Meta( metrics_meta_obj  );
+        __lst.push( m );
+        
+        return m;
+        
+    },
     
     
     request_animation : function() {
@@ -69,11 +76,9 @@ window.bExt.metrics = {
     
     
     canvas_framerate: function( time_code ) {
-        var context=settings.ctx;
-        if(!time_code) {
-            console.log("create time param..")
-            time_code =(new Date()).getTime();
-        }
+        var context=settings.ctx, 
+            total_w=settings.width,
+            total_h = settings.height;
         console.log("this", this, time_code);
         
         
@@ -91,7 +96,7 @@ window.bExt.metrics = {
             context[item.name].apply( context, items.args || [] );
         */
         
-        
+        context.clearRect( 0, 0, total_w, total_h  );          
         context.moveTo(50,0);
         context.lineTo(100,300);
         context.lineTo(10,10);
@@ -129,7 +134,7 @@ function search_frag() {
     
 }
 
-function canvas_frag( canvas_id ) {
+function canvas_frag( canvas_id, w, h ) {
     
     return {
         id : "bitly_metrics_canvas_tag_box",
@@ -137,8 +142,8 @@ function canvas_frag( canvas_id ) {
             type : "canvas",
             id : canvas_id,
             attrs : {
-                width : 300,
-                height : 250
+                width : w,
+                height : h
             }
         }
         
@@ -154,13 +159,30 @@ window.bExt.metrics_evts = {
             // I CAN NOW CALL AND GET THE DATA FOR THE GLOBAL HASH
             // THEN I CAN CHART THEM AGAINT EACH OTHER
             console.log("clicks by minute", jo);
-            var clicks_meta = jo.clicks_by_minute;        
+            var clicks_meta = jo.clicks_by_minute;
+            console.log("clicks_meta", clicks_meta)
+
+            
+            for(var k in clicks_meta) {
+                var meta = bExt.metrics.track_data( clicks_meta[k] );
+                console.log(meta)
+                
+            }
+            bExt.metrics.request_animation();             
+            
+
     }
     
 }
 
+
+/*
+    Represent the bitly data used to draw the graph
+*/
 window.bExt.metrics.Meta = function( opts ) {
     this.__m=jQuery.extend(true, {}, this.__m, opts);
+    
+    return this;
 }
 
 window.bExt.metrics.Meta.prototype = {
@@ -174,12 +196,15 @@ window.bExt.metrics.Meta.prototype = {
         
     },
     
+    pos : 0,
     // the event method and context to use when handling events
     "event_method" : null,
     
     
     __m : {
-        
+        clicks : [],
+        hash : null,
+        user_hash : null
     }
     
 }
