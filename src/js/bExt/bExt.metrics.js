@@ -31,11 +31,26 @@ window.bExt.metrics = {
     init : function( opts ) {
         settings=jQuery.extend(true, {}, settings, opts );
         var r_meta = bExt.info.get("realtime") || {},
-            popup_history=bExt.info.get("popup_history") || [];
+            popup_history=bExt.info.get("popup_history") || [],
+            links, params={
+                'hash' : []
+            };
             
         console.log("realtime", r_meta);
         console.log("popup", popup_history);
         
+        links=r_meta.realtime_links;
+        for(var i=0; i<links.length; i++) {
+            params.hash.push( links[i].user_hash );
+        }
+        
+        bExt.api.clicks_by_minute( params, function(jo) {
+            
+            /// I GET THE GLOBAL HASH BACK!!!
+            // I CAN NOW CALL AND GET THE DATA FOR THE GLOBAL HASH
+            // THEN I CAN CHART THEM AGAINT EACH OTHER
+            console.log("clicks by minute", jo)
+        })
 
     },
     
@@ -51,6 +66,8 @@ window.bExt.metrics = {
         bExt.metrics.request_animation();
     
     },
+    
+    
     
     request_animation : function() {
         window.webkitRequestAnimationFrame(bExt.metrics.canvas_framerate, settings.canvas_elem);

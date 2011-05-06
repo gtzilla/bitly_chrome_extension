@@ -215,8 +215,7 @@ BitApi.prototype = {
     clicks_by_minute : function( params, callback ) {
         // params = {shortUrl : [], hash : [] }
         var creds={ 'login' : this.bit_request.login,
-                    'apiKey' : this.bit_request.apiKey,
-                    'url' : long_urls };
+                    'apiKey' : this.bit_request.apiKey };
                     
         params = extend({}, params, creds );
         this.count+=1;
