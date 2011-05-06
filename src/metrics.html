@@ -45,16 +45,30 @@
             
         </div> <!-- end #container -->
     
+<script type="text/javascript" charset="utf-8" src="js/bitly_oauth_credentials.js"></script>    
+<script type="text/javascript" charset="utf-8" src="js/bitlyapi-v3.0.js"></script>
 <script type="text/javascript" charset="utf-8" src="js/libs/fastFrag.js"></script>
 <script type="text/javascript" charset="utf-8" src="js/jquery-1.5.2.js"></script>
+
 <script type="text/javascript" charset="utf-8" src="js/bExt/bExt.js"></script>
 <script type="text/javascript" charset="utf-8" src="js/bExt/bExt.metrics.js"></script>
 
 <script type="text/javascript" charset="utf-8">
+
+    bExt.init_api();
+    console.log(bExt.api);
     bExt.metrics.init({
         box : "#middle"
     });
     bExt.metrics.assemble();
+    
+    
+    //window.webkitRequestAnimationFrame(callback[, element]); // Chrome
+    
+    // if metrics inits it's own API
+    // it must be able to sign out
+    // listen for a sign out event...
+    
 </script>
 
 

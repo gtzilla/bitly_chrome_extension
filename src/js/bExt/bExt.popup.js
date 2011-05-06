@@ -117,6 +117,10 @@ window.bExt.popup={
         active_stash.set("text", stsh_txt);
     },
     
+    save_active_stash : function() {
+        bExt.popup.save_stash( "url", active_stash.get("url"), active_stash.out() );
+    },
+    
     save_stash : function(id, value, payload) {
         var i=0, all_stash=bExt.info.get("popup_history") || [], added=false;
         for( ; i<all_stash.length; i++) {
@@ -144,7 +148,7 @@ window.bExt.popup={
             'text' : bExt.popup.page.get_text(),
             'timestamp' : (new Date()).getTime()
         });
-        bExt.popup.save_stash( "url", active_stash.get("url"), active_stash.out()  );
+        bExt.popup.save_active_stash();
     }
 }
 

@@ -182,6 +182,8 @@
             if(txt !== "" && active_accounts.length > 0 ) {
                 params.share_text = txt;
                 bExt.popup.update_stash( txt );
+                bExt.popup.save_active_stash();
+                
                 $(elem_opts.small_preloader).fadeIn();
                 $(elem_opts.share_bttn).fadeOut("fast");
                 

@@ -9,7 +9,8 @@
 (function(window, undefined){
 
 var settings = {
-    box : "#middle"
+    box : "#middle",
+    canvas : "#bitly_metrics_canvas_tag"
 }
 // framing.. for animation... hmmm
 window.bExt.metrics = {
@@ -37,7 +38,19 @@ window.bExt.metrics = {
     },
     
     assemble : function() {
-        $(settings.box).append(fastFrag.create(search_frag() ) );        
+        var canvas_id="bitly_metrics_canvas_tag";
+        $(settings.box).append(fastFrag.create(search_frag() ) )
+                       .append( fastFrag.create( canvas_frag( canvas_id ) ) );
+                       
+        var canvas_elem = document.getElementById( canvas_id );
+        
+        window.webkitRequestAnimationFrame(bExt.metrics.canvas_framerate, canvas_elem);        
+    
+    },
+    
+    
+    canvas_framerate: function() {
+        console.log("this", this);
     }
     
     
@@ -68,12 +81,24 @@ function search_frag() {
     
 }
 
+function canvas_frag( canvas_id ) {
+    
+    return {
+        id : "bitly_metrics_canvas_tag_box",
+        content : {
+            type : "canvas",
+            id : canvas_id
+        }
+        
+    }
+}
+
 
 window.bExt.metrics.Meta = function( opts ) {
     this.__m=jQuery.extend(true, {}, this.__m, opts);
 }
 
-window.bExt.metrics.Meta.prototype =  function() {
+window.bExt.metrics.Meta.prototype = {
     
     graph : function( ctx ) {
         // ctx == context for canvas element
@@ -85,10 +110,10 @@ window.bExt.metrics.Meta.prototype =  function() {
     },
     
     // the event method and context to use when handling events
-    "event_method" : null
+    "event_method" : null,
     
     
-    __m = {
+    __m : {
         
     }
     
