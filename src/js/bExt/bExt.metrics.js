@@ -10,7 +10,7 @@
 
 var settings = {
     box : "#middle",
-    canvas : "#bitly_metrics_canvas_tag"
+    canvas : null
 }
 // framing.. for animation... hmmm
 window.bExt.metrics = {
@@ -39,6 +39,8 @@ window.bExt.metrics = {
     
     assemble : function() {
         var canvas_id="bitly_metrics_canvas_tag";
+        settings.canvas="#"+canvas_id;
+        
         $(settings.box).append(fastFrag.create(search_frag() ) )
                        .append( fastFrag.create( canvas_frag( canvas_id ) ) );
                        
@@ -49,8 +51,12 @@ window.bExt.metrics = {
     },
     
     
-    canvas_framerate: function() {
-        console.log("this", this);
+    canvas_framerate: function( time_param ) {
+        if(!time_param) {
+            console.log("create time param..")
+            time_param =(new Date()).getTime();
+        }
+        console.log("this", this, arguments);
     }
     
     
