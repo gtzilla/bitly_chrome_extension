@@ -43,14 +43,8 @@ window.bExt.metrics = {
         for(var i=0; i<links.length; i++) {
             params.hash.push( links[i].user_hash );
         }
-        
-        bExt.api.clicks_by_minute( params, function(jo) {
-            
-            /// I GET THE GLOBAL HASH BACK!!!
-            // I CAN NOW CALL AND GET THE DATA FOR THE GLOBAL HASH
-            // THEN I CAN CHART THEM AGAINT EACH OTHER
-            console.log("clicks by minute", jo)
-        })
+
+        bExt.api.clicks_by_minute( params, bExt.metrics_evts.clicks_by_minute);
 
     },
     
@@ -151,6 +145,19 @@ function canvas_frag( canvas_id ) {
     }
 }
 
+
+window.bExt.metrics_evts = {
+    
+    clicks_by_minute : function( jo ) {
+            
+            /// I GET THE GLOBAL HASH BACK!!!
+            // I CAN NOW CALL AND GET THE DATA FOR THE GLOBAL HASH
+            // THEN I CAN CHART THEM AGAINT EACH OTHER
+            console.log("clicks by minute", jo);
+            var clicks_meta = jo.clicks_by_minute;        
+    }
+    
+}
 
 window.bExt.metrics.Meta = function( opts ) {
     this.__m=jQuery.extend(true, {}, this.__m, opts);
