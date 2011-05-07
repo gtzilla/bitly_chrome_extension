@@ -16,7 +16,6 @@
 (function() {
     
     var bitTrends = function( el, realtime_bits, opts ) {
-        settings=opts;
         return new bTrend( el, realtime_bits );
     }, settings = {
         

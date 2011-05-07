@@ -15,7 +15,9 @@ var settings = {
     ctx : null,
     width : 800,
     height : 600
-}, __lst=[];
+}, __lst=[], drawing_opts = {
+    start_time : null
+};
 // framing.. for animation... hmmm
 window.bExt.metrics = {
     /*
@@ -70,19 +72,34 @@ window.bExt.metrics = {
     },
     
     
+    
     request_animation : function() {
         window.webkitRequestAnimationFrame(bExt.metrics.canvas_framerate, settings.canvas_elem);
     },
     
-    
+    // http://www.highcharts.com/
     canvas_framerate: function( time_code ) {
+        if(!drawing_opts.start_time) { drawing_opts.start_time=time_code; }
         var context=settings.ctx, 
             total_w=settings.width,
-            total_h = settings.height;
+            total_h = settings.height,
+            m_meta, clicks, contine_draw=false;
         console.log("this", this, time_code);
         
         
         context.beginPath();
+        
+        for(var i=0; i<__lst.length; i++) {
+            m_meta = __lst[i];
+            
+            clicks=m_meta.get("clicks");
+            var pos = m_meta.get("pos");
+            if(pos<clicks.length) {
+                contine_draw=true;
+            }
+            console.log(clicks[m_meta.get("pos")])
+            m_meta.increment();
+        }
         // if(i % 7 && i !== paint_graph.length-1) {continue;}
         
         // instructions, an array or methods -- lineTo, moveTo etc
@@ -104,6 +121,10 @@ window.bExt.metrics = {
         context.closePath()
         context.stroke();        
         // if not complete, recall  bExt.metrics.request_animation();
+        
+        if(contine_draw) {
+            bExt.metrics.request_animation();
+        }
     }
     
     
@@ -181,7 +202,7 @@ window.bExt.metrics_evts = {
 */
 window.bExt.metrics.Meta = function( opts ) {
     this.__m=jQuery.extend(true, {}, this.__m, opts);
-    
+    this.__m.clicks.reverse();
     return this;
 }
 
@@ -196,15 +217,30 @@ window.bExt.metrics.Meta.prototype = {
         
     },
     
-    pos : 0,
-    // the event method and context to use when handling events
-    "event_method" : null,
+    increment : function() {
+        this.__m.pos+=1;
+    },    
     
+    out : function() {
+        return this.__m;
+    },
+    get : function( k ) {
+        return this.__m[k];        
+    },
     
-    __m : {
-        clicks : [],
-        hash : null,
-        user_hash : null
+
+    
+    set : function(k, value) {
+        return this.__m[k]=value;
+    },
+    "event_method" : null, // the event method and context to use when handling events
+    "__m" : {
+        "clicks" : [],
+        "hash" : null,
+        "user_hash" : null,
+        "is_complete" : false,
+        "pos" : 0        
+        
     }
     
 }
