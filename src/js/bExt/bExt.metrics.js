@@ -15,6 +15,7 @@ var settings = {
     ctx : null,
     width : 900,
     height : 600,
+    shapes : ["cirle", "square", "diamond", "triangle"],
     colors : ["rgb(103,184,178)", "rgb(171,214,195)", "rgb(180,179,224)", "rgb(222,224,179)", 
                  "rgb(255,234,169)", "rgb(255,214,191)", "rgb(252,205,224)", 
                  "rgb(222,170,211)", "rgb(159,224,229)", "rgb(151,170,207)", "rgb(143,203,157)"]
@@ -89,7 +90,8 @@ window.bExt.metrics = {
             m_meta, clicks, contine_draw=false,
             total_max_clicks=0,
             x_scale = total_w/60,
-            y_scale=10;
+            y_scale=10,
+            draw_shape;
 
         for(var i=0; i<__lst.length; i++) {
             total_max_clicks= Math.max(total_max_clicks, __lst[i].get("max_clicks") );
@@ -115,32 +117,34 @@ window.bExt.metrics = {
 
             context.beginPath();  
             
+            var x_pos_1=pos*x_scale,
+                y_pos_1=total_h-(target_start*y_scale),
+                x_pos_2=(pos+1)*x_scale,
+                y_pos_2=total_h-(target_end*y_scale),
+                data = {
+                    x1 : x_pos_1,
+                    y1 : y_pos_1,
+                    x2 : x_pos_2,
+                    y2 : y_pos_2,
+                    large : false
+                };
+            
+            
+            m_meta.sketch_lines( context, data );
+            
+            context.beginPath();
+            
             if(target_start > 0 ) {
-                context.lineWidth = 2;                
-                context.arc(pos*x_scale, total_h-(target_start*y_scale), 5, 0, Math.PI*2, true); 
-                context.shadowColor = "rgb(99,99,99)";            
-                context.shadowBlur = 5;
-                context.shadowOffsetX=2;
-                context.shadowOffsetY=5;                
-            } else {
-                context.lineWidth = 3;
-                context.arc(pos*x_scale, total_h-(target_start*y_scale), 2, 0, Math.PI*2, true); 
-                context.shadowColor = null;            
-                context.shadowBlur = 0;
-                context.shadowOffsetX=0;
-                context.shadowOffsetY=0;                
-            }
+               data.large=true;
+            } 
+            
+            draw_shape=settings.shapes[i] || settings.shapes[0];
+            m_meta[draw_shape]( context, data);
           
            
             // context.arc(50, 40, 30, 0, Math.PI*2, false);             
 
             context.fill();
-            // context.moveTo(pos*10,total_h-target_start*10);
-            // context.lineTo((pos+1)*10,total_h-target_end*10);
-            // context.lineTo(pos*10,total_h-target_start*10);
-            // context.lineTo(10,300);                
-            // context.lineWidth = 15;
-            // context.strokeStyle = "black"; // line color
             context.stroke();            
             context.closePath();
                         
@@ -283,7 +287,69 @@ window.bExt.metrics.Meta.prototype = {
         return this.__m[k];        
     },
     
-
+    shape : function( ctx, name ) {
+        
+    },
+    
+    cirle : function( ctx, data ) {
+        
+        // data.x, data.y
+        if(data && data.large ) {
+            this.__set_large( ctx );
+            ctx.arc(data.x1, data.y1, 6, 0, Math.PI*2, true); 
+              
+        } else {
+            this.__set_small( ctx );
+            ctx.arc(data.x1, data.y1, 2, 0, Math.PI*2, true);              
+        }        
+        
+    },
+    
+    sketch_lines : function(ctx, data) {
+        ctx.moveTo(data.x1, data.y1);
+        ctx.lineTo(data.x2, data.y2);
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = null;
+        ctx.shadowOffsetX=0;
+        ctx.shadowOffsetY=0;
+        ctx.stroke();
+    },
+    
+    triangle : function( ctx ) {
+        
+    },
+    
+    square : function( ctx, data ) {
+        
+        if(data && data.large ) {
+            this.__set_large( ctx );
+            ctx.rect(data.x1-5, data.y1-4, 8, 6);              
+        } else {
+            this.__set_small( ctx );
+            ctx.rect(data.x1-1, data.y1-1, 2, 2);                 
+        }        
+        // context.rect(topLeftCornerX, topLeftCornerY, width, height);        
+    },
+    
+    diamond : function(ctx) {
+        
+    },
+    
+    __set_large : function(ctx) {
+        ctx.lineWidth = 2;                
+        ctx.shadowColor = "rgb(99,99,99)";            
+        ctx.shadowBlur=5;
+        ctx.shadowOffsetX=2;
+        ctx.shadowOffsetY=5;        
+    },
+    
+    __set_small : function(ctx) {
+        ctx.lineWidth = 2;
+        ctx.shadowColor = null;            
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX=0;
+        ctx.shadowOffsetY=0;        
+    },
     
     set : function(k, value) {
         return this.__m[k]=value;
