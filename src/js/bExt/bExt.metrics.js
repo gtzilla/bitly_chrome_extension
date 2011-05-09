@@ -14,7 +14,7 @@ var settings = {
     canvas_elem : null,
     ctx : null,
     width : 900,
-    height : 450,
+    height : 600,
     colors : ["rgb(103,184,178)", "rgb(171,214,195)", "rgb(180,179,224)", "rgb(222,224,179)", 
                  "rgb(255,234,169)", "rgb(255,214,191)", "rgb(252,205,224)", 
                  "rgb(222,170,211)", "rgb(159,224,229)", "rgb(151,170,207)", "rgb(143,203,157)"]
@@ -98,7 +98,7 @@ window.bExt.metrics = {
         y_scale=total_h/total_max_clicks;
 
         context.beginPath();
-        context.lineWidth = 2;
+
         // context.strokeStyle = "black"; // line color        
         context.fillStyle="rgba(255,255,255,255)";
         
@@ -112,9 +112,26 @@ window.bExt.metrics = {
             
             
             // context.clearRect( 0, 0, total_w, total_h  );   
+
+            context.beginPath();  
             
-            context.beginPath();            
-            context.arc(pos*x_scale, total_h-(target_start*y_scale), 5, 0, Math.PI*2, true); 
+            if(target_start > 0 ) {
+                context.lineWidth = 2;                
+                context.arc(pos*x_scale, total_h-(target_start*y_scale), 5, 0, Math.PI*2, true); 
+                context.shadowColor = "rgb(99,99,99)";            
+                context.shadowBlur = 5;
+                context.shadowOffsetX=2;
+                context.shadowOffsetY=5;                
+            } else {
+                context.lineWidth = 3;
+                context.arc(pos*x_scale, total_h-(target_start*y_scale), 2, 0, Math.PI*2, true); 
+                context.shadowColor = null;            
+                context.shadowBlur = 0;
+                context.shadowOffsetX=0;
+                context.shadowOffsetY=0;                
+            }
+          
+           
             // context.arc(50, 40, 30, 0, Math.PI*2, false);             
 
             context.fill();
