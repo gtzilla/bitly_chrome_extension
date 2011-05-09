@@ -59,7 +59,6 @@ window.bExt.metrics = {
         $(settings.box).append(fastFrag.create(search_frag() ) )
                        .append( fastFrag.create( canvas_frag( canvas_id, settings.width, settings.height ) ) );
         
-        console.log(settings.width)
         settings.canvas_elem = document.getElementById( canvas_id );
         settings.ctx = settings.canvas_elem.getContext("2d");    
     },
@@ -84,12 +83,19 @@ window.bExt.metrics = {
         var context=settings.ctx, 
             total_w=settings.width,
             total_h = settings.height-20,
-            m_meta, clicks, contine_draw=false;
-        console.log("this", this, time_code);
+            m_meta, clicks, contine_draw=false,
+            total_max_clicks=0,
+            x_scale = total_w/60,
+            y_scale=10;
+
+        for(var i=0; i<__lst.length; i++) {
+            total_max_clicks= Math.max(total_max_clicks, __lst[i].get("max_clicks") );
+        }
         
-        
+        y_scale=total_h/total_max_clicks;
+
         context.beginPath();
-        context.lineWidth = 4;
+        context.lineWidth = 2;
         context.strokeStyle = "black"; // line color        
         
         
@@ -103,10 +109,9 @@ window.bExt.metrics = {
             
             
             // context.clearRect( 0, 0, total_w, total_h  );   
-            console.log(target_start, "target_start", pos, context, (total_h-target_start));
             
             context.beginPath();            
-            context.arc(pos*10, total_h-(target_start*10), 10, 0, Math.PI*2, true); 
+            context.arc(pos*x_scale, total_h-(target_start*y_scale), 5, 0, Math.PI*2, true); 
             // context.arc(50, 40, 30, 0, Math.PI*2, false);             
 
             // context.fill();
@@ -122,7 +127,6 @@ window.bExt.metrics = {
             if(pos<clicks.length-1) {
                 contine_draw=true;
             }
-            console.log(clicks[m_meta.get("pos")], "count")
             m_meta.increment();
         }
         context.closePath();
@@ -206,13 +210,18 @@ window.bExt.metrics_evts = {
             // I CAN NOW CALL AND GET THE DATA FOR THE GLOBAL HASH
             // THEN I CAN CHART THEM AGAINT EACH OTHER
             console.log("clicks by minute", jo);
-            var clicks_meta = jo.clicks_by_minute;
+            var clicks_meta = jo.clicks_by_minute, max_click=0;
             console.log("clicks_meta", clicks_meta)
-
+            // need the max click value
             
             for(var k in clicks_meta) {
-                var meta = bExt.metrics.track_data( clicks_meta[k] );
-                console.log(meta)
+                var meta = bExt.metrics.track_data( clicks_meta[k] ), clicks=clicks_meta[k].clicks;
+                max_click=0;
+                for(var i=0; i<clicks.length; i++) {
+                    max_click=Math.max(max_click, clicks[i]);
+                }
+                meta.set("max_clicks", max_click);
+                console.log(meta, max_click, "max click");
                 
             }
             bExt.metrics.request_animation();             

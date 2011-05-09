@@ -678,6 +678,7 @@ window.bExt.option_evts = {
         if(chkd) {
             $("#hide_popup_box").slideDown();
         } else {
+            $("#hide_sharing_input:checked").trigger("click");            
             $("#hide_popup_box").slideUp();
         }
     },
@@ -686,8 +687,6 @@ window.bExt.option_evts = {
         var chkd = $(e.target).attr("checked");
         bExt.info.set("disable_popup", chkd);
         // todo
-        // change the browser action
-        console.log(chkd)
         chrome.extension.sendRequest({
             'action' : "toggle_popup",
             'active' : chkd
