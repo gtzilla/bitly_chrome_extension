@@ -14,7 +14,10 @@ var settings = {
     canvas_elem : null,
     ctx : null,
     width : 900,
-    height : 450
+    height : 450,
+    colors : ["rgb(103,184,178)", "rgb(171,214,195)", "rgb(180,179,224)", "rgb(222,224,179)", 
+                 "rgb(255,234,169)", "rgb(255,214,191)", "rgb(252,205,224)", 
+                 "rgb(222,170,211)", "rgb(159,224,229)", "rgb(151,170,207)", "rgb(143,203,157)"]
 }, __lst=[], drawing_opts = {
     start_time : null
 };
@@ -96,12 +99,12 @@ window.bExt.metrics = {
 
         context.beginPath();
         context.lineWidth = 2;
-        context.strokeStyle = "black"; // line color        
-        
+        // context.strokeStyle = "black"; // line color        
+        context.fillStyle="rgba(255,255,255,255)";
         
         for(var i=0; i<__lst.length; i++) {
             m_meta = __lst[i];
-            
+            context.strokeStyle=settings.colors[ i ] || settings.colors[0];
             clicks=m_meta.get("clicks");
             var pos = m_meta.get("pos"), 
                 target_start=clicks[m_meta.get("pos")],
@@ -114,7 +117,7 @@ window.bExt.metrics = {
             context.arc(pos*x_scale, total_h-(target_start*y_scale), 5, 0, Math.PI*2, true); 
             // context.arc(50, 40, 30, 0, Math.PI*2, false);             
 
-            // context.fill();
+            context.fill();
             // context.moveTo(pos*10,total_h-target_start*10);
             // context.lineTo((pos+1)*10,total_h-target_end*10);
             // context.lineTo(pos*10,total_h-target_start*10);
