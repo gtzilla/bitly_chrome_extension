@@ -13,8 +13,8 @@ var settings = {
     canvas : null,
     canvas_elem : null,
     ctx : null,
-    width : 800,
-    height : 600
+    width : 900,
+    height : 450
 }, __lst=[], drawing_opts = {
     start_time : null
 };
@@ -57,9 +57,10 @@ window.bExt.metrics = {
         settings.canvas="#"+canvas_id;
         
         $(settings.box).append(fastFrag.create(search_frag() ) )
-                       .append( fastFrag.create( canvas_frag( canvas_id ) ) );
-                       
-        settings.canvas_elem = document.getElementById( canvas_id, settings.width, settings.height );
+                       .append( fastFrag.create( canvas_frag( canvas_id, settings.width, settings.height ) ) );
+        
+        console.log(settings.width)
+        settings.canvas_elem = document.getElementById( canvas_id );
         settings.ctx = settings.canvas_elem.getContext("2d");    
     },
     
@@ -82,24 +83,49 @@ window.bExt.metrics = {
         if(!drawing_opts.start_time) { drawing_opts.start_time=time_code; }
         var context=settings.ctx, 
             total_w=settings.width,
-            total_h = settings.height,
+            total_h = settings.height-20,
             m_meta, clicks, contine_draw=false;
         console.log("this", this, time_code);
         
         
         context.beginPath();
+        context.lineWidth = 4;
+        context.strokeStyle = "black"; // line color        
+        
         
         for(var i=0; i<__lst.length; i++) {
             m_meta = __lst[i];
             
             clicks=m_meta.get("clicks");
-            var pos = m_meta.get("pos");
-            if(pos<clicks.length) {
+            var pos = m_meta.get("pos"), 
+                target_start=clicks[m_meta.get("pos")],
+                target_end=clicks[m_meta.get("pos")+1] || 0;
+            
+            
+            // context.clearRect( 0, 0, total_w, total_h  );   
+            console.log(target_start, "target_start", pos, context, (total_h-target_start));
+            
+            context.beginPath();            
+            context.arc(pos*10, total_h-(target_start*10), 10, 0, Math.PI*2, true); 
+            // context.arc(50, 40, 30, 0, Math.PI*2, false);             
+
+            // context.fill();
+            // context.moveTo(pos*10,total_h-target_start*10);
+            // context.lineTo((pos+1)*10,total_h-target_end*10);
+            // context.lineTo(pos*10,total_h-target_start*10);
+            // context.lineTo(10,300);                
+            // context.lineWidth = 15;
+            // context.strokeStyle = "black"; // line color
+            context.stroke();            
+            context.closePath();
+                        
+            if(pos<clicks.length-1) {
                 contine_draw=true;
             }
-            console.log(clicks[m_meta.get("pos")])
+            console.log(clicks[m_meta.get("pos")], "count")
             m_meta.increment();
         }
+        context.closePath();
         // if(i % 7 && i !== paint_graph.length-1) {continue;}
         
         // instructions, an array or methods -- lineTo, moveTo etc
@@ -113,13 +139,13 @@ window.bExt.metrics = {
             context[item.name].apply( context, items.args || [] );
         */
         
-        context.clearRect( 0, 0, total_w, total_h  );          
-        context.moveTo(50,0);
-        context.lineTo(100,300);
-        context.lineTo(10,10);
-        context.lineTo(10,300);                
-        context.closePath()
-        context.stroke();        
+        // context.clearRect( 0, 0, total_w, total_h  );          
+        // context.moveTo(50,0);
+        // context.lineTo(100,300);
+        // context.lineTo(10,10);
+        // context.lineTo(10,300);                
+        // context.closePath()
+        // context.stroke();        
         // if not complete, recall  bExt.metrics.request_animation();
         
         if(contine_draw) {
@@ -163,8 +189,8 @@ function canvas_frag( canvas_id, w, h ) {
             type : "canvas",
             id : canvas_id,
             attrs : {
-                width : w,
-                height : h
+                "width" : w,
+                "height" : h
             }
         }
         
