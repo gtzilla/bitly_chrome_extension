@@ -15,7 +15,7 @@ var settings = {
     ctx : null,
     width : 900,
     height : 600,
-    shapes : ["cirle", "square", "diamond", "triangle"],
+    shapes : ["circle", "square", "diamond", "triangle"],
     colors : ["rgb(103,184,178)", "rgb(171,214,195)", "rgb(180,179,224)", "rgb(222,224,179)", 
                  "rgb(255,234,169)", "rgb(255,214,191)", "rgb(252,205,224)", 
                  "rgb(222,170,211)", "rgb(159,224,229)", "rgb(151,170,207)", "rgb(143,203,157)"]
@@ -99,9 +99,10 @@ window.bExt.metrics = {
         
         y_scale=total_h/total_max_clicks;
 
-        context.beginPath();
 
-        // context.strokeStyle = "black"; // line color        
+
+
+        context.beginPath();
         context.fillStyle="rgba(255,255,255,255)";
         
         for(var i=0; i<__lst.length; i++) {
@@ -114,9 +115,14 @@ window.bExt.metrics = {
             
             
             // context.clearRect( 0, 0, total_w, total_h  );   
-
-            context.beginPath();  
+            // draws the ripples...
+            if( m_meta.animate( context ) ) {
+                contine_draw=true;
+            }
             
+            
+            context.beginPath();  
+            context.strokeStyle=settings.colors[ i ] || settings.colors[0];             
             var x_pos_1=pos*x_scale,
                 y_pos_1=total_h-(target_start*y_scale),
                 x_pos_2=(pos+1)*x_scale,
@@ -126,23 +132,28 @@ window.bExt.metrics = {
                     y1 : y_pos_1,
                     x2 : x_pos_2,
                     y2 : y_pos_2,
+                    size : 4,
+                    max_size : 40,
+                    complete : false,
+                    shape : null,
                     large : false
                 };
             
-            
+            draw_shape=settings.shapes[i] || settings.shapes[0];
+            data.shape=draw_shape;            
             m_meta.sketch_lines( context, data );
             
             context.beginPath();
             
             if(target_start > 0 ) {
                data.large=true;
+               m_meta.append_animation( data );
             } 
             
-            draw_shape=settings.shapes[i] || settings.shapes[0];
+            //  draw a data point
+            context.strokeStyle=settings.colors[ i ] || settings.colors[0];            
             m_meta[draw_shape]( context, data);
           
-           
-            // context.arc(50, 40, 30, 0, Math.PI*2, false);             
 
             context.fill();
             context.stroke();            
@@ -245,7 +256,6 @@ window.bExt.metrics_evts = {
                     max_click=Math.max(max_click, clicks[i]);
                 }
                 meta.set("max_clicks", max_click);
-                console.log(meta, max_click, "max click");
                 
             }
             bExt.metrics.request_animation();             
@@ -262,6 +272,7 @@ window.bExt.metrics_evts = {
 window.bExt.metrics.Meta = function( opts ) {
     this.__m=jQuery.extend(true, {}, this.__m, opts);
     this.__m.clicks.reverse();
+    this.__animate_list=[];
     return this;
 }
 
@@ -278,7 +289,37 @@ window.bExt.metrics.Meta.prototype = {
     
     increment : function() {
         this.__m.pos+=1;
-    },    
+    },
+    
+    append_animation : function( data ) {
+        this.__animate_list.push(data);
+    },
+    
+    animate : function(ctx) {
+        var lst=this.__animate_list, continue_animation=false;
+        for(var i=0; i<lst.length; i++) {
+            console.log(lst[i]);
+            
+            if(lst[i].shape == "circle") {
+                console.log("hi")
+                ctx.beginPath();
+                ctx.clearRect()
+                ctx.arc(lst[i].x1, lst[i].y1, lst[i].size, 0, Math.PI*2, true);
+                console.log(i, lst)
+                // lst[i].size+=Math.round(lst[i].size-(lst[i].size/1.2) );
+                lst[i].size+=(lst[i].max_size - lst[i].size)/1.1;
+                ctx.lineWidth=lst[i].size/2
+                ctx.strokeStyle="rgba(190,190,190,200)";
+                ctx.stroke();
+                
+                if(Math.round(lst[i].size) < lst[i].max_size-1) {
+                    // continue_animation=true;
+                }
+            }
+        }
+        
+        return continue_animation;
+    },
     
     out : function() {
         return this.__m;
@@ -291,7 +332,7 @@ window.bExt.metrics.Meta.prototype = {
         
     },
     
-    cirle : function( ctx, data ) {
+    circle : function( ctx, data ) {
         
         // data.x, data.y
         if(data && data.large ) {
@@ -337,10 +378,10 @@ window.bExt.metrics.Meta.prototype = {
     
     __set_large : function(ctx) {
         ctx.lineWidth = 2;                
-        ctx.shadowColor = "rgb(99,99,99)";            
-        ctx.shadowBlur=5;
-        ctx.shadowOffsetX=2;
-        ctx.shadowOffsetY=5;        
+        ctx.shadowColor = "rgb(190,190,190)";            
+        ctx.shadowBlur=4;
+        ctx.shadowOffsetX=1;
+        ctx.shadowOffsetY=1;        
     },
     
     __set_small : function(ctx) {
