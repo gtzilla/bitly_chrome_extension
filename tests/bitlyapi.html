@@ -37,7 +37,7 @@
                 
                 api.auth("exttestaccount", "whatever", function(jo) {
                     console.log("jo")
-                    ok(jo.status_code==200, "signed in success")
+                    ok(jo, "signed in success")
                 });
                 
                 setTimeout(function() {

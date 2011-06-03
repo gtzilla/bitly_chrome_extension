@@ -33,15 +33,15 @@ function frag_struct() {
             type : "ul",
             css : "ext_nav_list",
             content : [{
-                type : "li",
-                content : {
-                    type : "a",
-                    css : "",
-                    content : "Metrics",
-                    attr : {
-                        href : chrome.extension.getURL("metrics.html")
-                    }
-                }
+                type : "li"//,
+                // content : {
+                //     type : "a",
+                //     css : "",
+                //     content : "Metrics",
+                //     attr : {
+                //         href : chrome.extension.getURL("metrics.html")
+                //     }
+                // }
             }]
         }
     }
