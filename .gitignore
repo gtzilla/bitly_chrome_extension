@@ -8,3 +8,5 @@ src.zip
 bitly_ext*.zip
 src_alter
 tmp
+*.swp
+\#*\#
