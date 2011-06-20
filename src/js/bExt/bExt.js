@@ -342,13 +342,12 @@ window.bExt={
                 return true;
             } catch(e) {}
             return false;   
-        },  
+        },
         'remove' : function(itemKey) {
             try {
                 window.localStorage.removeItem( itemKey );
                 return true;
             } catch(e){ return false; }
-            return false;            
         }
     }
     /* end bExt.info methods  */

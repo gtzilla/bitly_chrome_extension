@@ -6,7 +6,7 @@
   "description": "Shorten, share, and track your links, right from your browser, instantly",
   "background_page": "background.html",
   "browser_action": {
-    "default_title": "bit.ly",  
+    "default_title": "bitly",  
     "default_icon": "bitly.png"
   },
   "icons" : { 

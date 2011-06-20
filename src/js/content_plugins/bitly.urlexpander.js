@@ -1,11 +1,13 @@
+
+
 var page_links, queried_matches = [],
     timeout_link, expander_visible = false, bit_container_elem, expanded_elements = [], get_more_links_timeout,
     //[-_a-zA-Z0-9][.\?!]?
-    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,3}\.{0,1}(?:[a-zA-Z0-9]{1,8}\.[a-z]{1,3}\\/[-_a-zA-Z0-9]{2,20}))(?:[.\?!]?)$", "gi"),
+    fullUriRegex = new RegExp( "^((?:https?://){1}[a-zA-Z0-9]{0,5}\.{0,1}(?:[a-zA-Z0-9]{1,9}\.[a-z]{1,3}\\/[-_a-zA-Z0-9]{2,20}))(?:[.\?!]?)$", "gi"),
     // keep this basic list, to eliminate already known items and save some cyles later
     false_positive_list = ["clp.ly", "seesmic.com", "wh.gov", "brizzly.com", "post.ly", "twitpic.com", 
                             "yfrog.com", "digg.com", "twitgoo.com", "ficly.com", "google.com", "paste.ly",
-                            "su.pr", "venmo.com", "blippy.com", "felttip.com", "github.com", "cnt.to",
+                            "su.pr", "venmo.com", "blippy.com", "felttip.com", "github.com", "cnt.to", "t.co",
                             "is.gd", "tinyurl.com", "twurl.nl", "twitter.com", "ow.ly", "mash.to"];
 
 

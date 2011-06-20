@@ -34,7 +34,7 @@
         sharing_accnts : "#sharing_accounts_display",
         share_controls : "#share_controls",
         trending : "#trending_box",
-        message : "#message_box",
+        message : "#message_box"
     }, $txtarea, $counter_elem, active_accounts=[];
     
     bExt.popup.Dompage = function( el_opts ) {
