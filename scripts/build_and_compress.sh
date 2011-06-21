@@ -46,9 +46,11 @@ mkdir -p ../tmp/src/
 cp -r ../src/bitly.png ../tmp/src/
 
 # move the content scripts
-echo "Move the Content Scripts"
+echo "Move the Content Scripts and Worker Scripts"
 mkdir -p ../tmp/src/js/content_plugins
+mkdir -p ../tmp/src/js/workers
 cp -r ../src/js/content_plugins/*.js ../tmp/src/js/content_plugins/
+cp -r ../src/js/workers/*.js ../tmp/src/js/workers/
 
 # move the css
 echo "Move the CSS files"
@@ -99,7 +101,7 @@ mv "src/manifest.json.out" "src/manifest.json"
 echo "Compiling bitly_chrome_extension.crx";
 "$CHROME" --pack-extension=src --pack-extension-key=$KEY --no-message-box
 mv "src.crx" "../build/bitly_chrome_extension-$VERSION.crx"
-echo "Finished build/bitly_chrome_extension-$VERSION.crx";
+echo "Finished build/bitly_chrome_extension-$VERSION.crx > ${CRX_UPDATE_URL}";
 
 
 #zips go to google gallery, CRX go to alpha / beta release sites
@@ -118,12 +120,12 @@ echo "upload the XML update file to ${CRX_XMLPATH}"
 XML_UPDATE_FILE="<?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='${CRX_APPID}'>
-    <updatecheck codebase='${CRX_UPDATE_URL}' version='${VERSION}' />
+    <updatecheck codebase='http://greg.ec2.bitly.net/chrome/bitly_chrome_extension-$VERSION.crx' version='${VERSION}' />
   </app>
 </gupdate>"
 
 
-echo $XML_UPDATE_FILE > "../build/alpha_update.xml"
+echo $XML_UPDATE_FILE > "../build/update.xml"
 
 exit 0;
 
