@@ -6,24 +6,39 @@
 #  Copyright 2011 the public domain. All rights reserved.
 # 
 
-
+#TODO make this the $2 arg, test for exisitence, use default if none
 COMPILER="~/bin/closure_compiler.jar"
-
-
+HOST_FILES="manifest.json"
 CWD=`pwd`
 HTML_BASE="${CWD}/../src"
+KEY=$1
+CRX_UPDATE_URL="http://greg.ec2.bitly.net/chrome/bitly_chrome.crx"
+CRX_APPID="ehmcgdhfbppghnichhcgkeeokjgplkkd"
+
+
+XML_UPDATE_FILE="<?xml version='1.0' encoding='UTF-8'?>
+<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
+  <app appid='${CRX_APPID}'>
+    <updatecheck codebase='${CRX_UPDATE_URL}' version='${VERSION}' />
+  </app>
+</gupdate>"
 
 
 #####################
 
 # java -jar $COMPILER --js
 BUILD_FILES="background.html options.html popup.html notification.html metrics.html trending.html signin.html"
-# todo
-# compress css
+# Actions
+# compress js
 # move the graphics
 # move the content_plugins
 # move the manifest
+# move CSS
 # zip foler
+# CRX folder
+# move key
+# delete tmp directories
+
 echo "Parse HTML for JS, compress files"
 for ext_file in $BUILD_FILES
 do
@@ -62,15 +77,40 @@ VERSION=`cat ../tmp/src/manifest.json | grep '"version"' | awk -F '"' '{print $4
 echo "new extension version is $VERSION"
 
 cd ../tmp
-zip -q -r "../bitly_ext-$VERSION.zip" "src" --exclude \*.DS_Store \*bitly_oauth_credentials.js.sample
-# rm -rf src_alter
 
+# check for chrome, use it to compile the CRX
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+if [ ! -f "$CHROME" ]; then
+    echo error: ${CHROME} is not accessible
+    echo "hint: run this from your mac"
+    exit 1;
+fi
+
+
+echo "Created a build directory for ZIP and CRX files"
+mkdir -p "../build"
+
+echo "compiling bitly_chrome_extension.crx";
+"$CHROME" --pack-extension=src --pack-extension-key=$KEY --no-message-box
+mv "src.crx" "../build/bitly_chrome_extension-$VERSION.crx"
+echo "Finished build/bitly_chrome_extension-$VERSION.crx";
+
+
+
+zip -q -r "../build/bitly_ext-$VERSION.zip" "src" --exclude \*.DS_Store \*bitly_oauth_credentials.js.sample
+#zips go to google gallery, CRX go to alpha / beta release sites
+
+# finish script
+# clean up and show what files to use
 cd -
 
 # cleanup
-echo "Clean up tmp folders"
-rm -rf ../tmp
+#echo "Clean up tmp folders"
+#rm -rf ../tmp
 
-echo "upload: bitly_ext-$VERSION.zip"
+echo "upload: build/bitly_ext-$VERSION.zip"
+
+echo $XML_UPDATE_FILE > "../build/alpha_update.xml"
+
 exit 0;
 
