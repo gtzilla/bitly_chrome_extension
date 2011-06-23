@@ -24,6 +24,7 @@ bExt.bg_listeners_chrome = {
             // todo, add user pref to disable
             if(evt.domain_host === "twitter.com" && bExt.config.twitter_bttn() ) {
                 this.add_js( evt.tab_id, "js/content_plugins/bitly.enhance_twitter.js" );
+                this.add_js( evt.tab_id, "js/content_plugins/bitly.linksRecap.js" );
              }
              
              if( hv.allow() && hovercard_blacklist.indexOf( evt.domain_host ) < 0 ) {

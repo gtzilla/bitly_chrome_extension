@@ -153,15 +153,16 @@ function brainResponse(jo) {
                     html += '<ul>';
                         html += '<li class="bit_user_clicks_box"><a type="bitly_hover_card" title="'+sUrl+'+ Page" href="'+ sUrl +'+">' + result.user_clicks + '</a></li>';
                         html += '<li>of</li>';
-                        html += '<li class="bit_global_clicks_box"><a type="bitly_hover_card" title="http://bit.ly/'+ result.global_hash +'+ Page" href="http://bit.ly/'+ result.global_hash +'+">' + result.global_clicks + "</a></li>";
+                        html += '<li class="bit_global_clicks_box"><a type="bitly_hover_card" title="http://bitly.com/'+ result.global_hash +'+ Page" href="http://bitly.com/'+ result.global_hash +'+">' + result.global_clicks + "</a></li>";
                     html += '</ul>';
                 html += '</div>';
                 html += '<div class="bitly_url_infobox">'
                     html += '<h3><a type="bitly_hover_card" title="'+lUrl +'" href="'+ sUrl +'">' + title + '</a></h3>'
                     html += '<p><a type="bitly_hover_card" href="'+ lUrl+'" class="bit_long_link_preview">'+ lUrl +'</a></p>'
+
                 html += '</div>'
                 html += '<a type="bitly_hover_card" title="Close" class="bitly_url_expander_box_close" href="#">X</a>';
-                html += '<a type="bitly_hover_card" title="bit.ly, a simple URL shortener" class="bitly_home_promo" href="#">bit.ly</a>';  
+                html += '<a type="bitly_hover_card" title="bitly" class="bitly_home_promo" href="#">bitly</a>';  
                 html += '<div style="display:none;" id="always_for_this_domain"><a href="">Hide for this domain.</a></div>'              
                 html += '<div class="bit_clearer"><hr /></div>'
             html += '</div>'

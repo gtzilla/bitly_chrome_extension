@@ -307,6 +307,7 @@ window.bExt={
             l_notes = l_notes.concat(notes_list);
             bExt.info.set("notifications", l_notes);
 
+
             if(l_notes.length > 0 ) {
                 bitNote.show();
             }

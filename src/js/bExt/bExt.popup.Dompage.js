@@ -158,6 +158,8 @@
             update_char_count();
             // hrm
             bExt.popup.page.show_reset();
+            // save the stash text more often
+            bExt.popup.save_active_stash();
         });
         
         

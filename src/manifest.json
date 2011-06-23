@@ -25,7 +25,7 @@
   "content_scripts": [
     {
      "matches": ["http://*/*", "https://*/*"],
-     "js": ["js/content_plugins/bitly.dispatcher.js"]   
+     "js": ["js/jquery-1.5.2.js", "js/content_plugins/bitly.dispatcher.js"]   
     }
   ]
 }

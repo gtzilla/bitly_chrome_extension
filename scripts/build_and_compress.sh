@@ -14,10 +14,12 @@ HTML_BASE="${CWD}/../src"
 KEY=$1
 CRX_UPDATE_URL="http://greg.ec2.bitly.net/chrome/bitly_chrome.crx"
 CRX_XMLPATH="http://greg.ec2.bitly.net/chrome/update.xml"
+CRX_XMLPATH_BETA="http://chrome-beta.ec2.bitly.net/chrome/update.xml"
+
 CRX_APPID="ehmcgdhfbppghnichhcgkeeokjgplkkd"
 
 
-
+#Edit with caution, script directories are relative
 
 #####################
 
@@ -47,8 +49,8 @@ cp -r ../src/bitly.png ../tmp/src/
 
 # move the content scripts
 echo "Move the Content Scripts and Worker Scripts"
-mkdir -p ../tmp/src/js/content_plugins
-mkdir -p ../tmp/src/js/workers
+mkdir -p ../tmp/src/js/content_plugins ../tmp/src/js/workers
+
 cp -r ../src/js/content_plugins/*.js ../tmp/src/js/content_plugins/
 cp -r ../src/js/workers/*.js ../tmp/src/js/workers/
 
@@ -74,7 +76,7 @@ VERSION=`cat ../tmp/src/manifest.json | grep '"version"' | awk -F '"' '{print $4
 echo "new extension version is $VERSION"
 
 cd ../tmp
-mkdir -p "../build"
+mkdir -p "../build/alpha" "../build/beta"
 
 # check for chrome, use it to compile the CRX
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -90,18 +92,37 @@ echo "Created a build directory for ZIP and CRX files"
 zip -q -r "../build/bitly_ext-$VERSION.zip" "src" --exclude \*.DS_Store \*bitly_oauth_credentials.js.sample
 
 
-echo "Insert the update.xml value into manifest"
+echo "Insert the update.xml value into manifest for alpha and beta releases"
 sed '
 /"version":/ a\
 \  "update_url" : "'$CRX_XMLPATH'",
-' "src/manifest.json" > "src/manifest.json.out"
+' "src/manifest.json" > "src/manifest.json.alpha"
 
-mv "src/manifest.json.out" "src/manifest.json"
+sed '
+/"version":/ a\
+\  "update_url" : "'$CRX_XMLPATH_BETA'",
+' "src/manifest.json" > "src/manifest.json.beta"
+
+
+
+mv "src/manifest.json.alpha" "src/manifest.json"
 
 echo "Compiling bitly_chrome_extension.crx";
 "$CHROME" --pack-extension=src --pack-extension-key=$KEY --no-message-box
-mv "src.crx" "../build/bitly_chrome_extension-$VERSION.crx"
-echo "Finished build/bitly_chrome_extension-$VERSION.crx > ${CRX_UPDATE_URL}";
+mv "src.crx" "../build/alpha/bitly_chrome_extension-$VERSION.crx"
+echo "Finished build/alpha/bitly_chrome_extension-$VERSION.crx > ${CRX_UPDATE_URL}";
+
+
+# build the beta version (different url for manifest.json)
+
+mv "src/manifest.json.beta" "src/manifest.json"
+echo "src/manifest.json.beta"
+
+echo "Compiling bitly_chrome_extension.crx";
+"$CHROME" --pack-extension=src --pack-extension-key=$KEY --no-message-box
+mv "src.crx" "../build/beta/bitly_chrome_extension-$VERSION.crx"
+echo "Finished build/beta/bitly_chrome_extension-$VERSION.crx > ${CRX_UPDATE_URL}";
+
 
 
 #zips go to google gallery, CRX go to alpha / beta release sites
@@ -124,8 +145,17 @@ XML_UPDATE_FILE="<?xml version='1.0' encoding='UTF-8'?>
   </app>
 </gupdate>"
 
+XML_UPDATE_FILE_BETA="<?xml version='1.0' encoding='UTF-8'?>
+<gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
+  <app appid='${CRX_APPID}'>
+    <updatecheck codebase='http://chrome-beta.ec2.bitly.net/chrome/bitly_chrome_extension-$VERSION.crx' version='${VERSION}' />
+  </app>
+</gupdate>"
 
-echo $XML_UPDATE_FILE > "../build/update.xml"
+
+
+echo $XML_UPDATE_FILE > "../build/alpha/update.xml"
+echo $XML_UPDATE_FILE_BETA > "../build/beta/update.xml"
 
 exit 0;
 
