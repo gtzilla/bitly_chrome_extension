@@ -119,7 +119,8 @@ mv "manifest.json.alpha" "src/manifest.json"
 echo "Compiling bitly_chrome_extension.crx";
 "$CHROME" --pack-extension=$WD/src --pack-extension-key=$KEY --no-message-box
 mv "$WD/src.crx" "$WD/../build/alpha/bitly_chrome_extension-$VERSION.crx"
-echo "Finished build/alpha/bitly_chrome_extension-$VERSION.crx > ${CRX_UPDATE_URL}";
+echo "Finished build/alpha/bitly_chrome_extension-$VERSION.crx >
+http://chrome-beta.bitly.com/chrome/";
 
 
 # build the beta version (different url for manifest.json)
