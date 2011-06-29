@@ -4,6 +4,11 @@ import os,sys
 import logging
 import subprocess
 
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 # TODO needs options parsing. handle outfile, update_url, a flag to not
 # increment
 
@@ -31,8 +36,8 @@ class ChromeManifest:
 
     def get(self, name):
         return self.manifest.get(name) or None
-    def out(self, indent=None):
-        return json.dumps( self.manifest, indent=indent )
+    def out(self):
+        return json.dumps( self.manifest, indent=4 )
 
     def increment_version(self):
         ver = self.manifest.get("version")
