@@ -75,7 +75,14 @@ cp "../src/manifest.json" ../tmp/src/
 VERSION=`cat ../tmp/src/manifest.json | grep '"version"' | awk -F '"' '{print $4}'`
 echo "new extension version is $VERSION"
 
+
+
+
 cd ../tmp
+echo "Compile the content scripts, update the manifest"
+python ../scripts/manifest_parse.py src/manifest.json src/manifest.json
+
+# do versioning to beta & alpha
 mkdir -p "../build/alpha" "../build/beta"
 
 # check for chrome, use it to compile the CRX
@@ -133,7 +140,7 @@ cd -
 
 # cleanup
 echo "Clean up tmp folders"
-rm -rf ../tmp
+#rm -rf ../tmp
 
 echo "upload: build/bitly_ext-$VERSION.zip"
 echo "upload the XML update file to ${CRX_XMLPATH}"
