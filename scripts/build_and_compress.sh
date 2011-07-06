@@ -7,6 +7,9 @@
 # 
 
 #TODO make this the $2 arg, test for exisitence, use default if none
+set -e
+
+
 COMPILER="~/bin/closure_compiler.jar"
 HOST_FILES="manifest.json"
 CWD=`pwd`
@@ -15,10 +18,19 @@ KEY=$1
 BETA_KEY=$2
 CRX_UPDATE_URL="http://greg.ec2.bitly.net/chrome/bitly_chrome.crx"
 CRX_XMLPATH="http://greg.ec2.bitly.net/chrome/update.xml"
-CRX_XMLPATH_BETA="http://chrome-beta.ec2.bitly.net/chrome/update.xml"
+CRX_XMLPATH_BETA="http://chrome-beta.bitly.com/chrome/update.xml"
 
 CRX_APPID="ehmcgdhfbppghnichhcgkeeokjgplkkd"
 CRX_BETA_APPID="dpfppfppkpelbmfcbkjfpekkliijmbbk"
+
+
+if [ ! -f "$BETA_KEY" ]
+then
+    echo $BETA_KEY
+    echo "no beta key!"
+    exit 1
+fi
+
 
 #Edit with caution, script directories are relative
 
@@ -148,6 +160,8 @@ rm -rf ../tmp
 echo "upload: build/bitly_ext-$VERSION.zip"
 echo "upload the XML update file to ${CRX_XMLPATH}"
 # bash needs to has the version variable exist, declare this block below it
+cat $KEY
+
 XML_UPDATE_FILE="<?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='${CRX_APPID}'>
