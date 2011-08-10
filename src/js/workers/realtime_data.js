@@ -6,8 +6,10 @@
 
 
 
-var ssl_key, black_list=[], ajax_in_action,  timer, counter=0;
+var ssl_key, black_list=[], ajax_in_action,  timer, timer2,
+    counter=0;
 onmessage = function(evt) {
+
 
     if( evt.data.action === "start") {
         
@@ -46,7 +48,13 @@ function handle_api_repsonses(jo) {
         postMessage(jo);
     }
     
-    timer = setTimeout(callRemote, 5000);
+
+    if(!navigator.onLine) { 
+        //postMessage({"error": "Not on line"}); 
+        return; 
+    }
+    
+    timer = setTimeout(callRemote, 2000);
 
 }
 
@@ -57,11 +65,17 @@ function callRemote(){
     
     if(timer) {
         clearTimeout(timer);
+        clearTimeout(timer2);
     }
     
-    setTimeout(function() {
+    if(!navigator.onLine) { 
+        //postMessage({"error": "Not on line"}); 
+        return; 
+    }
+
+    timer2=setTimeout(function() {
         ajax_in_action = ajaxRequest( ssl_key, handle_api_repsonses );          
-    }, 50000);
+    }, 15000);
 
    
 }
@@ -91,6 +105,7 @@ function process_realtime( data  ) {
     
     
     return {
+        'online': navigator.onLine,
         'notifications' : notifications,
         'trending_links' : data,
         'current_blacklist' : black_list

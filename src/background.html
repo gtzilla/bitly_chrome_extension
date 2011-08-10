@@ -39,6 +39,7 @@
         
         <script type="text/javascript" charset="utf-8">
             // Begin Application -- Chrome bitly Extension
+            console.log(navigator.onLine, "on line");
             var api_success = bExt.init_api();
             if(!api_success) {
                 console.log("user is logged out");
@@ -48,7 +49,12 @@
                 }
             } else {
                 // set logged in...
-                bExt.trends.init();
+                //bExt.trends.init();
+                // the worker hangs!
+                //var trends_interval = setInterval(function() {
+                //    console.log("loves jesus");
+                //    }, 30000);
+                bExt.trends.beginPoll();
                 bExt.set_popup();
             }
             bExt.init_db();

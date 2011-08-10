@@ -1,9 +1,8 @@
 (function() {
-    function dispatch_callback(jo) { console.log("dispatch success") }
+    function dispatch_callback(jo) {  }
     function init() {
         //var links = $("a[href]");
         //console.log("links", links);
-        console.log("yes");
         var body, h = document.location && document.location.host, 
             d_hosts=["bit.ly", "bitly.org", "j.mp", "bitly.net", "bitly.tv", "blog.bit.ly", "bitly.pro", "bitly.com"];
         if( d_hosts.indexOf( h ) >=0 || /[^.]{2,}\.bitly\.net$/.test(h) || /[^.]{2,}\.bitly\.org$/.test(h)  ) {

@@ -10,45 +10,84 @@
 (function(window, undefined) {
     
 window.bExt.trends = {
-
+    active:false,
     worker : null,
+    beginPoll: function() {
+        if(bExt.trends.active) {
+            clearInterval(bExt.trends.active);
+
+        }
+        bExt.trends.expire_links();
+        bExt.trends.active=setInterval(function() {
+            // make a remote call, parse the shit
+            // send to nofitifcations
+            bExt.trends.phoneRemoteServer();
+        }, 30000);
+    },
     init : function() {
         bExt.trends.expire_links();
-        if(!bExt.trends.worker) {
-            console.log("Trends worker created");
-            bExt.trends.worker = new Worker("js/workers/realtime_data.js");
-            bExt.trends.worker.onmessage = bExt.trends.m_evt;            
-        }
-        setTimeout(bExt.trends.watch, 100);
+        bExt.trends.beginPoll();
+        //setTimeout(bExt.trends.watch, 100);
     },
+    
+    phoneRemoteServer:function() {
+        // Call the bitly API
+        bExt.api.realtime(function(data){
 
+            var links = data.realtime_links, 
+                notifications=[], remove_list=[];
+            
+            var black_list=bExt.info.get("note_blacklist");
+
+            outerLoop: for(var i=0,link; link=links[i]; i++) {
+
+                for(var j=0,short_url; short_url=black_list[i]; i++) {
+                    var pieces = short_url.split("/"), hash = pieces.pop();
+                    if( hash === link.user_hash ) {
+                        continue outerLoop;
+                    }
+                }
+                
+
+                var shorty = "http://bit.ly/" + link.user_hash;
+                notifications.push( shorty );
+
+                
+            }            
+            // parse the data out
+            var params={
+                'notifications' : notifications,
+                'trending_links' : data,
+                'current_blacklist' : black_list
+            }
+            bExt.trends.m_evt(params);
+        });
+    },
     exit : function() {
-        if(bExt.trends.worker) {
-            bExt.trends.worker.terminate();
-            bExt.trends.worker=null;
-        }
-
+        clearInterval(bExt.trends.active);
         return true;
     },
 
-    m_evt : function(evt) {
+    m_evt : function(data) {
+        console.log("worker", data);
         var lists, i, black_list=[], prefs=bExt.note_prefs(), item;
         console.log("message calls back");
-        if(!evt.data.trending_links) {
+        if(!data.trending_links) {
             return;
         }
-        bExt.info.set("realtime", evt.data.trending_links );
-        lists = evt.data.remove_list || [];
+        bExt.info.set("realtime", data.trending_links );
+        lists = data.remove_list || [];
         for( i=0,item; item = lists[i]; i++ ) {
             black_list.push( item.short_url );
         }
         if(prefs.enabled) {
-            bExt.note_resolve( evt.data.notifications  );
+            bExt.note_resolve( data.notifications  );
         }        
     },
 
     watch : function() {
         // watch and alert
+        // just do a poll
         console.log("trending interval check started");
         if(!bExt.api.bit_request.access_token) {
             console.log("no token to poll with");
@@ -57,13 +96,10 @@ window.bExt.trends = {
         }
 
         var black_list=[], 
-            note_blacklist = bExt.info.get("note_blacklist") || [], 
-            params = {
-                'oauth_key' : bExt.api.bit_request.access_token,
-                'black_list' : note_blacklist,
-                'action' : 'start'
-            }
-        bExt.trends.worker.postMessage( params );        
+            note_blacklist = bExt.info.get("note_blacklist") || [];
+
+        bExt.trends.beginPoll();
+
     },
 
     update_links : function( black_list, bitly_token ) {
@@ -74,13 +110,7 @@ window.bExt.trends = {
                     'black_list' : note_b_list.concat( black_list ),
                     'action' : 'update'
                 }
-            if(bExt.trends.worker) {
-                bExt.trends.worker.postMessage( params );  // Updating the worker                
-            } else {
-                console.log("no trends worker");
-            }
-
-        }        
+        }
     },
 
     update_blacklist : function( new_notes ) {
