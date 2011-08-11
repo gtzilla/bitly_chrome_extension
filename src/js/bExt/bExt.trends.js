@@ -33,7 +33,7 @@ window.bExt.trends = {
     phoneRemoteServer:function() {
         // Call the bitly API
         bExt.api.realtime(function(data){
-
+            if(!data) return;
             var links = data.realtime_links, 
                 notifications=[], remove_list=[];
             
@@ -69,9 +69,7 @@ window.bExt.trends = {
     },
 
     m_evt : function(data) {
-        console.log("worker", data);
         var lists, i, black_list=[], prefs=bExt.note_prefs(), item;
-        console.log("message calls back");
         if(!data.trending_links) {
             return;
         }
