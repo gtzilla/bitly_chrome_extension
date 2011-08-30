@@ -38,7 +38,7 @@ bExt.hovercard={
     
     update_blacklist : function( blist_update ) {
         // domains the hovercard should not expand links from
-        var blist = bExt.hovercard.blacklist(), final_lst=[];
+        var blist = bExt.hovercard.blacklist() || [], final_lst=[];
         for(var i=0; i<blist_update.length; i++) {
             if(blist.indexOf( blist_update[i] ) === -1 ) {
                 final_lst.push(blist_update[i]);
@@ -50,7 +50,7 @@ bExt.hovercard={
     },
     
     remove_blacklist : function( blist_remove ) {
-        var blist=bExt.hovercard.blacklist(), new_lst=[];
+        var blist=bExt.hovercard.blacklist() || [], new_lst=[];
         for(var i=0; i<blist.length; i++) {
             if(blist_remove.indexOf( blist[i] ) === -1) {
                 new_lst.push( blist[i] );

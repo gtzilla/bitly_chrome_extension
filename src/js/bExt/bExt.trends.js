@@ -13,12 +13,15 @@ window.bExt.trends = {
     active:false,
     worker : null,
     beginPoll: function() {
+        console.log("polling call", Date.now(), new Date())
         if(bExt.trends.active) {
-            clearInterval(bExt.trends.active);
+            return;
+            //clearInterval(bExt.trends.active);
 
         }
         bExt.trends.expire_links();
         bExt.trends.active=setInterval(function() {
+            console.log("check trends", Date.now())
             // make a remote call, parse the shit
             // send to nofitifcations
             bExt.trends.phoneRemoteServer();

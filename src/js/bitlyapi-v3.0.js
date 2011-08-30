@@ -261,7 +261,15 @@ BitApi.prototype = {
         var params = { 'access_token' : this.bit_request.access_token }
         bitlyRequest( ssl_host + urls.domains, params, callback);
     },
-    
+    /*
+    *           var params={}
+    *           params.account_id = ["id1", "id2"];
+    *           params.share_text = message;
+    *           params.fb_link="http://mylink.com/is/here"
+    *           params.fb_picture="/path/to/photo.png"
+    *
+    *
+    * */
     share : function( params, callback ) {
         var params = extend({}, params, { 'access_token' : this.bit_request.access_token });
         this.count+=1;

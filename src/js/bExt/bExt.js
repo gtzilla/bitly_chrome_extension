@@ -17,7 +17,7 @@ window.bExt={
     'api' : null,
     'db' : null,
     'events' : null,
-    'is_chrome' : chrome&&chrome.tabs ? true : false,
+    'is_chrome' : true,
     'context_menu' : false,
     
     /*

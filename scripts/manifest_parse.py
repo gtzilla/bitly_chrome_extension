@@ -11,14 +11,60 @@ except ImportError:
 
 # TODO needs options parsing. handle outfile, update_url, a flag to not
 # increment
+class BasicChrome:
+    def js_commands(self):
+        scripts = self.extract_js()
+        commands=[]
+        for script in scripts:
+            path=os.path.abspath(os.path.join("..", "src", script))
+            commands.append("--js %s" % path)
+        out_file=self.js_out_file % self.get("version")
+        self.out_file=self.out_file %  self.get("version")
+        if not os.path.exists( out_file ):
+            if not os.path.exists( os.path.dirname( out_file ) ):
+                os.makedirs( os.path.dirname( out_file ) )
+            open(out_file, 'w').close()
+        commands.append("--js_output_file %s" % out_file )
 
-try:
-    import json
-except ImportError:
-    import simplejson as json
+        return commands
 
 
-class ChromeManifest:
+class ChromeManifestMultiple:
+
+    def __init__(self, prefix="cs_script_"):
+        self.prefix=prefix
+        """The idea is simple
+            
+            bassically, I want to step over multiple objects in the content
+            list, parse it, then replace the JS scripts with the 'new' value
+
+            It has to be done 'in place' - like while I am stepping over the
+            array
+
+Sample:
+
+        "content_scripts":[{
+        "matches":["http://*/*", "https://*/*"],
+        "js":["js/cs_localStorage.js", "js/cs_ajax.js"]
+    },{
+        "matches":[
+            "https://*.facebook.com/*", 
+            "https://*.twitter.com/*",
+            "https://*.google.com/*",
+            "https://*.google.com/*"
+
+        ],
+        "js":["js/cs_isTargeted.js"]
+    }]
+
+        
+        """
+        pass
+    def read_manifest(self):
+        # load a string file path
+        pass
+
+class ChromeManifestSimple( BasicChrome ):
 
     def __init__(self, file_path):
         self.manifest=on_file(file_path)
@@ -52,21 +98,6 @@ class ChromeManifest:
             js.extend( item.get("js" or []) )
         return js
 
-    def js_commands(self):
-        scripts = self.extract_js()
-        commands=[]
-        for script in scripts:
-            path=os.path.abspath(os.path.join("..", "src", script))
-            commands.append("--js %s" % path)
-        out_file=self.js_out_file % self.get("version")
-        self.out_file=self.out_file %  self.get("version")
-        if not os.path.exists( out_file ):
-            if not os.path.exists( os.path.dirname( out_file ) ):
-                os.makedirs( os.path.dirname( out_file ) )
-            open(out_file, 'w').close()
-        commands.append("--js_output_file %s" % out_file )
-
-        return commands
 
 
 
@@ -96,7 +127,7 @@ def on_file(name):
 def main():
     args=sys.argv[1:]
     file_path=args[0]
-    manifest = ChromeManifest( file_path )
+    manifest = ChromeManifestSimple( file_path )
     #manifest.increment_version()
     build_js_files( manifest.compiler, manifest.js_commands() )
     manifest.set_js()

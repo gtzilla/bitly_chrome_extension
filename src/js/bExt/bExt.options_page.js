@@ -20,7 +20,7 @@ var settings={
     box : "#signedin_info_contents",
     signin_box : "#signedin_username",
     share_box : null, // set this dynimically, when elem created
-    is_chrome : (chrome&&chrome.tabs) ? true : false
+    is_chrome : true
 }, __lst=[];
 
 window.bExt.options_page={
