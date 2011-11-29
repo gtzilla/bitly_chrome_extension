@@ -56,6 +56,7 @@
     // prototype, duh
     bExt.popup.Dompage.prototype={
         reset_flag : false,
+        short_link:null,
         // DOM
         update : function( s_url, share_txt, auto_copy  ) {
             this.hide_loader(); 
@@ -85,6 +86,7 @@
         },
         
         set_url : function( url_value ) {
+            this.short_link = url_value;
             $(elem_opts.all_copy_els).fadeIn();
             $(elem_opts.url_pasteboard).val( url_value );
         },
@@ -180,7 +182,11 @@
         // Send message to background via bExt.popup.phone( ... );
         $(elem_opts.share_form).bind('submit', function(e) {
             e.preventDefault();
-            var txt = $txtarea.val(), params = {'action' : 'share' };
+            var txt = $txtarea.val(), params = {
+
+                'action' : 'share',
+                share_link:bExt.popup.page.short_link
+            };
             if(txt !== "" && active_accounts.length > 0 ) {
                 params.share_text = txt;
                 bExt.popup.update_stash( txt );

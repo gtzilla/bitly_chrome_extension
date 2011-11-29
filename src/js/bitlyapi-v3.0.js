@@ -8,8 +8,8 @@
 
 // TODO
 // move this info to settings file
-var host = "http://api.bitly.com",
-    ssl_host = "https://api-ssl.bitly.com",
+var host = "http://api.bitly.net",
+    ssl_host = "https://api-ssl.bitly.net",
     urls = {
         'shorten' : '/v3/shorten',
         'expand' : '/v3/expand',
@@ -123,16 +123,17 @@ BitApi.prototype = {
         URL methods and Queries
     */
     shorten : function( long_url, callback ) {
-        var params = extend({}, this.bit_request, { 'longUrl' : long_url } );
-        delete params.access_token
+        var params = extend({}, { 
+            'access_token' : this.bit_request.access_token,
+            'longUrl' : long_url } );
         this.count+=1;
-        bitlyRequest( host + urls.shorten, params, callback);
+        bitlyRequest( ssl_host + urls.shorten, params, callback);
     },
     
     expand : function(  short_urls, callback ) {
         this.count+=1;
-        var params = { 'login' : this.bit_request.login,
-                        'apiKey' : this.bit_request.apiKey,
+        var params = {  'login':this.bit_request.login,
+                        'apiKey':this.bit_request.apiKey,
                         'shortUrl' : short_urls };
         internal_multiget( host + urls.expand, 'shortUrl', params, callback);
     },
@@ -188,35 +189,32 @@ BitApi.prototype = {
     
     clicks : function(short_urls, callback) {
         // yet another one that needs stitching...
+        //
+        // { 'access_token' : this.bit_request.access_token }
         this.count+=1;
-        var params = { 'login' : this.bit_request.login,
-                        'apiKey' : this.bit_request.apiKey,
+        var params = { 'access_token' : this.bit_request.access_token,
                         'shortUrl' : short_urls };
-        internal_multiget( host + urls.clicks, 'shortUrl', params, callback );
+        internal_multiget( ssl_host + urls.clicks, 'shortUrl', params, callback );
     },
     
     info : function( short_urls, callback ) {
         this.count+=1;
-        var params = { 'login' : this.bit_request.login,
-                        'apiKey' : this.bit_request.apiKey,
+        var params = { 'access_token' : this.bit_request.access_token,
                         'shortUrl' : short_urls };
-        internal_multiget( host + urls.info, 'shortUrl', params, callback );
+        internal_multiget( ssl_host + urls.info, 'shortUrl', params, callback );
     },
     
     lookup : function(long_urls, callback) {
         this.count+=1;
-        var params = { 'login' : this.bit_request.login,
-                        'apiKey' : this.bit_request.apiKey,
+        var params = { 'access_token' : this.bit_request.access_token,
                         'url' : long_urls };
-        internal_multiget( host + urls.lookup, 'url', params, callback );
+        internal_multiget( ssl_host + urls.lookup, 'url', params, callback );
     },
     
     
     clicks_by_minute : function( params, callback ) {
         // params = {shortUrl : [], hash : [] }
-        var creds={ 'login' : this.bit_request.login,
-                    'apiKey' : this.bit_request.apiKey };
-                    
+        var creds={ 'access_token' : this.bit_request.access_token };
         params = extend({}, params, creds );
         this.count+=1;
         bitlyRequest( ssl_host + urls.clicks_by_minute, params, callback);        
@@ -251,7 +249,7 @@ BitApi.prototype = {
     share_accounts : function( callback ) {
         if(!callback) callback = function(){ console.log(arguments); }
         // this is an oauth endpoint -- /v3/user/share_accounts
-        var params = { 'access_token' : this.bit_request.access_token }
+        var params = { 'access_token' : this.bit_request.access_token };
         this.count+=1;
         bitlyRequest( ssl_host + urls.accounts, params, callback);
     },

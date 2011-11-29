@@ -496,7 +496,7 @@ window.bExt.share = {
         });        
     },
     
-    send : function( message, callback ) {
+    send : function( share_link, message, callback ) {
         var a = bExt.info.get("share_accounts"),
             accounts = a && a.share_accounts || [],
             i=0, account, share_ids = [], params = {};
@@ -513,6 +513,7 @@ window.bExt.share = {
 
         params.account_id = share_ids;
         params.share_text = message;
+        if(share_link) { params.share_link = share_link; }
         
         // make the HTTP remote request
         bExt.api.share( params, function(jo) {

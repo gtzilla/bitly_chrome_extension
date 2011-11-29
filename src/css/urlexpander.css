@@ -10,7 +10,9 @@
     height:80px;
     width:392px;
     overflow:hidden;
-    margin-top:3px;    
+    margin-top:3px;
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    font-size:13px;
 }
 
 #bitly_expanded_container * {

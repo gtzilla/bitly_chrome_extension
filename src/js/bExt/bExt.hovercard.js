@@ -61,7 +61,7 @@ bExt.hovercard={
     },
     
     'store_md5domains' : function( jo ) {       
-        var bit_domains = jo && jo.reverse() || [], 
+        var bit_domains = jo && jo.length && jo.reverse() || [], 
             params = { 'domains' :  bit_domains, 'timestamp' : (new Date()).getTime() };
         if(bit_domains.length > 0) {
             bExt.db.save( "domains_list", params, function() {

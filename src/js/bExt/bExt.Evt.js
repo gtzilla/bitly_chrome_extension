@@ -19,6 +19,7 @@ bExt.Evt=function(request, sender, callback) {
          this.short_url=request && request.short_url;
          this.long_url=request && request.long_url;         
          this.share_text=request && request.share_text;
+         this.share_link=request && request.share_link;
          this.api_domain=request && request.api_domain;         
          
          this.url=sender && sender.tab && sender.tab.url;

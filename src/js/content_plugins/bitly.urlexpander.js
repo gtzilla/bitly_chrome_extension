@@ -50,13 +50,15 @@ function find_short_links() {
 
     var links = document.querySelectorAll("a:not([href=''])"), 
         href, matches, final_matches=[], 
+        type,
         url, i=0, elem;
         
     // todo
     // i'm finding my hover
         
     for ( ; elem=links[i]; i++ ) {
-        href = elem.getAttribute("href"), type = elem.getAttribute("type") || false
+        href = elem.getAttribute("data-expanded-url") || elem.getAttribute("href");
+        type = elem.getAttribute("type") || false
         if(type === "bitly_hover_card" || !href) continue;
         
         if(queried_matches.indexOf( href ) > -1 )  { continue; }
@@ -179,7 +181,7 @@ function brainResponse(jo) {
                 bit_container_elem.innerHTML = html;
                 
                 // let people set this timeout value??!
-                set_close_box_timeout( 1100 ); // give the user a moment to grab the box, or hide it
+                set_close_box_timeout( 1700 ); // give the user a moment to grab the box, or hide it
             });
             // todo
             // add bail here, if hover card no activated
@@ -230,7 +232,7 @@ function find_link_elements_by_response( jo ) {
     //for(var i=0; i<links.length; i++) {
         
     for ( ; elem=links[i];i++ ) {        
-        href = elem.getAttribute("href")
+        href = elem.getAttribute("data-expanded-url") || elem.getAttribute("href");
         // TODO
             // careful with the continue statements
             // I could use lastindexof("/") and then check my value, 

@@ -102,7 +102,8 @@ bExt.bg_listeners_chrome = {
     },
     
     "share" : function( evt ) {
-        bExt.share.send( (evt.share_text || ""),  evt.callback._scope(evt) );
+        var s_url = evt.share_link || null;
+        bExt.share.send( s_url, (evt.share_text || ""),  evt.callback._scope(evt) );
     },
     
     "share_accounts" : function( evt ) {
