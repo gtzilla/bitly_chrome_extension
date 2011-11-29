@@ -71,7 +71,11 @@ bExt.bg_listeners_chrome = {
         
     'expand_and_meta' : function( evt ) {
         bExt.hovercard.md5domains( this._mklist( evt.short_url ), function( clean_urls_list ) {
-            bExt.api.expand_and_meta( clean_urls_list, evt.callback._scope(evt) );            
+            if(clean_urls_list.length > 0) {
+                bExt.api.expand_and_meta( clean_urls_list, evt.callback._scope(evt) );            
+            } else {
+                evt.callback._scope(evt)({});
+            }
         });
 
     },

@@ -8,8 +8,8 @@
 
 // TODO
 // move this info to settings file
-var host = "http://api.bitly.net",
-    ssl_host = "https://api-ssl.bitly.net",
+var host = "http://api.bitly.com",
+    ssl_host = "https://api-ssl.bitly.com",
     urls = {
         'shorten' : '/v3/shorten',
         'expand' : '/v3/expand',
