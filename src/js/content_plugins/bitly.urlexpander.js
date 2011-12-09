@@ -133,7 +133,20 @@ function brainResponse(jo) {
         
     }
 
-
+    /**
+    *
+    *   so the problem with this file
+    *
+    *   is that is makes a single connection between a link a a dom element
+    *
+    *   meaning if the same link occurs again, it appears to fail to associate it
+    *   however, a top level look at the code suggests this is actually not the 
+    *   problem, but rather, it's related to when there is a seconardy
+    *   call made, existing found link are skipped, so the element is not correctly
+    *   associated with an elment. This seems to be especially true
+    *
+    *
+    * */
     
     if(jo.total <= 0) return; // bail, no links
     
@@ -197,9 +210,6 @@ function brainResponse(jo) {
  
 }
 
-function _draw_bit_card() {
-    
-}
 
 function close_container() {
     if(bit_container_elem) {
