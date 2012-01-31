@@ -71,11 +71,14 @@ cp -r ../src/js/workers/*.js ../tmp/src/js/workers/
 echo "Move the CSS files"
 mkdir -p ../tmp/src/css
 cp -r ../src/css/*.css ../tmp/src/css/
+cp -r ../src/css/*.less ../tmp/src/css/
+
 
 # now the graphics and stuff
 echo "Move the static files to tmp"
 mkdir -p ../tmp/src/s/graphics
 cp -r ../src/s/graphics/*.{png,gif,ico} ../tmp/src/s/graphics/
+cp -r ../src/s/graphics/vis/*.{png,gif,ico} ../tmp/src/s/graphics/vis/
 
 
 # begin building ext for release
@@ -165,7 +168,7 @@ cat $KEY
 XML_UPDATE_FILE="<?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='${CRX_APPID}'>
-    <updatecheck codebase='http://greg.ec2.bitly.net/chrome/bitly_chrome_extension-$VERSION.crx' version='${VERSION}' />
+    <updatecheck codebase='http://chrome-beta.bitly.com/alpha/bitly_chrome_extension-$VERSION.crx' version='${VERSION}' />
   </app>
 </gupdate>"
 
